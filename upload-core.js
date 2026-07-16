@@ -112,8 +112,25 @@ async function generateAndUploadThumbnail(fileUrl, safeName) {
   }
 }
 
+// 手動で選択されたサムネイル画像をStorageにアップロードし、公開URLを返す（失敗時はnull）
+async function uploadThumbnailImage(thumbnailFile, safeName) {
+  try {
+    const ext = (thumbnailFile.name.split(".").pop() || "jpg").toLowerCase();
+    const thumbName = "thumbnails/" + safeName.replace(/\.[^.]+$/, "") + "." + ext;
+    const { error } = await supabase.storage
+      .from(BUCKET)
+      .upload(thumbName, thumbnailFile, { cacheControl: "3600", upsert: false });
+    if (error) throw error;
+    const { data } = supabase.storage.from(BUCKET).getPublicUrl(thumbName);
+    return data.publicUrl;
+  } catch (err) {
+    console.error("サムネイル画像のアップロードに失敗しました", err);
+    return null;
+  }
+}
+
 // パーツファイルをアップロードし、splat_projects / splat_machines / splat_files に登録する
-export async function uploadPart({ projectNumber, machineName, partLabel, file }, onStatus) {
+export async function uploadPart({ projectNumber, machineName, partLabel, file, thumbnailFile }, onStatus) {
   onStatus?.("アップロード中...");
   const safeName = buildSafeFileName(machineName, partLabel, file.name);
 
@@ -125,8 +142,14 @@ export async function uploadPart({ projectNumber, machineName, partLabel, file }
   const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(safeName);
   const fileUrl = urlData.publicUrl;
 
-  onStatus?.("サムネイルを生成中...");
-  const thumbnailUrl = await generateAndUploadThumbnail(fileUrl, safeName);
+  let thumbnailUrl;
+  if (thumbnailFile) {
+    onStatus?.("サムネイル画像をアップロード中...");
+    thumbnailUrl = await uploadThumbnailImage(thumbnailFile, safeName);
+  } else {
+    onStatus?.("サムネイルを生成中...");
+    thumbnailUrl = await generateAndUploadThumbnail(fileUrl, safeName);
+  }
 
   onStatus?.("案件情報を登録中...");
   const projectId = await findOrCreateProject(projectNumber);
