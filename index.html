@@ -183,7 +183,7 @@ async function loadList() {
 
   const { data: files, error: fErr } = await supabase
     .from("splat_files")
-    .select("id, part_label, file_url, machine_id");
+    .select("id, part_label, file_url, thumbnail_url, machine_id");
 
   if (mErr || fErr) {
     statusEl.textContent = "読み込みエラー：" + (mErr?.message || fErr?.message);
