@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>3Dキャプチャ一覧</title>
+<style>
+  body { font-family: sans-serif; background: #f4f4f4; margin: 0; padding: 24px; }
+  h1 { font-size: 20px; }
+  .project { margin-bottom: 24px; }
+  .project-title { font-size: 16px; font-weight: bold; margin: 16px 0 8px; }
+  .machine { background: #fff; border-radius: 8px; padding: 12px 16px; margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .machine-name { font-weight: bold; margin-bottom: 8px; }
+  .parts { display: flex; gap: 8px; flex-wrap: wrap; }
+  .part-btn { padding: 8px 14px; background: #2d6cdf; color: #fff; border: none;
+    border-radius: 6px; cursor: pointer; font-size: 14px; }
+  .part-btn:hover { background: #1f4fae; }
+  #status { color: #888; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<h1>3Dキャプチャ一覧</h1>
+<div id="status">読み込み中...</div>
+<div id="content"></div>
+
+<!-- SupabaseのJSライブラリをCDNから読み込み -->
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+// ↓↓↓ ここを、あなたのSupabaseプロジェクトの値に書き換えてください ↓↓↓
+// Supabase管理画面 → Settings → API のページで確認できます
+const SUPABASE_URL = "https://dgekjzkrybrswsxlcbvh.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_zRR5iAFLHHLvtGW5AECNnQ_GLiGemGb";
+// ↑↑↑ ここを書き換え ↑↑↑
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const statusEl = document.getElementById("status");
+const contentEl = document.getElementById("content");
+
+// ビューアページのファイル名（同じフォルダに置く前提）
+const VIEWER_PAGE = "viewer.html";
+
+async function load() {
+  const { data: projects, error: pErr } = await supabase
+    .from("splat_projects")
+    .select("id, name")
+    .order("created_at", { ascending: false });
+
+  if (pErr) {
+    statusEl.textContent = "読み込みエラー：" + pErr.message;
+    return;
+  }
+
+  const { data: machines, error: mErr } = await supabase
+    .from("splat_machines")
+    .select("id, name, project_id");
+
+  const { data: files, error: fErr } = await supabase
+    .from("splat_files")
+    .select("id, part_label, file_url, machine_id");
+
+  if (mErr || fErr) {
+    statusEl.textContent = "読み込みエラー：" + (mErr?.message || fErr?.message);
+    return;
+  }
+
+  statusEl.textContent = `案件 ${projects.length}件 / 機械 ${machines.length}件 / ファイル ${files.length}件`;
+
+  contentEl.innerHTML = "";
+  projects.forEach((project) => {
+    const projectMachines = machines.filter(m => m.project_id === project.id);
+    if (projectMachines.length === 0) return;
+
+    const projectDiv = document.createElement("div");
+    projectDiv.className = "project";
+    projectDiv.innerHTML = `<div class="project-title">${project.name}</div>`;
+
+    projectMachines.forEach((machine) => {
+      const machineFiles = files.filter(f => f.machine_id === machine.id);
+      const machineDiv = document.createElement("div");
+      machineDiv.className = "machine";
+      machineDiv.innerHTML = `<div class="machine-name">${machine.name}</div>`;
+
+      const partsDiv = document.createElement("div");
+      partsDiv.className = "parts";
+      machineFiles.forEach((file) => {
+        const btn = document.createElement("button");
+        btn.className = "part-btn";
+        btn.textContent = file.part_label || "表示";
+        btn.onclick = () => {
+          const url = VIEWER_PAGE + "?url=" + encodeURIComponent(file.file_url);
+          window.location.href = url;
+        };
+        partsDiv.appendChild(btn);
+      });
+      machineDiv.appendChild(partsDiv);
+      projectDiv.appendChild(machineDiv);
+    });
+
+    contentEl.appendChild(projectDiv);
+  });
+}
+
+load();
+</script>
+</body>
+</html>
