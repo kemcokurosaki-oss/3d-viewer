@@ -314,6 +314,7 @@ uploadBtn.addEventListener("click", async () => {
   const machineName = machineNameInput.value.trim();
   const partLabel = partLabelInput.value.trim();
   const file = fileInput.files[0];
+  const thumbnailFile = thumbnailInput.files[0];
 
   if (!projectNumber) return setUploadStatus("案件を選択してください", "error");
   if (!machineName) return setUploadStatus("機械名を入力してください", "error");
@@ -321,10 +322,11 @@ uploadBtn.addEventListener("click", async () => {
 
   uploadBtn.disabled = true;
   try {
-    await uploadPart({ projectNumber, machineName, partLabel, file }, (msg) => setUploadStatus(msg));
+    await uploadPart({ projectNumber, machineName, partLabel, file, thumbnailFile }, (msg) => setUploadStatus(msg));
     setUploadStatus("アップロード完了しました！", "success");
     partLabelInput.value = "";
     fileInput.value = "";
+    thumbnailInput.value = "";
     await loadList();
   } catch (err) {
     console.error(err);
