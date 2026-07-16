@@ -212,7 +212,24 @@ async function loadList() {
       machineFiles.forEach((file) => {
         const btn = document.createElement("button");
         btn.className = "part-btn";
-        btn.textContent = file.part_label || "表示";
+
+        if (file.thumbnail_url) {
+          const img = document.createElement("img");
+          img.className = "part-thumb";
+          img.src = file.thumbnail_url;
+          img.alt = "";
+          btn.appendChild(img);
+        } else {
+          const placeholder = document.createElement("span");
+          placeholder.className = "part-thumb-placeholder";
+          placeholder.textContent = "3D";
+          btn.appendChild(placeholder);
+        }
+
+        const label = document.createElement("span");
+        label.textContent = file.part_label || "表示";
+        btn.appendChild(label);
+
         btn.onclick = () => openPreview(file.file_url, `${machine.name}　${file.part_label || ""}`);
         partsDiv.appendChild(btn);
       });
