@@ -1,4 +1,5 @@
 import { supabase, BUCKET } from "./supabase-client.js";
+import { initViewer } from "./viewer-core.js";
 
 // ファイル名から安全なファイル名を新規生成する（元の名前は使わない）
 function buildSafeFileName(machineName, partLabel, originalFileName) {
