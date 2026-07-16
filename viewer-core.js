@@ -26,11 +26,12 @@ export function initViewer(container, url, { onStatus } = {}) {
   scene.add(splat);
 
   onStatus?.("読み込み中...");
-  splat.initialized.then(() => {
+  const ready = splat.initialized.then(() => {
     onStatus?.("表示成功");
   }).catch((err) => {
     onStatus?.("読み込み失敗：ファイルURLを確認してください");
     console.error(err);
+    throw err;
   });
 
   const handleResize = () => {
