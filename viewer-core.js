@@ -49,6 +49,8 @@ export function initViewer(container, url, { onStatus } = {}) {
   });
 
   return {
+    ready,
+    canvas: renderer.domElement,
     dispose() {
       renderer.setAnimationLoop(null);
       window.removeEventListener("resize", handleResize);
