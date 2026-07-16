@@ -44,14 +44,7 @@
 <div id="status"></div>
 
 <script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-
-// あなたのSupabaseプロジェクトの値
-const SUPABASE_URL = "https://dgekjzkrybrswsxlcbvh.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_zRR5iAFLHHLvtGW5AECNnQ_GLiGemGb";
-const BUCKET = "splat-files";
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+import { fetchProjectOptions, uploadPart } from "./upload-core.js";
 
 const projectSelect = document.getElementById("projectSelect");
 const machineNameInput = document.getElementById("machineName");
@@ -65,91 +58,24 @@ function setStatus(msg, kind) {
   statusEl.className = kind || "";
 }
 
-// ファイル名から安全なファイル名を新規生成する（元の名前は使わない）
-function buildSafeFileName(machineName, partLabel, originalFileName) {
-  const ext = (originalFileName.split(".").pop() || "splat").toLowerCase();
-  const base = (machineName || "machine")
-    .replace(/[^a-zA-Z0-9]/g, "")
-    .slice(0, 30) || "machine";
-  const part = (partLabel || "")
-    .replace(/[^a-zA-Z0-9]/g, "")
-    .slice(0, 20);
-  const stamp = Date.now();
-  return [base, part, stamp].filter(Boolean).join("_") + "." + ext;
-}
-
-// 工程表アプリのtasksテーブルから案件一覧を取得
 async function loadProjects() {
-  const { data, error } = await supabase
-    .from("tasks")
-    .select("project_number, customer_name")
-    .not("project_number", "is", null);
-
-  if (error) {
+  try {
+    const options = await fetchProjectOptions();
     projectSelect.innerHTML = "";
-    setStatus("案件一覧の取得に失敗しました：" + error.message, "error");
-    return;
+    if (options.length === 0) {
+      projectSelect.innerHTML = "<option value=''>案件が見つかりません</option>";
+      return;
+    }
+    options.forEach(({ num, customer }) => {
+      const opt = document.createElement("option");
+      opt.value = num;
+      opt.textContent = customer ? `${num}　${customer}` : num;
+      projectSelect.appendChild(opt);
+    });
+  } catch (err) {
+    projectSelect.innerHTML = "";
+    setStatus("案件一覧の取得に失敗しました：" + err.message, "error");
   }
-
-  const seen = new Map();
-  (data || []).forEach((row) => {
-    const num = (row.project_number || "").toString().trim();
-    if (!num || seen.has(num)) return;
-    seen.set(num, row.customer_name || "");
-  });
-
-  projectSelect.innerHTML = "";
-  if (seen.size === 0) {
-    projectSelect.innerHTML = "<option value=''>案件が見つかりません</option>";
-    return;
-  }
-  [...seen.entries()].forEach(([num, customer]) => {
-    const opt = document.createElement("option");
-    opt.value = num;
-    opt.textContent = customer ? `${num}　${customer}` : num;
-    projectSelect.appendChild(opt);
-  });
-}
-
-// splat_projects に該当案件があれば取得、無ければ作成
-async function findOrCreateProject(projectNumber) {
-  const { data: existing } = await supabase
-    .from("splat_projects")
-    .select("id")
-    .eq("name", projectNumber)
-    .maybeSingle();
-
-  if (existing) return existing.id;
-
-  const { data: created, error } = await supabase
-    .from("splat_projects")
-    .insert({ name: projectNumber })
-    .select("id")
-    .single();
-
-  if (error) throw error;
-  return created.id;
-}
-
-// splat_machines に該当機械があれば取得、無ければ作成
-async function findOrCreateMachine(projectId, machineName) {
-  const { data: existing } = await supabase
-    .from("splat_machines")
-    .select("id")
-    .eq("project_id", projectId)
-    .eq("name", machineName)
-    .maybeSingle();
-
-  if (existing) return existing.id;
-
-  const { data: created, error } = await supabase
-    .from("splat_machines")
-    .insert({ project_id: projectId, name: machineName })
-    .select("id")
-    .single();
-
-  if (error) throw error;
-  return created.id;
 }
 
 uploadBtn.addEventListener("click", async () => {
@@ -164,33 +90,7 @@ uploadBtn.addEventListener("click", async () => {
 
   uploadBtn.disabled = true;
   try {
-    setStatus("アップロード中...");
-    const safeName = buildSafeFileName(machineName, partLabel, file.name);
-
-    const { error: uploadError } = await supabase.storage
-      .from(BUCKET)
-      .upload(safeName, file, { cacheControl: "3600", upsert: false });
-    if (uploadError) throw uploadError;
-
-    const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(safeName);
-    const fileUrl = urlData.publicUrl;
-
-    setStatus("案件情報を登録中...");
-    const projectId = await findOrCreateProject(projectNumber);
-
-    setStatus("機械情報を登録中...");
-    const machineId = await findOrCreateMachine(projectId, machineName);
-
-    setStatus("ファイル情報を登録中...");
-    const { error: insertError } = await supabase
-      .from("splat_files")
-      .insert({
-        machine_id: machineId,
-        part_label: partLabel || null,
-        file_url: fileUrl,
-      });
-    if (insertError) throw insertError;
-
+    await uploadPart({ projectNumber, machineName, partLabel, file }, setStatus);
     setStatus("アップロード完了しました！一覧画面で確認できます。", "success");
     partLabelInput.value = "";
     fileInput.value = "";
