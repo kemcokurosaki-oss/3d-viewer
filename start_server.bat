@@ -1,1 +1,31 @@
-@echo off\r\ncd /d "%~dp0"\r\necho HTTP server wo kidou shimasu...\r\necho Browser de http://localhost:8000/index.html wo hirakimasu\r\necho.\r\nstart http://localhost:8000/index.html\r\n\r\nwhere py >nul 2>nul\r\nif not errorlevel 1 goto USE_PY\r\n\r\nwhere python >nul 2>nul\r\nif not errorlevel 1 goto USE_PYTHON\r\n\r\necho Python ga mitsukarimasen deshita. Python wo install shite kudasai.\r\npause\r\ngoto END\r\n\r\n:USE_PY\r\npy -m http.server 8000\r\ngoto DONE\r\n\r\n:USE_PYTHON\r\npython -m http.server 8000\r\ngoto DONE\r\n\r\n:DONE\r\necho.\r\necho Server wo shuuryou shimashita.\r\npause\r\n\r\n:END\r\n
+@echo off
+cd /d "%~dp0"
+echo HTTP server wo kidou shimasu...
+echo Browser de http://localhost:8000/index.html wo hirakimasu
+echo.
+start http://localhost:8000/index.html
+
+where py >nul 2>nul
+if not errorlevel 1 goto USE_PY
+
+where python >nul 2>nul
+if not errorlevel 1 goto USE_PYTHON
+
+echo Python ga mitsukarimasen deshita. Python wo install shite kudasai.
+pause
+goto END
+
+:USE_PY
+py -m http.server 8000
+goto DONE
+
+:USE_PYTHON
+python -m http.server 8000
+goto DONE
+
+:DONE
+echo.
+echo Server wo shuuryou shimashita.
+pause
+
+:END
