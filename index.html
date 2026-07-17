@@ -45,23 +45,26 @@
 
   .parts-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 
-  .parts { display: flex; gap: 24px; flex-wrap: wrap; }
-  .part-card { position: relative; width: 400px; display: flex; flex-direction: column;
-    align-items: center; gap: 8px; font-size: 16px; }
+  /* サムネイル列とプレビュー列の横並び */
+  .content-columns { display: flex; gap: 24px; align-items: flex-start; }
+
+  .thumb-column { width: 260px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; }
+  .part-card { position: relative; width: 100%; display: flex; flex-direction: column;
+    align-items: center; gap: 6px; font-size: 14px; }
   .part-thumb-btn { padding: 8px; background: #fff; border: 1px solid #dfe3e6;
     border-radius: 8px; cursor: pointer; width: 100%; }
   .part-thumb-btn:hover { border-color: #1565c0; }
   .part-thumb, .part-thumb-placeholder {
-    width: 100%; height: 300px; border-radius: 4px; object-fit: cover; display: block;
+    width: 100%; aspect-ratio: 4 / 3; border-radius: 4px; object-fit: cover; display: block;
   }
   .part-thumb-placeholder {
     background: #1565c0; color: #fff; display: flex; align-items: center;
-    justify-content: center; font-size: 32px;
+    justify-content: center; font-size: 24px;
   }
   .part-edit-btn {
-    position: absolute; top: 4px; right: 4px; width: 32px; height: 32px;
+    position: absolute; top: 4px; right: 4px; width: 28px; height: 28px;
     background: rgba(0,0,0,0.55); color: #fff; border-radius: 50%; display: flex;
-    align-items: center; justify-content: center; font-size: 16px; cursor: pointer;
+    align-items: center; justify-content: center; font-size: 14px; cursor: pointer;
     line-height: 1;
   }
   .part-edit-btn:hover { background: rgba(0,0,0,0.8); }
@@ -73,10 +76,15 @@
   }
   button.primary:hover { background: #0d47a1; }
 
-  /* インラインプレビュー */
+  /* プレビュー列（横長4:3で表示） */
+  .preview-column { flex: 1; min-width: 0; }
+  #previewPlaceholder {
+    display: flex; align-items: center; justify-content: center; width: 100%;
+    aspect-ratio: 4 / 3; background: #fff; border: 1px dashed #cfd8dc; border-radius: 8px;
+    color: #78909c; font-size: 14px;
+  }
   #previewPanel {
-    display: none; margin-top: 24px; background: #1a1a1a; border-radius: 8px;
-    overflow: hidden;
+    display: none; background: #1a1a1a; border-radius: 8px; overflow: hidden;
   }
   #previewHeader {
     display: flex; justify-content: space-between; align-items: center;
@@ -90,7 +98,7 @@
   #fullscreenBtn:hover { background: #0d47a1; }
   #closePreviewBtn { background: #444; color: #fff; }
   #closePreviewBtn:hover { background: #333; }
-  #previewViewer { position: relative; width: 100%; height: 480px; }
+  #previewViewer { position: relative; width: 100%; aspect-ratio: 4 / 3; }
   #previewStatus {
     position: absolute; top: 10px; left: 10px; color: #fff;
     background: rgba(0,0,0,0.6); padding: 6px 10px; border-radius: 6px; font-size: 12px;
