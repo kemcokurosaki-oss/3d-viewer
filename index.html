@@ -841,6 +841,10 @@ dropZone.addEventListener("drop", (e) => {
   fileInput.files = e.dataTransfer.files;
   dropZone.textContent = `選択中：${dropped.name}`;
 });
+fileInput.addEventListener("change", () => {
+  const chosen = fileInput.files?.[0];
+  dropZone.textContent = chosen ? `選択中：${chosen.name}` : dropZoneDefaultText;
+});
 
 uploadBtn.addEventListener("click", async () => {
   const partLabel = partLabelInput.value.trim();
