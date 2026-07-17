@@ -110,9 +110,18 @@
 
   /* 右：メインエリア */
   .main { flex: 1; padding: 24px; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
-  .main-placeholder { color: #78909c; font-size: 13px; }
+  .main-placeholder { color: var(--color-text-muted); font-size: 13px; }
 
   #mainContent { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+  /* パンくずリスト */
+  .breadcrumb {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    font-size: 13px; color: var(--color-text-muted); margin-bottom: 14px;
+  }
+  .breadcrumb .crumb { color: var(--color-text); }
+  .breadcrumb .crumb.current { color: var(--color-accent); font-weight: 700; }
+  .breadcrumb .sep { color: var(--color-border-strong); }
 
   /* サムネイル列とプレビュー列の横並び */
   .content-columns { flex: 1; min-height: 0; display: flex; gap: 24px; align-items: stretch; }
@@ -120,36 +129,44 @@
   .thumb-column { width: 260px; flex-shrink: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
   .part-card { position: relative; width: 100%; display: flex; flex-direction: column;
     align-items: center; gap: 6px; font-size: 14px; }
-  .part-thumb-btn { padding: 8px; background: #fff; border: 1px solid #dfe3e6;
-    border-radius: 8px; cursor: pointer; width: 100%; }
-  .part-thumb-btn:hover { border-color: #1565c0; }
+  .part-thumb-btn { padding: 8px; background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast); }
+  .part-thumb-btn:hover { border-color: var(--color-accent); box-shadow: var(--shadow-md); transform: translateY(-2px); }
   .part-thumb, .part-thumb-placeholder {
-    width: 100%; aspect-ratio: 4 / 3; border-radius: 4px; object-fit: cover; display: block;
+    width: 100%; aspect-ratio: 4 / 3; border-radius: var(--radius-sm); object-fit: cover; display: block;
   }
   .part-thumb-placeholder {
-    background: #1565c0; color: #fff; display: flex; align-items: center;
+    background: var(--color-accent); color: #fff; display: flex; align-items: center;
     justify-content: center; font-size: 24px;
   }
+  .part-thumb-placeholder .icon { width: 28px; height: 28px; }
   .part-edit-btn {
     position: absolute; top: 4px; right: 4px; width: 28px; height: 28px;
     background: rgba(0,0,0,0.55); color: #fff; border-radius: 50%; display: flex;
-    align-items: center; justify-content: center; font-size: 14px; cursor: pointer;
-    line-height: 1;
+    align-items: center; justify-content: center; cursor: pointer;
+    line-height: 1; transition: background var(--transition-fast);
   }
+  .part-edit-btn .icon { width: 14px; height: 14px; }
   .part-edit-btn:hover { background: rgba(0,0,0,0.8); }
   .part-edit-btn input { display: none; }
 
   .add-part-btn {
-    width: 100%; padding: 14px; background: #fff; border: 2px dashed #90a4ae;
-    border-radius: 8px; color: #1565c0; font-size: 16px; cursor: pointer;
+    width: 100%; padding: 14px; background: var(--color-surface); border: 2px dashed #90a4ae;
+    border-radius: var(--radius-lg); color: var(--color-accent); font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
   }
-  .add-part-btn:hover { border-color: #1565c0; background: #e3f2fd; }
+  .add-part-btn:hover { border-color: var(--color-accent); background: var(--color-accent-soft); }
+  .add-part-btn.dragover { border-color: var(--color-accent); background: var(--color-accent-soft); }
+  .add-part-btn .icon { width: 18px; height: 18px; }
 
   button.primary {
-    padding: 8px 16px; background: #1565c0; color: #fff; border: none;
-    border-radius: 6px; cursor: pointer; font-size: 14px;
+    padding: 8px 16px; background: var(--color-accent); color: #fff; border: none;
+    border-radius: var(--radius-md); cursor: pointer; font-size: 14px;
+    display: inline-flex; align-items: center; gap: 6px; transition: background var(--transition-fast);
   }
-  button.primary:hover { background: #0d47a1; }
+  button.primary:hover { background: var(--color-accent-dark); }
 
   /* プレビュー列（工事番号列・サムネイル列を除いた残り全体を使う） */
   .preview-column {
@@ -159,32 +176,89 @@
   #previewPlaceholder {
     display: flex; align-items: center; justify-content: center;
     width: 100%; height: 100%;
-    background: #fff; border: 1px dashed #cfd8dc; border-radius: 8px;
-    color: #78909c; font-size: 14px;
+    background: var(--color-surface); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-lg);
+    color: var(--color-text-muted); font-size: 14px;
   }
   #previewPanel {
     display: none; flex-direction: column;
     width: 100%; height: 100%;
-    background: #1a1a1a; border-radius: 8px; overflow: hidden;
+    background: var(--color-viewer-bg); border-radius: var(--radius-lg); overflow: hidden;
+    box-shadow: var(--shadow-lg);
   }
   #previewHeader {
     flex-shrink: 0;
     display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 14px; background: #262626; color: #fff; font-size: 13px;
+    padding: 10px 14px; background: var(--color-viewer-panel); color: #fff; font-size: 13px;
   }
+  #previewTitleBlock { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  #previewTitle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #previewMeta { font-size: 11px; color: #9aa5ab; }
+  #previewHeader .actions { display: flex; align-items: center; }
   #previewHeader .actions button {
-    margin-left: 8px; padding: 6px 12px; border: none; border-radius: 6px;
-    cursor: pointer; font-size: 13px;
+    margin-left: 8px; padding: 6px 12px; border: none; border-radius: var(--radius-md);
+    cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;
+    transition: background var(--transition-fast);
   }
-  #fullscreenBtn { background: #1565c0; color: #fff; }
-  #fullscreenBtn:hover { background: #0d47a1; }
+  #previewHeader .actions button .icon { width: 14px; height: 14px; }
+  #fullscreenBtn { background: var(--color-accent); color: #fff; }
+  #fullscreenBtn:hover { background: var(--color-accent-dark); }
+  #resetViewBtn, .bg-swatch-btn { background: #3a3a3a; color: #fff; }
+  #resetViewBtn:hover { background: #4a4a4a; }
   #closePreviewBtn { background: #444; color: #fff; }
   #closePreviewBtn:hover { background: #333; }
   #previewViewer { position: relative; flex: 1; min-height: 0; }
   #previewStatus {
     position: absolute; top: 10px; left: 10px; color: #fff;
-    background: rgba(0,0,0,0.6); padding: 6px 10px; border-radius: 6px; font-size: 12px;
+    background: rgba(0,0,0,0.6); padding: 6px 10px; border-radius: var(--radius-md); font-size: 12px;
   }
+
+  /* 読み込み中スピナー */
+  .viewer-spinner {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+  .viewer-spinner .ring {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 3px solid rgba(255,255,255,.2); border-top-color: #fff;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* 操作ヒント */
+  .viewer-hint {
+    position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(0,0,0,0.6); color: #fff; padding: 8px 16px; border-radius: 20px;
+    font-size: 12px; white-space: nowrap; pointer-events: none;
+    transition: opacity .6s ease;
+  }
+  .viewer-hint .icon { width: 14px; height: 14px; }
+
+  /* 背景色スウォッチ */
+  .bg-swatch-group { display: flex; gap: 4px; margin-left: 8px; }
+  .bg-swatch-btn {
+    width: 22px; height: 22px; border-radius: 50%; padding: 0; cursor: pointer;
+    border: 2px solid transparent;
+  }
+  .bg-swatch-btn.active { border-color: var(--color-accent); }
+  .bg-swatch-dark { background: #1a1a1a; }
+  .bg-swatch-light { background: #f2f2f2; }
+  .bg-swatch-gray { background: #6b7280; }
+
+  /* 最近表示した機械 */
+  .recent-machines { padding: 10px 12px; border-bottom: 1px solid var(--color-border); }
+  .recent-machines h2 {
+    margin: 0 0 6px; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+    color: var(--color-text-muted); text-transform: uppercase;
+  }
+  .recent-machine-btn {
+    display: flex; align-items: center; gap: 6px; width: 100%; text-align: left;
+    padding: 6px 8px; border: none; background: none; cursor: pointer;
+    font-size: 12px; color: var(--color-text); border-radius: var(--radius-sm);
+  }
+  .recent-machine-btn:hover { background: var(--color-bg); }
+  .recent-machine-btn .icon { width: 12px; height: 12px; flex-shrink: 0; color: var(--color-text-muted); }
+  .recent-machine-btn .recent-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* アップロードモーダル */
   #uploadOverlay {
