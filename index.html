@@ -469,8 +469,8 @@ function openPreview(url, title) {
 
   currentUrl = url;
   previewTitle.textContent = title;
+  previewPlaceholder.style.display = "none";
   previewPanel.style.display = "block";
-  previewPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
   currentViewer = initViewer(previewViewer, url, {
     onStatus: (msg) => { previewStatus.textContent = msg; },
@@ -481,14 +481,9 @@ function closePreview() {
   currentViewer?.dispose();
   currentViewer = null;
   currentUrl = null;
-  previewPanel.style.display = "none";
+  if (previewPanel) previewPanel.style.display = "none";
+  if (previewPlaceholder) previewPlaceholder.style.display = "flex";
 }
-
-fullscreenBtn.onclick = () => {
-  if (!currentUrl) return;
-  window.open("viewer.html?url=" + encodeURIComponent(currentUrl), "_blank");
-};
-closePreviewBtn.onclick = closePreview;
 
 // ---- アップロードモーダル（選択中の工事番号・機械名に対してアップロードする） ----
 function setUploadStatus(msg, kind) {
