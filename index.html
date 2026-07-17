@@ -309,14 +309,6 @@ function renderMain() {
     return;
   }
 
-  const breadcrumb = document.createElement("div");
-  breadcrumb.className = "breadcrumb";
-  const projectLabel = currentProject.customer
-    ? `${currentProject.num}　${currentProject.customer}`
-    : currentProject.num;
-  breadcrumb.textContent = `${projectLabel} ＞ ${currentMachine}`;
-  mainContent.appendChild(breadcrumb);
-
   renderPartsView();
 }
 
@@ -324,29 +316,17 @@ let partsStatusEl = null;
 let thumbColumnEl = null;
 
 function renderPartsView() {
-  const header = document.createElement("div");
-  header.className = "parts-header";
-
-  partsStatusEl = document.createElement("span");
-  partsStatusEl.className = "main-placeholder";
-  partsStatusEl.textContent = "読み込み中...";
-  header.appendChild(partsStatusEl);
-
-  const uploadBtnEl = document.createElement("button");
-  uploadBtnEl.className = "primary";
-  uploadBtnEl.textContent = "＋ アップロード";
-  uploadBtnEl.onclick = openUploadModal;
-  header.appendChild(uploadBtnEl);
-
-  mainContent.appendChild(header);
-
   const columns = document.createElement("div");
   columns.className = "content-columns";
 
   thumbColumnEl = document.createElement("div");
   thumbColumnEl.className = "thumb-column";
-  columns.appendChild(thumbColumnEl);
 
+  partsStatusEl = document.createElement("div");
+  partsStatusEl.className = "main-placeholder";
+  thumbColumnEl.appendChild(partsStatusEl);
+
+  columns.appendChild(thumbColumnEl);
   columns.appendChild(buildPreviewColumn());
   mainContent.appendChild(columns);
 
