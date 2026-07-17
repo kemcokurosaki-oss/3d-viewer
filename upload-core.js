@@ -61,12 +61,8 @@ export async function fetchProjectMachineTree() {
     machines: [...machines].sort(),
   }));
 
-  tree.sort((a, b) => {
-    const na = parseInt(a.num, 10);
-    const nb = parseInt(b.num, 10);
-    if (!isNaN(na) && !isNaN(nb) && na !== nb) return nb - na;
-    return b.num.localeCompare(a.num);
-  });
+  // 工程表アプリの一覧と同じ並び順（工事番号の日本語ロケール比較）に合わせる
+  tree.sort((a, b) => a.num.localeCompare(b.num, "ja"));
 
   return tree;
 }
