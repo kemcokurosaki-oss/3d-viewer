@@ -732,30 +732,30 @@ function buildPartCard(file) {
   } else {
     const placeholder = document.createElement("span");
     placeholder.className = "part-thumb-placeholder";
-    placeholder.textContent = "3D";
+    placeholder.innerHTML = ICON_CUBE;
     thumbBtn.appendChild(placeholder);
   }
-  thumbBtn.onclick = () => openPreview(file.file_url, `${currentMachine}　${file.part_label || ""}`);
+  thumbBtn.onclick = () => openPreview(file);
   card.appendChild(thumbBtn);
 
   const editLabel = document.createElement("label");
   editLabel.className = "part-edit-btn";
   editLabel.title = "サムネイルを変更";
-  editLabel.textContent = "✎";
+  editLabel.innerHTML = ICON_EDIT;
   const editInput = document.createElement("input");
   editInput.type = "file";
   editInput.accept = "image/*";
   editInput.onchange = async () => {
     const chosen = editInput.files[0];
     if (!chosen) return;
-    editLabel.textContent = "…";
+    editLabel.innerHTML = "…";
     try {
       await updateThumbnail(file.id, chosen);
       await loadMachineFiles();
     } catch (err) {
       console.error(err);
       if (partsStatusEl) partsStatusEl.textContent = "サムネイルの更新に失敗しました：" + (err.message || err);
-      editLabel.textContent = "✎";
+      editLabel.innerHTML = ICON_EDIT;
     }
   };
   editLabel.appendChild(editInput);
