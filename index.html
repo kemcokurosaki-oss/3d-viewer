@@ -817,6 +817,7 @@ function openUploadModal() {
 
 function closeUploadModal() {
   uploadOverlay.style.display = "none";
+  dropZone.textContent = dropZoneDefaultText;
 }
 
 cancelUploadBtn.onclick = closeUploadModal;
