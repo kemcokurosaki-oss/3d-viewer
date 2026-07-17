@@ -33,6 +33,70 @@ export async function fetchProjectOptions() {
   return [...seen.entries()].map(([num, customer]) => ({ num, customer }));
 }
 
+// 工程表アプリのtasksテーブルから「工事番号→機械名」の階層データを取得する
+export async function fetchProjectMachineTree() {
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("project_number, customer_name, machine")
+    .not("project_number", "is", null);
+
+  if (error) throw error;
+
+  const projects = new Map();
+  (data || []).forEach((row) => {
+    const num = (row.project_number || "").toString().trim();
+    if (!num) return;
+    if (!projects.has(num)) {
+      projects.set(num, { customer: row.customer_name || "", machines: new Set() });
+    }
+    const entry = projects.get(num);
+    if (!entry.customer && row.customer_name) entry.customer = row.customer_name;
+    const machine = (row.machine || "").toString().trim();
+    if (machine) entry.machines.add(machine);
+  });
+
+  const tree = [...projects.entries()].map(([num, { customer, machines }]) => ({
+    num,
+    customer,
+    machines: [...machines].sort(),
+  }));
+
+  tree.sort((a, b) => {
+    const na = parseInt(a.num, 10);
+    const nb = parseInt(b.num, 10);
+    if (!isNaN(na) && !isNaN(nb) && na !== nb) return nb - na;
+    return b.num.localeCompare(a.num);
+  });
+
+  return tree;
+}
+
+// 指定した案件・機械にアップロード済みの3Dファイル一覧を取得する
+export async function fetchMachineFiles(projectNumber, machineName) {
+  const { data: project } = await supabase
+    .from("splat_projects")
+    .select("id")
+    .eq("name", projectNumber)
+    .maybeSingle();
+  if (!project) return [];
+
+  const { data: machine } = await supabase
+    .from("splat_machines")
+    .select("id")
+    .eq("project_id", project.id)
+    .eq("name", machineName)
+    .maybeSingle();
+  if (!machine) return [];
+
+  const { data: files, error } = await supabase
+    .from("splat_files")
+    .select("id, part_label, file_url, thumbnail_url")
+    .eq("machine_id", machine.id);
+  if (error) throw error;
+
+  return files || [];
+}
+
 // splat_projects に該当案件があれば取得、無ければ作成
 async function findOrCreateProject(projectNumber) {
   const { data: existing } = await supabase
