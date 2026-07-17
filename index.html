@@ -21,13 +21,13 @@
   /* 左：工事番号一覧（工事番号の下に機械名をネストして表示） */
   .sidebar { width: 280px; flex-shrink: 0; background: #fff; border-right: 1px solid #dfe3e6; overflow-y: auto; }
   #sidebarStatus { padding: 10px 16px; color: #78909c; font-size: 12px; }
-  .sidebar-project { border-bottom: 1px solid #f0f2f4; }
+  .sidebar-project { border-bottom: 2px solid #cfd8dc; }
   .sidebar-item { padding: 12px 16px; cursor: pointer; font-size: 16px; }
   .sidebar-item:hover { background: #eef1f3; }
-  .sidebar-item.active { background: #1565c0; color: #fff; }
+  .sidebar-item.active { background: #e3f2fd; color: #0d47a1; box-shadow: inset 4px 0 0 #1565c0; }
   .sidebar-item-num { font-weight: 700; }
   .sidebar-item .sidebar-item-customer { display: block; font-size: 14px; font-weight: 400; color: #78909c; margin-top: 2px; }
-  .sidebar-item.active .sidebar-item-customer { color: #e3f2fd; }
+  .sidebar-item.active .sidebar-item-customer { color: #1565c0; }
 
   .sidebar-machines { background: #f7f9fa; padding: 4px 0; }
   .sidebar-machine-btn {
@@ -35,7 +35,7 @@
     border: none; background: none; cursor: pointer; font-size: 14px; color: #263238;
   }
   .sidebar-machine-btn:hover { background: #eef1f3; }
-  .sidebar-machine-btn.active { background: #1565c0; color: #fff; }
+  .sidebar-machine-btn.active { background: #e3f2fd; color: #0d47a1; box-shadow: inset 4px 0 0 #1565c0; }
   .sidebar-machine-empty { padding: 8px 16px 8px 32px; color: #78909c; font-size: 13px; }
 
   /* 右：メインエリア */
