@@ -223,28 +223,54 @@ async function loadList() {
       const partsDiv = document.createElement("div");
       partsDiv.className = "parts";
       machineFiles.forEach((file) => {
-        const btn = document.createElement("button");
-        btn.className = "part-btn";
+        const card = document.createElement("div");
+        card.className = "part-card";
 
+        const thumbBtn = document.createElement("button");
+        thumbBtn.className = "part-thumb-btn";
         if (file.thumbnail_url) {
           const img = document.createElement("img");
           img.className = "part-thumb";
           img.src = file.thumbnail_url;
           img.alt = "";
-          btn.appendChild(img);
+          thumbBtn.appendChild(img);
         } else {
           const placeholder = document.createElement("span");
           placeholder.className = "part-thumb-placeholder";
           placeholder.textContent = "3D";
-          btn.appendChild(placeholder);
+          thumbBtn.appendChild(placeholder);
         }
+        thumbBtn.onclick = () => openPreview(file.file_url, `${machine.name}　${file.part_label || ""}`);
+        card.appendChild(thumbBtn);
+
+        const editLabel = document.createElement("label");
+        editLabel.className = "part-edit-btn";
+        editLabel.title = "サムネイルを変更";
+        editLabel.textContent = "✎";
+        const editInput = document.createElement("input");
+        editInput.type = "file";
+        editInput.accept = "image/*";
+        editInput.onchange = async () => {
+          const chosen = editInput.files[0];
+          if (!chosen) return;
+          editLabel.textContent = "…";
+          try {
+            await updateThumbnail(file.id, chosen);
+            await loadList();
+          } catch (err) {
+            console.error(err);
+            statusEl.textContent = "サムネイルの更新に失敗しました：" + (err.message || err);
+            editLabel.textContent = "✎";
+          }
+        };
+        editLabel.appendChild(editInput);
+        card.appendChild(editLabel);
 
         const label = document.createElement("span");
         label.textContent = file.part_label || "表示";
-        btn.appendChild(label);
+        card.appendChild(label);
 
-        btn.onclick = () => openPreview(file.file_url, `${machine.name}　${file.part_label || ""}`);
-        partsDiv.appendChild(btn);
+        partsDiv.appendChild(card);
       });
       machineDiv.appendChild(partsDiv);
       projectDiv.appendChild(machineDiv);
