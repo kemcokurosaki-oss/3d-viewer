@@ -314,15 +314,17 @@ function renderMain() {
   renderPartsView();
 }
 
+let partsStatusEl = null;
+let thumbColumnEl = null;
+
 function renderPartsView() {
   const header = document.createElement("div");
   header.className = "parts-header";
 
-  const status = document.createElement("span");
-  status.className = "main-placeholder";
-  status.id = "partsStatus";
-  status.textContent = "読み込み中...";
-  header.appendChild(status);
+  partsStatusEl = document.createElement("span");
+  partsStatusEl.className = "main-placeholder";
+  partsStatusEl.textContent = "読み込み中...";
+  header.appendChild(partsStatusEl);
 
   const uploadBtnEl = document.createElement("button");
   uploadBtnEl.className = "primary";
@@ -332,28 +334,80 @@ function renderPartsView() {
 
   mainContent.appendChild(header);
 
-  const partsDiv = document.createElement("div");
-  partsDiv.className = "parts";
-  partsDiv.id = "partsContainer";
-  mainContent.appendChild(partsDiv);
+  const columns = document.createElement("div");
+  columns.className = "content-columns";
+
+  thumbColumnEl = document.createElement("div");
+  thumbColumnEl.className = "thumb-column";
+  columns.appendChild(thumbColumnEl);
+
+  columns.appendChild(buildPreviewColumn());
+  mainContent.appendChild(columns);
 
   loadMachineFiles();
 }
 
+// プレビュー列（プレースホルダー／実際の3Dビューア）を組み立てる
+function buildPreviewColumn() {
+  const previewColumn = document.createElement("div");
+  previewColumn.className = "preview-column";
+
+  previewPlaceholder = document.createElement("div");
+  previewPlaceholder.id = "previewPlaceholder";
+  previewPlaceholder.textContent = "サムネイルを選択してください";
+  previewColumn.appendChild(previewPlaceholder);
+
+  previewPanel = document.createElement("div");
+  previewPanel.id = "previewPanel";
+
+  const header = document.createElement("div");
+  header.id = "previewHeader";
+
+  previewTitle = document.createElement("span");
+  header.appendChild(previewTitle);
+
+  const actions = document.createElement("div");
+  actions.className = "actions";
+
+  const fullscreenBtnEl = document.createElement("button");
+  fullscreenBtnEl.textContent = "全画面表示";
+  fullscreenBtnEl.onclick = () => {
+    if (!currentUrl) return;
+    window.open("viewer.html?url=" + encodeURIComponent(currentUrl), "_blank");
+  };
+  actions.appendChild(fullscreenBtnEl);
+
+  const closePreviewBtnEl = document.createElement("button");
+  closePreviewBtnEl.textContent = "閉じる";
+  closePreviewBtnEl.onclick = closePreview;
+  actions.appendChild(closePreviewBtnEl);
+
+  header.appendChild(actions);
+  previewPanel.appendChild(header);
+
+  previewViewer = document.createElement("div");
+  previewViewer.id = "previewViewer";
+  previewStatus = document.createElement("div");
+  previewStatus.id = "previewStatus";
+  previewViewer.appendChild(previewStatus);
+  previewPanel.appendChild(previewViewer);
+
+  previewColumn.appendChild(previewPanel);
+  return previewColumn;
+}
+
 async function loadMachineFiles() {
-  const statusEl = document.getElementById("partsStatus");
-  const partsDiv = document.getElementById("partsContainer");
-  if (!statusEl || !partsDiv) return;
+  if (!partsStatusEl || !thumbColumnEl) return;
 
   try {
     const files = await fetchMachineFiles(currentProject.num, currentMachine);
-    statusEl.textContent = files.length === 0
+    partsStatusEl.textContent = files.length === 0
       ? "アップロード済みの3Dモデルはまだありません"
       : `ファイル ${files.length}件`;
-    partsDiv.innerHTML = "";
-    files.forEach((file) => partsDiv.appendChild(buildPartCard(file)));
+    thumbColumnEl.innerHTML = "";
+    files.forEach((file) => thumbColumnEl.appendChild(buildPartCard(file)));
   } catch (err) {
-    statusEl.textContent = "読み込みエラー：" + err.message;
+    partsStatusEl.textContent = "読み込みエラー：" + err.message;
   }
 }
 
