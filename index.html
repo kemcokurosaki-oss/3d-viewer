@@ -188,12 +188,12 @@ const sidebarStatus = document.getElementById("sidebarStatus");
 const sidebarList = document.getElementById("sidebarList");
 const mainContent = document.getElementById("mainContent");
 
-const previewPanel = document.getElementById("previewPanel");
-const previewTitle = document.getElementById("previewTitle");
-const previewViewer = document.getElementById("previewViewer");
-const previewStatus = document.getElementById("previewStatus");
-const fullscreenBtn = document.getElementById("fullscreenBtn");
-const closePreviewBtn = document.getElementById("closePreviewBtn");
+// サムネイル一覧・プレビュー列は機械名を選ぶたびに作り直すため、要素参照はletで保持する
+let previewPlaceholder = null;
+let previewPanel = null;
+let previewTitle = null;
+let previewViewer = null;
+let previewStatus = null;
 
 const uploadOverlay = document.getElementById("uploadOverlay");
 const uploadContext = document.getElementById("uploadContext");
