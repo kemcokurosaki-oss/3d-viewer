@@ -682,7 +682,12 @@ function buildPreviewColumn() {
   fullscreenBtnEl.innerHTML = `${ICON_EXPAND}<span>全画面表示</span>`;
   fullscreenBtnEl.onclick = () => {
     if (!currentUrl) return;
-    window.open("viewer.html?url=" + encodeURIComponent(currentUrl), "_blank");
+    const params = new URLSearchParams({
+      url: currentUrl,
+      title: previewTitle.textContent || "",
+      bg: "0x" + selectedBackground.toString(16).padStart(6, "0"),
+    });
+    window.open("viewer.html?" + params.toString(), "_blank");
   };
   actions.appendChild(fullscreenBtnEl);
 
