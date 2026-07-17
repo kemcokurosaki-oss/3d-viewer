@@ -140,7 +140,7 @@ async function captureThumbnail(url) {
   container.style.cssText = "position:absolute; left:-9999px; top:-9999px; width:320px; height:240px;";
   document.body.appendChild(container);
 
-  const viewer = initViewer(container, url);
+  const viewer = initViewer(container, url, { hint: false });
   try {
     await viewer.ready;
     await new Promise(requestAnimationFrame);
