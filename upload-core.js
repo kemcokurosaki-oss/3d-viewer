@@ -112,21 +112,41 @@ async function generateAndUploadThumbnail(fileUrl, safeName) {
   }
 }
 
+// 画像をStorageにアップロードして公開URLを返す
+async function uploadImage(imageFile, path) {
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, imageFile, { cacheControl: "3600", upsert: false });
+  if (error) throw error;
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
 // 手動で選択されたサムネイル画像をStorageにアップロードし、公開URLを返す（失敗時はnull）
 async function uploadThumbnailImage(thumbnailFile, safeName) {
   try {
     const ext = (thumbnailFile.name.split(".").pop() || "jpg").toLowerCase();
     const thumbName = "thumbnails/" + safeName.replace(/\.[^.]+$/, "") + "." + ext;
-    const { error } = await supabase.storage
-      .from(BUCKET)
-      .upload(thumbName, thumbnailFile, { cacheControl: "3600", upsert: false });
-    if (error) throw error;
-    const { data } = supabase.storage.from(BUCKET).getPublicUrl(thumbName);
-    return data.publicUrl;
+    return await uploadImage(thumbnailFile, thumbName);
   } catch (err) {
     console.error("サムネイル画像のアップロードに失敗しました", err);
     return null;
   }
+}
+
+// 登録済みのパーツのサムネイルを、後から指定した画像に差し替える
+export async function updateThumbnail(fileId, thumbnailFile) {
+  const ext = (thumbnailFile.name.split(".").pop() || "jpg").toLowerCase();
+  const thumbName = "thumbnails/" + fileId + "_" + Date.now() + "." + ext;
+  const thumbnailUrl = await uploadImage(thumbnailFile, thumbName);
+
+  const { error } = await supabase
+    .from("splat_files")
+    .update({ thumbnail_url: thumbnailUrl })
+    .eq("id", fileId);
+  if (error) throw error;
+
+  return thumbnailUrl;
 }
 
 // パーツファイルをアップロードし、splat_projects / splat_machines / splat_files に登録する
