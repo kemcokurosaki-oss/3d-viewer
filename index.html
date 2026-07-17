@@ -217,7 +217,12 @@ let currentUrl = null;
 async function loadTree() {
   sidebarStatus.textContent = "読み込み中...";
   try {
-    tree = await fetchProjectMachineTree();
+    const allProjects = await fetchProjectMachineTree();
+    // 工事番号2000番台のみ表示（一時的な絞り込み）
+    tree = allProjects.filter((project) => {
+      const n = parseInt(project.num, 10);
+      return !isNaN(n) && n >= 2000 && n <= 2999;
+    });
     sidebarStatus.textContent = `工事番号 ${tree.length}件`;
     renderSidebar();
     renderMain();
