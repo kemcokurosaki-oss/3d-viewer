@@ -359,15 +359,41 @@
 <script type="module">
 import { initViewer } from "./viewer-core.js";
 import { fetchProjectMachineTree, fetchMachineFiles, uploadPart, updateThumbnail } from "./upload-core.js";
+import { ICON_GEAR, ICON_SUN, ICON_MOON, ICON_SEARCH, ICON_EDIT, ICON_CUBE, ICON_PLUS,
+         ICON_EXPAND, ICON_CLOSE, ICON_RESET, ICON_CLOCK } from "./icons.js";
 
 const sidebarStatus = document.getElementById("sidebarStatus");
 const sidebarList = document.getElementById("sidebarList");
+const sidebarSearchInput = document.getElementById("sidebarSearch");
 const mainContent = document.getElementById("mainContent");
+const headerIcon = document.getElementById("headerIcon");
+const themeToggleBtn = document.getElementById("themeToggleBtn");
+const sidebarSearchIcon = document.getElementById("sidebarSearchIcon");
+const recentMachinesSection = document.getElementById("recentMachines");
+const recentMachinesList = document.getElementById("recentMachinesList");
+
+headerIcon.innerHTML = ICON_GEAR;
+sidebarSearchIcon.innerHTML = ICON_SEARCH;
+
+// ---- ライト/ダークモード切替（localStorageに保存） ----
+const THEME_KEY = "3dmodel-theme";
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  themeToggleBtn.innerHTML = theme === "dark" ? ICON_SUN : ICON_MOON;
+  themeToggleBtn.title = theme === "dark" ? "ライトモードに切替" : "ダークモードに切替";
+}
+applyTheme(localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light");
+themeToggleBtn.onclick = () => {
+  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
+};
 
 // サムネイル一覧・プレビュー列は機械名を選ぶたびに作り直すため、要素参照はletで保持する
 let previewPlaceholder = null;
 let previewPanel = null;
 let previewTitle = null;
+let previewMeta = null;
 let previewViewer = null;
 let previewStatus = null;
 
@@ -376,6 +402,7 @@ const uploadContext = document.getElementById("uploadContext");
 const cancelUploadBtn = document.getElementById("cancelUploadBtn");
 const partLabelInput = document.getElementById("partLabel");
 const fileInput = document.getElementById("fileInput");
+const dropZone = document.getElementById("dropZone");
 const thumbnailInput = document.getElementById("thumbnailInput");
 const uploadBtn = document.getElementById("uploadBtn");
 const uploadStatusEl = document.getElementById("uploadStatus");
@@ -385,6 +412,42 @@ let currentProject = null;   // { num, customer, machines }
 let currentMachine = null;   // 機械名の文字列
 let currentViewer = null;
 let currentUrl = null;
+let searchQuery = "";
+
+// ---- 最近表示した機械（localStorageに保存、最大6件） ----
+const RECENT_KEY = "3dmodel-recent-machines";
+function loadRecentMachines() {
+  try {
+    return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+function saveRecentMachine(project, machineName) {
+  const recent = loadRecentMachines().filter(
+    (r) => !(r.num === project.num && r.machine === machineName)
+  );
+  recent.unshift({ num: project.num, customer: project.customer, machine: machineName });
+  localStorage.setItem(RECENT_KEY, JSON.stringify(recent.slice(0, 6)));
+  renderRecentMachines();
+}
+function renderRecentMachines() {
+  const recent = loadRecentMachines();
+  recentMachinesSection.style.display = recent.length ? "block" : "none";
+  recentMachinesList.innerHTML = "";
+  recent.forEach((r) => {
+    const btn = document.createElement("button");
+    btn.className = "recent-machine-btn";
+    btn.innerHTML = `${ICON_CLOCK}<span class="recent-label">${r.num}　${r.machine}</span>`;
+    btn.onclick = () => {
+      const project = tree.find((p) => p.num === r.num);
+      if (!project) return;
+      currentProject = project;
+      selectMachine(r.machine);
+    };
+    recentMachinesList.appendChild(btn);
+  });
+}
 
 // ---- 左：工事番号一覧（工程表の全件から作成） ----
 async function loadTree() {
@@ -397,6 +460,7 @@ async function loadTree() {
       return !isNaN(n) && n >= 2000 && n <= 2999;
     });
     sidebarStatus.textContent = "";
+    renderRecentMachines();
     renderSidebar();
     renderMain();
   } catch (err) {
@@ -404,9 +468,27 @@ async function loadTree() {
   }
 }
 
+sidebarSearchInput.addEventListener("input", () => {
+  searchQuery = sidebarSearchInput.value.trim().toLowerCase();
+  renderSidebar();
+});
+
 function renderSidebar() {
   sidebarList.innerHTML = "";
-  tree.forEach((project) => {
+  const visibleProjects = searchQuery
+    ? tree.filter((project) =>
+        project.num.toLowerCase().includes(searchQuery) ||
+        (project.customer || "").toLowerCase().includes(searchQuery))
+    : tree;
+
+  if (searchQuery && visibleProjects.length === 0) {
+    const empty = document.createElement("div");
+    empty.id = "sidebarStatus";
+    empty.textContent = "該当する案件が見つかりません";
+    sidebarList.appendChild(empty);
+  }
+
+  visibleProjects.forEach((project) => {
     const projectDiv = document.createElement("div");
     projectDiv.className = "sidebar-project";
 
