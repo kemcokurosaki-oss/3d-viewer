@@ -661,6 +661,7 @@ function buildPreviewColumn() {
     swatchBtn.className = "bg-swatch-btn " + opt.cls + (opt.key === "dark" ? " active" : "");
     swatchBtn.title = opt.label;
     swatchBtn.onclick = () => {
+      selectedBackground = opt.color;
       currentViewer?.setBackground(opt.color);
       bgGroup.querySelectorAll(".bg-swatch-btn").forEach((b) => b.classList.remove("active"));
       swatchBtn.classList.add("active");
