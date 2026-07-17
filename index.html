@@ -384,14 +384,20 @@ function buildPreviewColumn() {
 
 async function loadMachineFiles() {
   if (!partsStatusEl || !thumbColumnEl) return;
+  partsStatusEl.textContent = "読み込み中...";
 
   try {
     const files = await fetchMachineFiles(currentProject.num, currentMachine);
-    partsStatusEl.textContent = files.length === 0
-      ? "アップロード済みの3Dモデルはまだありません"
-      : `ファイル ${files.length}件`;
-    thumbColumnEl.innerHTML = "";
+    thumbColumnEl.querySelectorAll(".part-card, .add-part-btn").forEach(el => el.remove());
+    partsStatusEl.textContent = files.length === 0 ? "アップロード済みの3Dモデルはまだありません" : "";
+
     files.forEach((file) => thumbColumnEl.appendChild(buildPartCard(file)));
+
+    const addBtn = document.createElement("button");
+    addBtn.className = "add-part-btn";
+    addBtn.textContent = "＋ アップロード";
+    addBtn.onclick = openUploadModal;
+    thumbColumnEl.appendChild(addBtn);
   } catch (err) {
     partsStatusEl.textContent = "読み込みエラー：" + err.message;
   }
