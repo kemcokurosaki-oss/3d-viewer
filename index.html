@@ -84,20 +84,20 @@
   }
   button.primary:hover { background: #0d47a1; }
 
-  /* プレビュー列（横長4:3。幅・高さどちらの制約にも収まる最大サイズにする） */
+  /* プレビュー列（縦は領域いっぱいに伸ばし、そこから横幅を4:3で決める） */
   .preview-column {
     flex: 1; min-width: 0; min-height: 0;
-    display: flex; align-items: center; justify-content: center;
+    display: flex; align-items: stretch; justify-content: center;
   }
   #previewPlaceholder {
     display: flex; align-items: center; justify-content: center;
-    max-width: 100%; max-height: 100%; aspect-ratio: 4 / 3;
+    max-width: 100%; aspect-ratio: 4 / 3;
     background: #fff; border: 1px dashed #cfd8dc; border-radius: 8px;
     color: #78909c; font-size: 14px;
   }
   #previewPanel {
     display: none; flex-direction: column;
-    max-width: 100%; max-height: 100%; aspect-ratio: 4 / 3;
+    max-width: 100%; aspect-ratio: 4 / 3;
     background: #1a1a1a; border-radius: 8px; overflow: hidden;
   }
   #previewHeader {
