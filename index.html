@@ -525,6 +525,7 @@ uploadBtn.addEventListener("click", async () => {
     fileInput.value = "";
     thumbnailInput.value = "";
     await loadMachineFiles();
+    setTimeout(closeUploadModal, 800);
   } catch (err) {
     console.error(err);
     setUploadStatus("エラーが発生しました：" + (err.message || err), "error");
