@@ -779,16 +779,18 @@ function buildPartCard(file) {
 }
 
 // ---- インラインプレビュー ----
-function openPreview(url, title) {
+function openPreview(file) {
   currentViewer?.dispose();
   previewViewer.querySelectorAll("canvas").forEach(c => c.remove());
 
-  currentUrl = url;
-  previewTitle.textContent = title;
+  currentUrl = file.file_url;
+  previewTitle.textContent = `${currentMachine}　${file.part_label || ""}`;
+  previewMeta.textContent = file.created_at ? `アップロード：${formatDateTime(file.created_at)}` : "";
   previewPlaceholder.style.display = "none";
   previewPanel.style.display = "flex";
 
-  currentViewer = initViewer(previewViewer, url, {
+  currentViewer = initViewer(previewViewer, file.file_url, {
+    background: selectedBackground,
     onStatus: (msg) => { previewStatus.textContent = msg; },
   });
 }
