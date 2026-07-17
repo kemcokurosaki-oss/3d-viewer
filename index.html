@@ -413,6 +413,15 @@ let currentMachine = null;   // 機械名の文字列
 let currentViewer = null;
 let currentUrl = null;
 let searchQuery = "";
+let selectedBackground = 0x1a1a1a;
+
+function formatDateTime(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
 // ---- 最近表示した機械（localStorageに保存、最大6件） ----
 const RECENT_KEY = "3dmodel-recent-machines";
