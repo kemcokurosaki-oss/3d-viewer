@@ -2,16 +2,36 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>3Dキャプチャ一覧</title>
+<title>3Dモデルキャプチャ</title>
 <style>
-  body { font-family: sans-serif; background: #f4f4f4; margin: 0; padding: 24px; }
-  h1 { font-size: 20px; display: inline-block; margin: 0; }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .project { margin-bottom: 24px; }
-  .project-title { font-size: 16px; font-weight: bold; margin: 16px 0 8px; }
-  .machine { background: #fff; border-radius: 8px; padding: 12px 16px; margin-bottom: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-  .machine-name { font-weight: bold; margin-bottom: 8px; }
+  body { font-family: sans-serif; background: #f4f4f4; margin: 0; }
+  .app-header {
+    background: #fff; padding: 16px 24px; border-bottom: 1px solid #ddd;
+  }
+  .app-header h1 { margin: 0; font-size: 20px; }
+  .page { padding: 24px; }
+  .muted { color: #888; font-size: 13px; }
+
+  /* 工事番号・機械名の一覧 */
+  .tree-project { margin-bottom: 20px; }
+  .tree-project-title { font-size: 16px; font-weight: bold; margin-bottom: 8px; }
+  .tree-machines { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tree-machine-btn {
+    padding: 8px 16px; background: #fff; border: 1px solid #ddd; border-radius: 6px;
+    cursor: pointer; font-size: 14px;
+  }
+  .tree-machine-btn:hover { border-color: #2d6cdf; color: #2d6cdf; }
+
+  /* 機械の詳細（サムネイル一覧） */
+  .nav-back {
+    display: inline-block; margin-bottom: 12px; font-size: 13px;
+    color: #2d6cdf; text-decoration: none; cursor: pointer;
+  }
+  .machine-view-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+  }
+  .machine-view-header h2 { font-size: 18px; margin: 0; }
+
   .parts { display: flex; gap: 10px; flex-wrap: wrap; }
   .part-card { position: relative; width: 100px; display: flex; flex-direction: column;
     align-items: center; gap: 6px; font-size: 13px; }
@@ -33,7 +53,6 @@
   }
   .part-edit-btn:hover { background: rgba(0,0,0,0.8); }
   .part-edit-btn input { display: none; }
-  #status { color: #888; font-size: 13px; }
 
   button.primary {
     padding: 8px 16px; background: #2d6cdf; color: #fff; border: none;
@@ -73,8 +92,9 @@
     background: #fff; border-radius: 8px; padding: 24px; width: 100%; max-width: 420px;
   }
   #uploadModal h2 { font-size: 18px; margin: 0 0 4px; }
+  #uploadContext { margin: 0; }
   #uploadModal label { display: block; font-size: 13px; color: #555; margin-top: 16px; margin-bottom: 4px; }
-  #uploadModal select, #uploadModal input[type="text"], #uploadModal input[type="file"] {
+  #uploadModal input[type="text"], #uploadModal input[type="file"] {
     width: 100%; padding: 8px; box-sizing: border-box; font-size: 14px;
     border: 1px solid #ccc; border-radius: 6px; background: #fff;
   }
@@ -101,35 +121,44 @@
 </head>
 <body>
 
-<div class="header">
-  <h1>3Dキャプチャ一覧</h1>
-  <button class="primary" id="openUploadBtn">＋ アップロード</button>
-</div>
-<div id="status">読み込み中...</div>
-<div id="content"></div>
+<header class="app-header">
+  <h1>3Dモデルキャプチャ</h1>
+</header>
 
-<div id="previewPanel">
-  <div id="previewHeader">
-    <span id="previewTitle"></span>
-    <div class="actions">
-      <button id="fullscreenBtn">全画面表示</button>
-      <button id="closePreviewBtn">閉じる</button>
-    </div>
+<div class="page">
+  <div id="treeView">
+    <div id="status">読み込み中...</div>
+    <div id="treeContent"></div>
   </div>
-  <div id="previewViewer">
-    <div id="previewStatus"></div>
+
+  <div id="machineView" style="display:none;">
+    <a class="nav-back" id="backToTree">← 工事番号一覧に戻る</a>
+    <div class="machine-view-header">
+      <h2 id="machineViewTitle"></h2>
+      <button class="primary" id="openUploadBtn">＋ アップロード</button>
+    </div>
+    <div id="machineFilesStatus" class="muted"></div>
+    <div id="machineParts" class="parts"></div>
+  </div>
+
+  <div id="previewPanel">
+    <div id="previewHeader">
+      <span id="previewTitle"></span>
+      <div class="actions">
+        <button id="fullscreenBtn">全画面表示</button>
+        <button id="closePreviewBtn">閉じる</button>
+      </div>
+    </div>
+    <div id="previewViewer">
+      <div id="previewStatus"></div>
+    </div>
   </div>
 </div>
 
 <div id="uploadOverlay">
   <div id="uploadModal">
     <h2>3Dキャプチャ アップロード</h2>
-
-    <label for="projectSelect">案件（工程表の登録案件から選択）</label>
-    <select id="projectSelect"><option>読み込み中...</option></select>
-
-    <label for="machineName">機械名</label>
-    <input type="text" id="machineName" placeholder="例：2814DF">
+    <p id="uploadContext" class="muted"></p>
 
     <label for="partLabel">パーツ番号・撮影箇所（任意）</label>
     <input type="text" id="partLabel" placeholder="例：①、正面、上部など">
@@ -150,12 +179,18 @@
 </div>
 
 <script type="module">
-import { supabase } from "./supabase-client.js";
 import { initViewer } from "./viewer-core.js";
-import { fetchProjectOptions, uploadPart, updateThumbnail } from "./upload-core.js";
+import { fetchProjectMachineTree, fetchMachineFiles, uploadPart, updateThumbnail } from "./upload-core.js";
 
 const statusEl = document.getElementById("status");
-const contentEl = document.getElementById("content");
+const treeView = document.getElementById("treeView");
+const treeContent = document.getElementById("treeContent");
+
+const machineView = document.getElementById("machineView");
+const backToTree = document.getElementById("backToTree");
+const machineViewTitle = document.getElementById("machineViewTitle");
+const machineFilesStatus = document.getElementById("machineFilesStatus");
+const machineParts = document.getElementById("machineParts");
 
 const previewPanel = document.getElementById("previewPanel");
 const previewTitle = document.getElementById("previewTitle");
@@ -165,10 +200,9 @@ const fullscreenBtn = document.getElementById("fullscreenBtn");
 const closePreviewBtn = document.getElementById("closePreviewBtn");
 
 const uploadOverlay = document.getElementById("uploadOverlay");
+const uploadContext = document.getElementById("uploadContext");
 const openUploadBtn = document.getElementById("openUploadBtn");
 const cancelUploadBtn = document.getElementById("cancelUploadBtn");
-const projectSelect = document.getElementById("projectSelect");
-const machineNameInput = document.getElementById("machineName");
 const partLabelInput = document.getElementById("partLabel");
 const fileInput = document.getElementById("fileInput");
 const thumbnailInput = document.getElementById("thumbnailInput");
@@ -177,107 +211,131 @@ const uploadStatusEl = document.getElementById("uploadStatus");
 
 let currentViewer = null;
 let currentUrl = null;
+let currentProject = null;
+let currentMachine = null;
 
-// ---- 一覧表示 ----
-async function loadList() {
-  const { data: projects, error: pErr } = await supabase
-    .from("splat_projects")
-    .select("id, name")
-    .order("created_at", { ascending: false });
+// ---- 工事番号・機械名の一覧（工程表の全件から作成） ----
+async function loadTree() {
+  statusEl.textContent = "読み込み中...";
+  try {
+    const tree = await fetchProjectMachineTree();
+    statusEl.textContent = `工事番号 ${tree.length}件`;
 
-  if (pErr) {
-    statusEl.textContent = "読み込みエラー：" + pErr.message;
-    return;
-  }
+    treeContent.innerHTML = "";
+    tree.forEach((project) => {
+      const projectDiv = document.createElement("div");
+      projectDiv.className = "tree-project";
 
-  const { data: machines, error: mErr } = await supabase
-    .from("splat_machines")
-    .select("id, name, project_id");
+      const title = document.createElement("div");
+      title.className = "tree-project-title";
+      title.textContent = project.customer ? `${project.num}　${project.customer}` : project.num;
+      projectDiv.appendChild(title);
 
-  const { data: files, error: fErr } = await supabase
-    .from("splat_files")
-    .select("id, part_label, file_url, thumbnail_url, machine_id");
-
-  if (mErr || fErr) {
-    statusEl.textContent = "読み込みエラー：" + (mErr?.message || fErr?.message);
-    return;
-  }
-
-  statusEl.textContent = `案件 ${projects.length}件 / 機械 ${machines.length}件 / ファイル ${files.length}件`;
-
-  contentEl.innerHTML = "";
-  projects.forEach((project) => {
-    const projectMachines = machines.filter(m => m.project_id === project.id);
-    if (projectMachines.length === 0) return;
-
-    const projectDiv = document.createElement("div");
-    projectDiv.className = "project";
-    projectDiv.innerHTML = `<div class="project-title">${project.name}</div>`;
-
-    projectMachines.forEach((machine) => {
-      const machineFiles = files.filter(f => f.machine_id === machine.id);
-      const machineDiv = document.createElement("div");
-      machineDiv.className = "machine";
-      machineDiv.innerHTML = `<div class="machine-name">${machine.name}</div>`;
-
-      const partsDiv = document.createElement("div");
-      partsDiv.className = "parts";
-      machineFiles.forEach((file) => {
-        const card = document.createElement("div");
-        card.className = "part-card";
-
-        const thumbBtn = document.createElement("button");
-        thumbBtn.className = "part-thumb-btn";
-        if (file.thumbnail_url) {
-          const img = document.createElement("img");
-          img.className = "part-thumb";
-          img.src = file.thumbnail_url;
-          img.alt = "";
-          thumbBtn.appendChild(img);
-        } else {
-          const placeholder = document.createElement("span");
-          placeholder.className = "part-thumb-placeholder";
-          placeholder.textContent = "3D";
-          thumbBtn.appendChild(placeholder);
-        }
-        thumbBtn.onclick = () => openPreview(file.file_url, `${machine.name}　${file.part_label || ""}`);
-        card.appendChild(thumbBtn);
-
-        const editLabel = document.createElement("label");
-        editLabel.className = "part-edit-btn";
-        editLabel.title = "サムネイルを変更";
-        editLabel.textContent = "✎";
-        const editInput = document.createElement("input");
-        editInput.type = "file";
-        editInput.accept = "image/*";
-        editInput.onchange = async () => {
-          const chosen = editInput.files[0];
-          if (!chosen) return;
-          editLabel.textContent = "…";
-          try {
-            await updateThumbnail(file.id, chosen);
-            await loadList();
-          } catch (err) {
-            console.error(err);
-            statusEl.textContent = "サムネイルの更新に失敗しました：" + (err.message || err);
-            editLabel.textContent = "✎";
-          }
-        };
-        editLabel.appendChild(editInput);
-        card.appendChild(editLabel);
-
-        const label = document.createElement("span");
-        label.textContent = file.part_label || "表示";
-        card.appendChild(label);
-
-        partsDiv.appendChild(card);
-      });
-      machineDiv.appendChild(partsDiv);
-      projectDiv.appendChild(machineDiv);
+      const machinesDiv = document.createElement("div");
+      machinesDiv.className = "tree-machines";
+      if (project.machines.length === 0) {
+        const empty = document.createElement("span");
+        empty.className = "muted";
+        empty.textContent = "機械名の登録がありません";
+        machinesDiv.appendChild(empty);
+      } else {
+        project.machines.forEach((machineName) => {
+          const btn = document.createElement("button");
+          btn.className = "tree-machine-btn";
+          btn.textContent = machineName;
+          btn.onclick = () => openMachineView(project, machineName);
+          machinesDiv.appendChild(btn);
+        });
+      }
+      projectDiv.appendChild(machinesDiv);
+      treeContent.appendChild(projectDiv);
     });
+  } catch (err) {
+    statusEl.textContent = "読み込みエラー：" + err.message;
+  }
+}
 
-    contentEl.appendChild(projectDiv);
-  });
+// ---- 機械詳細（サムネイル一覧） ----
+function openMachineView(project, machineName) {
+  currentProject = project;
+  currentMachine = machineName;
+  closePreview();
+
+  treeView.style.display = "none";
+  machineView.style.display = "block";
+  machineViewTitle.textContent = `${project.num}　${machineName}`;
+  loadMachineFiles();
+}
+
+backToTree.onclick = () => {
+  closePreview();
+  machineView.style.display = "none";
+  treeView.style.display = "block";
+};
+
+async function loadMachineFiles() {
+  machineFilesStatus.textContent = "読み込み中...";
+  machineParts.innerHTML = "";
+  try {
+    const files = await fetchMachineFiles(currentProject.num, currentMachine);
+    machineFilesStatus.textContent = files.length === 0
+      ? "アップロード済みの3Dモデルはまだありません"
+      : `ファイル ${files.length}件`;
+    files.forEach((file) => machineParts.appendChild(buildPartCard(file)));
+  } catch (err) {
+    machineFilesStatus.textContent = "読み込みエラー：" + err.message;
+  }
+}
+
+function buildPartCard(file) {
+  const card = document.createElement("div");
+  card.className = "part-card";
+
+  const thumbBtn = document.createElement("button");
+  thumbBtn.className = "part-thumb-btn";
+  if (file.thumbnail_url) {
+    const img = document.createElement("img");
+    img.className = "part-thumb";
+    img.src = file.thumbnail_url;
+    img.alt = "";
+    thumbBtn.appendChild(img);
+  } else {
+    const placeholder = document.createElement("span");
+    placeholder.className = "part-thumb-placeholder";
+    placeholder.textContent = "3D";
+    thumbBtn.appendChild(placeholder);
+  }
+  thumbBtn.onclick = () => openPreview(file.file_url, `${currentMachine}　${file.part_label || ""}`);
+  card.appendChild(thumbBtn);
+
+  const editLabel = document.createElement("label");
+  editLabel.className = "part-edit-btn";
+  editLabel.title = "サムネイルを変更";
+  editLabel.textContent = "✎";
+  const editInput = document.createElement("input");
+  editInput.type = "file";
+  editInput.accept = "image/*";
+  editInput.onchange = async () => {
+    const chosen = editInput.files[0];
+    if (!chosen) return;
+    editLabel.textContent = "…";
+    try {
+      await updateThumbnail(file.id, chosen);
+      await loadMachineFiles();
+    } catch (err) {
+      console.error(err);
+      machineFilesStatus.textContent = "サムネイルの更新に失敗しました：" + (err.message || err);
+      editLabel.textContent = "✎";
+    }
+  };
+  editLabel.appendChild(editInput);
+  card.appendChild(editLabel);
+
+  const label = document.createElement("span");
+  label.textContent = file.part_label || "表示";
+  card.appendChild(label);
+
+  return card;
 }
 
 // ---- インラインプレビュー ----
@@ -308,33 +366,16 @@ fullscreenBtn.onclick = () => {
 };
 closePreviewBtn.onclick = closePreview;
 
-// ---- アップロードモーダル ----
+// ---- アップロードモーダル（選択中の工事番号・機械名に対してアップロードする） ----
 function setUploadStatus(msg, kind) {
   uploadStatusEl.textContent = msg;
   uploadStatusEl.className = kind || "";
 }
 
-async function openUploadModal() {
+function openUploadModal() {
   uploadOverlay.style.display = "flex";
   setUploadStatus("");
-  projectSelect.innerHTML = "<option>読み込み中...</option>";
-  try {
-    const options = await fetchProjectOptions();
-    projectSelect.innerHTML = "";
-    if (options.length === 0) {
-      projectSelect.innerHTML = "<option value=''>案件が見つかりません</option>";
-      return;
-    }
-    options.forEach(({ num, customer }) => {
-      const opt = document.createElement("option");
-      opt.value = num;
-      opt.textContent = customer ? `${num}　${customer}` : num;
-      projectSelect.appendChild(opt);
-    });
-  } catch (err) {
-    projectSelect.innerHTML = "";
-    setUploadStatus("案件一覧の取得に失敗しました：" + err.message, "error");
-  }
+  uploadContext.textContent = `案件：${currentProject.num}　機械名：${currentMachine}`;
 }
 
 function closeUploadModal() {
@@ -345,24 +386,26 @@ openUploadBtn.onclick = openUploadModal;
 cancelUploadBtn.onclick = closeUploadModal;
 
 uploadBtn.addEventListener("click", async () => {
-  const projectNumber = projectSelect.value;
-  const machineName = machineNameInput.value.trim();
   const partLabel = partLabelInput.value.trim();
   const file = fileInput.files[0];
   const thumbnailFile = thumbnailInput.files[0];
 
-  if (!projectNumber) return setUploadStatus("案件を選択してください", "error");
-  if (!machineName) return setUploadStatus("機械名を入力してください", "error");
   if (!file) return setUploadStatus("ファイルを選択してください", "error");
 
   uploadBtn.disabled = true;
   try {
-    await uploadPart({ projectNumber, machineName, partLabel, file, thumbnailFile }, (msg) => setUploadStatus(msg));
+    await uploadPart({
+      projectNumber: currentProject.num,
+      machineName: currentMachine,
+      partLabel,
+      file,
+      thumbnailFile,
+    }, (msg) => setUploadStatus(msg));
     setUploadStatus("アップロード完了しました！", "success");
     partLabelInput.value = "";
     fileInput.value = "";
     thumbnailInput.value = "";
-    await loadList();
+    await loadMachineFiles();
   } catch (err) {
     console.error(err);
     setUploadStatus("エラーが発生しました：" + (err.message || err), "error");
@@ -371,7 +414,7 @@ uploadBtn.addEventListener("click", async () => {
   }
 });
 
-loadList();
+loadTree();
 </script>
 </body>
 </html>
