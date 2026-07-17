@@ -266,24 +266,32 @@
     align-items: center; justify-content: center; z-index: 100;
   }
   #uploadModal {
-    background: #fff; border-radius: 8px; padding: 24px; width: 100%; max-width: 420px;
+    background: var(--color-surface); border-radius: var(--radius-lg); padding: 24px; width: 100%; max-width: 420px;
+    box-shadow: var(--shadow-lg);
   }
-  #uploadModal h2 { font-size: 18px; margin: 0 0 4px; }
-  #uploadContext { margin: 0; color: #78909c; }
-  #uploadModal label { display: block; font-size: 13px; color: #555; margin-top: 16px; margin-bottom: 4px; }
+  #uploadModal h2 { font-size: 18px; margin: 0 0 4px; color: var(--color-text); }
+  #uploadContext { margin: 0; color: var(--color-text-muted); }
+  #uploadModal label { display: block; font-size: 13px; color: var(--color-text-muted); margin-top: 16px; margin-bottom: 4px; }
   #uploadModal input[type="text"], #uploadModal input[type="file"] {
-    width: 100%; padding: 8px; box-sizing: border-box; font-size: 14px;
-    border: 1px solid #ccc; border-radius: 6px; background: #fff;
+    width: 100%; padding: 8px; box-sizing: border-box; font-size: 14px; color: var(--color-text);
+    border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface);
   }
   #uploadModal .modal-actions { margin-top: 20px; display: flex; gap: 8px; }
   #uploadModal button.secondary {
-    padding: 10px 20px; background: #eee; color: #333; border: none;
-    border-radius: 6px; cursor: pointer; font-size: 14px;
+    padding: 10px 20px; background: var(--color-surface-alt); color: var(--color-text); border: none;
+    border-radius: var(--radius-md); cursor: pointer; font-size: 14px;
   }
   #uploadModal button:disabled { background: #aaa; cursor: not-allowed; }
-  #uploadStatus { margin-top: 16px; font-size: 13px; color: #555; white-space: pre-wrap; }
-  #uploadStatus.error { color: #c0392b; }
-  #uploadStatus.success { color: #1a7f37; }
+  #uploadStatus { margin-top: 16px; font-size: 13px; color: var(--color-text-muted); white-space: pre-wrap; }
+  #uploadStatus.error { color: var(--color-danger); }
+  #uploadStatus.success { color: var(--color-success); }
+
+  #dropZone {
+    margin-top: 8px; border: 2px dashed var(--color-border-strong); border-radius: var(--radius-md);
+    padding: 14px; text-align: center; color: var(--color-text-muted); font-size: 12px;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+  }
+  #dropZone.dragover { border-color: var(--color-accent); background: var(--color-accent-soft); }
 </style>
 
 <script type="importmap">
