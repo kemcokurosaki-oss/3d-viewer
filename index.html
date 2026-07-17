@@ -42,13 +42,15 @@
   .sidebar-machine-empty { padding: 8px 16px 8px 32px; color: #78909c; font-size: 13px; }
 
   /* 右：メインエリア */
-  .main { flex: 1; padding: 24px; min-width: 0; }
+  .main { flex: 1; padding: 24px; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
   .main-placeholder { color: #78909c; font-size: 13px; }
 
-  /* サムネイル列とプレビュー列の横並び */
-  .content-columns { display: flex; gap: 24px; align-items: flex-start; }
+  #mainContent { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 
-  .thumb-column { width: 260px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; }
+  /* サムネイル列とプレビュー列の横並び */
+  .content-columns { flex: 1; min-height: 0; display: flex; gap: 24px; align-items: stretch; }
+
+  .thumb-column { width: 260px; flex-shrink: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
   .part-card { position: relative; width: 100%; display: flex; flex-direction: column;
     align-items: center; gap: 6px; font-size: 14px; }
   .part-thumb-btn { padding: 8px; background: #fff; border: 1px solid #dfe3e6;
