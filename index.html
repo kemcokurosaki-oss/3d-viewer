@@ -18,48 +18,50 @@
 
   .layout { display: flex; align-items: stretch; min-height: calc(100vh - 41px); }
 
-  /* 左：工事番号一覧 */
+  /* 左：工事番号一覧（工事番号の下に機械名をネストして表示） */
   .sidebar { width: 280px; flex-shrink: 0; background: #fff; border-right: 1px solid #dfe3e6; overflow-y: auto; }
   #sidebarStatus { padding: 10px 16px; color: #78909c; font-size: 12px; }
-  .sidebar-item { padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f0f2f4; font-size: 16px; }
+  .sidebar-project { border-bottom: 1px solid #f0f2f4; }
+  .sidebar-item { padding: 12px 16px; cursor: pointer; font-size: 16px; }
   .sidebar-item:hover { background: #eef1f3; }
   .sidebar-item.active { background: #1565c0; color: #fff; }
-  .sidebar-item .sidebar-item-customer { display: block; font-size: 14px; color: #78909c; margin-top: 2px; }
+  .sidebar-item-num { font-weight: 700; }
+  .sidebar-item .sidebar-item-customer { display: block; font-size: 14px; font-weight: 400; color: #78909c; margin-top: 2px; }
   .sidebar-item.active .sidebar-item-customer { color: #e3f2fd; }
+
+  .sidebar-machines { background: #f7f9fa; padding: 4px 0; }
+  .sidebar-machine-btn {
+    display: block; width: 100%; text-align: left; padding: 8px 16px 8px 32px;
+    border: none; background: none; cursor: pointer; font-size: 14px; color: #263238;
+  }
+  .sidebar-machine-btn:hover { background: #eef1f3; }
+  .sidebar-machine-btn.active { background: #1565c0; color: #fff; }
+  .sidebar-machine-empty { padding: 8px 16px 8px 32px; color: #78909c; font-size: 13px; }
 
   /* 右：メインエリア */
   .main { flex: 1; padding: 24px; min-width: 0; }
   .main-placeholder { color: #78909c; font-size: 13px; }
-  .breadcrumb { font-size: 12px; color: #78909c; margin-bottom: 14px; }
-  .breadcrumb .crumb-link { color: #1565c0; cursor: pointer; }
-  .breadcrumb .crumb-link:hover { text-decoration: underline; }
-
-  .machines { display: flex; gap: 8px; flex-wrap: wrap; }
-  .machine-btn {
-    padding: 8px 16px; background: #fff; border: 1px solid #dfe3e6; border-radius: 6px;
-    cursor: pointer; font-size: 14px;
-  }
-  .machine-btn:hover { border-color: #1565c0; color: #1565c0; }
+  .breadcrumb { font-size: 13px; color: #78909c; margin-bottom: 14px; }
 
   .parts-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 
-  .parts { display: flex; gap: 10px; flex-wrap: wrap; }
-  .part-card { position: relative; width: 100px; display: flex; flex-direction: column;
-    align-items: center; gap: 6px; font-size: 13px; }
+  .parts { display: flex; gap: 20px; flex-wrap: wrap; }
+  .part-card { position: relative; width: 220px; display: flex; flex-direction: column;
+    align-items: center; gap: 8px; font-size: 14px; }
   .part-thumb-btn { padding: 8px; background: #fff; border: 1px solid #dfe3e6;
     border-radius: 8px; cursor: pointer; width: 100%; }
   .part-thumb-btn:hover { border-color: #1565c0; }
   .part-thumb, .part-thumb-placeholder {
-    width: 84px; height: 64px; border-radius: 4px; object-fit: cover; display: block;
+    width: 100%; height: 160px; border-radius: 4px; object-fit: cover; display: block;
   }
   .part-thumb-placeholder {
     background: #1565c0; color: #fff; display: flex; align-items: center;
-    justify-content: center; font-size: 12px;
+    justify-content: center; font-size: 22px;
   }
   .part-edit-btn {
-    position: absolute; top: 4px; right: 4px; width: 20px; height: 20px;
+    position: absolute; top: 4px; right: 4px; width: 26px; height: 26px;
     background: rgba(0,0,0,0.55); color: #fff; border-radius: 50%; display: flex;
-    align-items: center; justify-content: center; font-size: 11px; cursor: pointer;
+    align-items: center; justify-content: center; font-size: 14px; cursor: pointer;
     line-height: 1;
   }
   .part-edit-btn:hover { background: rgba(0,0,0,0.8); }
