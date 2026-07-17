@@ -86,7 +86,7 @@ export async function fetchMachineFiles(projectNumber, machineName) {
 
   const { data: files, error } = await supabase
     .from("splat_files")
-    .select("id, part_label, file_url, thumbnail_url")
+    .select("id, part_label, file_url, thumbnail_url, created_at")
     .eq("machine_id", machine.id);
   if (error) throw error;
 
