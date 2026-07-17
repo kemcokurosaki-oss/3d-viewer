@@ -41,9 +41,6 @@
   /* 右：メインエリア */
   .main { flex: 1; padding: 24px; min-width: 0; }
   .main-placeholder { color: #78909c; font-size: 13px; }
-  .breadcrumb { font-size: 13px; color: #78909c; margin-bottom: 14px; }
-
-  .parts-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 
   /* サムネイル列とプレビュー列の横並び */
   .content-columns { display: flex; gap: 24px; align-items: flex-start; }
@@ -70,17 +67,24 @@
   .part-edit-btn:hover { background: rgba(0,0,0,0.8); }
   .part-edit-btn input { display: none; }
 
+  .add-part-btn {
+    width: 100%; padding: 14px; background: #fff; border: 2px dashed #90a4ae;
+    border-radius: 8px; color: #1565c0; font-size: 16px; cursor: pointer;
+  }
+  .add-part-btn:hover { border-color: #1565c0; background: #e3f2fd; }
+
   button.primary {
     padding: 8px 16px; background: #1565c0; color: #fff; border: none;
     border-radius: 6px; cursor: pointer; font-size: 14px;
   }
   button.primary:hover { background: #0d47a1; }
 
-  /* プレビュー列（横長4:3で表示） */
+  /* プレビュー列（横長4:3、スクロール無しで画面内に収まる高さを基準にする） */
   .preview-column { flex: 1; min-width: 0; }
   #previewPlaceholder {
-    display: flex; align-items: center; justify-content: center; width: 100%;
-    aspect-ratio: 4 / 3; background: #fff; border: 1px dashed #cfd8dc; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    height: calc(100vh - 150px); width: auto; aspect-ratio: 4 / 3; max-width: 100%;
+    background: #fff; border: 1px dashed #cfd8dc; border-radius: 8px;
     color: #78909c; font-size: 14px;
   }
   #previewPanel {
@@ -98,7 +102,9 @@
   #fullscreenBtn:hover { background: #0d47a1; }
   #closePreviewBtn { background: #444; color: #fff; }
   #closePreviewBtn:hover { background: #333; }
-  #previewViewer { position: relative; width: 100%; aspect-ratio: 4 / 3; }
+  #previewViewer {
+    position: relative; height: calc(100vh - 190px); width: auto; aspect-ratio: 4 / 3; max-width: 100%;
+  }
   #previewStatus {
     position: absolute; top: 10px; left: 10px; color: #fff;
     background: rgba(0,0,0,0.6); padding: 6px 10px; border-radius: 6px; font-size: 12px;
