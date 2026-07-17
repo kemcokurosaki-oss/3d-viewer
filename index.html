@@ -448,8 +448,7 @@ function buildPartCard(file) {
       await loadMachineFiles();
     } catch (err) {
       console.error(err);
-      const statusEl = document.getElementById("partsStatus");
-      if (statusEl) statusEl.textContent = "サムネイルの更新に失敗しました：" + (err.message || err);
+      if (partsStatusEl) partsStatusEl.textContent = "サムネイルの更新に失敗しました：" + (err.message || err);
       editLabel.textContent = "✎";
     }
   };
