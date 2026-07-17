@@ -471,7 +471,7 @@ function openPreview(url, title) {
   currentUrl = url;
   previewTitle.textContent = title;
   previewPlaceholder.style.display = "none";
-  previewPanel.style.display = "block";
+  previewPanel.style.display = "flex";
 
   currentViewer = initViewer(previewViewer, url, {
     onStatus: (msg) => { previewStatus.textContent = msg; },
