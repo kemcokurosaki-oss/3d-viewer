@@ -225,7 +225,7 @@ async function loadTree() {
       const n = parseInt(project.num, 10);
       return !isNaN(n) && n >= 2000 && n <= 2999;
     });
-    sidebarStatus.textContent = `工事番号 ${tree.length}件`;
+    sidebarStatus.textContent = "";
     renderSidebar();
     renderMain();
   } catch (err) {
@@ -236,10 +236,14 @@ async function loadTree() {
 function renderSidebar() {
   sidebarList.innerHTML = "";
   tree.forEach((project) => {
+    const projectDiv = document.createElement("div");
+    projectDiv.className = "sidebar-project";
+
     const item = document.createElement("div");
     item.className = "sidebar-item" + (currentProject?.num === project.num ? " active" : "");
 
     const num = document.createElement("span");
+    num.className = "sidebar-item-num";
     num.textContent = project.num;
     item.appendChild(num);
 
@@ -250,13 +254,35 @@ function renderSidebar() {
       item.appendChild(customer);
     }
 
-    item.onclick = () => selectProject(project);
-    sidebarList.appendChild(item);
+    item.onclick = () => toggleProject(project);
+    projectDiv.appendChild(item);
+
+    if (currentProject?.num === project.num) {
+      const machinesDiv = document.createElement("div");
+      machinesDiv.className = "sidebar-machines";
+      if (project.machines.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "sidebar-machine-empty";
+        empty.textContent = "機械名の登録がありません";
+        machinesDiv.appendChild(empty);
+      } else {
+        project.machines.forEach((machineName) => {
+          const btn = document.createElement("button");
+          btn.className = "sidebar-machine-btn" + (currentMachine === machineName ? " active" : "");
+          btn.textContent = machineName;
+          btn.onclick = () => selectMachine(machineName);
+          machinesDiv.appendChild(btn);
+        });
+      }
+      projectDiv.appendChild(machinesDiv);
+    }
+
+    sidebarList.appendChild(projectDiv);
   });
 }
 
-function selectProject(project) {
-  currentProject = project;
+function toggleProject(project) {
+  currentProject = currentProject?.num === project.num ? null : project;
   currentMachine = null;
   closePreview();
   renderSidebar();
@@ -266,61 +292,31 @@ function selectProject(project) {
 function selectMachine(machineName) {
   currentMachine = machineName;
   closePreview();
+  renderSidebar();
   renderMain();
 }
 
-// ---- 右：メインエリア（未選択 → 機械名一覧 → サムネイル一覧） ----
+// ---- 右：メインエリア（機械名を選ぶとサムネイル一覧を表示） ----
 function renderMain() {
   mainContent.innerHTML = "";
 
-  if (!currentProject) {
+  if (!currentMachine) {
     const placeholder = document.createElement("div");
     placeholder.className = "main-placeholder";
-    placeholder.textContent = "左の一覧から工事番号を選択してください";
+    placeholder.textContent = "左の一覧から工事番号→機械名を選択してください";
     mainContent.appendChild(placeholder);
     return;
   }
 
   const breadcrumb = document.createElement("div");
   breadcrumb.className = "breadcrumb";
-  const projectCrumb = document.createElement("span");
-  projectCrumb.className = "crumb-link";
-  projectCrumb.textContent = currentProject.customer
+  const projectLabel = currentProject.customer
     ? `${currentProject.num}　${currentProject.customer}`
     : currentProject.num;
-  projectCrumb.onclick = () => selectMachine(null);
-  breadcrumb.appendChild(projectCrumb);
-  if (currentMachine) {
-    breadcrumb.append(" ＞ " + currentMachine);
-  }
+  breadcrumb.textContent = `${projectLabel} ＞ ${currentMachine}`;
   mainContent.appendChild(breadcrumb);
 
-  if (!currentMachine) {
-    renderMachineList();
-  } else {
-    renderPartsView();
-  }
-}
-
-function renderMachineList() {
-  if (currentProject.machines.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "main-placeholder";
-    empty.textContent = "この工事番号には機械名の登録がありません";
-    mainContent.appendChild(empty);
-    return;
-  }
-
-  const machinesDiv = document.createElement("div");
-  machinesDiv.className = "machines";
-  currentProject.machines.forEach((machineName) => {
-    const btn = document.createElement("button");
-    btn.className = "machine-btn";
-    btn.textContent = machineName;
-    btn.onclick = () => selectMachine(machineName);
-    machinesDiv.appendChild(btn);
-  });
-  mainContent.appendChild(machinesDiv);
+  renderPartsView();
 }
 
 function renderPartsView() {
