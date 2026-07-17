@@ -307,11 +307,22 @@
 <body>
 
 <header class="app-header">
-  <h1>⚙️ 3Dモデルキャプチャ</h1>
+  <h1><span id="headerIcon"></span> 3Dモデルキャプチャ</h1>
+  <button class="theme-toggle-btn" id="themeToggleBtn" title="ダークモード切替"></button>
 </header>
 
 <div class="layout">
   <aside class="sidebar">
+    <div class="sidebar-search">
+      <div class="sidebar-search-box">
+        <span id="sidebarSearchIcon"></span>
+        <input type="text" id="sidebarSearch" placeholder="工事番号・客先名で絞り込み">
+      </div>
+    </div>
+    <div class="recent-machines" id="recentMachines" style="display:none;">
+      <h2>最近表示</h2>
+      <div id="recentMachinesList"></div>
+    </div>
     <div id="sidebarStatus">読み込み中...</div>
     <div id="sidebarList"></div>
   </aside>
