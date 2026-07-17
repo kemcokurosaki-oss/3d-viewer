@@ -4,42 +4,109 @@
 <meta charset="UTF-8">
 <title>3Dモデルキャプチャ</title>
 <style>
+  :root {
+    --color-bg: #eef1f3;
+    --color-surface: #fff;
+    --color-surface-alt: #f7f9fa;
+    --color-border: #dfe3e6;
+    --color-border-strong: #cfd8dc;
+    --color-text: #263238;
+    --color-text-muted: #78909c;
+    --color-accent: #1565c0;
+    --color-accent-dark: #0d47a1;
+    --color-accent-soft: #e3f2fd;
+    --color-header-start: #34495e;
+    --color-header-end: #2c3e50;
+    --color-danger: #c0392b;
+    --color-success: #1a7f37;
+    --color-viewer-bg: #1a1a1a;
+    --color-viewer-panel: #262626;
+
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.06);
+    --shadow-md: 0 2px 6px rgba(0,0,0,.12);
+    --shadow-lg: 0 6px 16px rgba(0,0,0,.16);
+
+    --transition-fast: .15s ease;
+  }
+
+  html[data-theme="dark"] {
+    --color-bg: #14181b;
+    --color-surface: #1e2429;
+    --color-surface-alt: #262d33;
+    --color-border: #333c42;
+    --color-border-strong: #3d474e;
+    --color-text: #dce3e8;
+    --color-text-muted: #8ea0ab;
+    --color-accent: #4d9de8;
+    --color-accent-dark: #7fbcf2;
+    --color-accent-soft: #1f3a52;
+    --color-header-start: #1c2226;
+    --color-header-end: #12171a;
+  }
+
   * { box-sizing: border-box; }
   html, body { height: 100%; }
   body {
-    font-family: "メイリオ", Meiryo, sans-serif; font-size: 13px; color: #263238;
-    background: #eef1f3; margin: 0;
+    font-family: "Yu Gothic UI", "メイリオ", Meiryo, sans-serif; font-size: 13px; color: var(--color-text);
+    background: var(--color-bg); margin: 0;
     display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+    transition: background var(--transition-fast), color var(--transition-fast);
   }
 
   .app-header {
     flex-shrink: 0;
-    background: linear-gradient(180deg, #34495e, #2c3e50); color: #fff;
-    padding: 10px 16px; box-shadow: 0 2px 6px rgba(0,0,0,.15);
+    background: linear-gradient(180deg, var(--color-header-start), var(--color-header-end)); color: #fff;
+    padding: 10px 16px; box-shadow: var(--shadow-md);
+    display: flex; align-items: center; justify-content: space-between;
   }
   .app-header h1 { margin: 0; font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .app-header .icon { width: 20px; height: 20px; flex-shrink: 0; }
+
+  .theme-toggle-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(255,255,255,.12); color: #fff; transition: background var(--transition-fast);
+  }
+  .theme-toggle-btn:hover { background: rgba(255,255,255,.22); }
+  .theme-toggle-btn .icon { width: 18px; height: 18px; }
 
   .layout { display: flex; align-items: stretch; flex: 1; min-height: 0; }
 
   /* 左：工事番号一覧（工事番号の下に機械名をネストして表示） */
-  .sidebar { width: 200px; flex-shrink: 0; background: #fff; border-right: 1px solid #dfe3e6; overflow-y: auto; }
-  #sidebarStatus { padding: 10px 16px; color: #78909c; font-size: 12px; }
-  .sidebar-project { border-bottom: 2px solid #cfd8dc; }
-  .sidebar-item { padding: 12px 16px; cursor: pointer; font-size: 16px; }
-  .sidebar-item:hover { background: #eef1f3; }
-  .sidebar-item.active { background: #e3f2fd; color: #0d47a1; box-shadow: inset 4px 0 0 #1565c0; }
-  .sidebar-item-num { font-weight: 700; }
-  .sidebar-item .sidebar-item-customer { display: block; font-size: 14px; font-weight: 400; color: #78909c; margin-top: 2px; }
-  .sidebar-item.active .sidebar-item-customer { color: #1565c0; }
+  .sidebar { width: 200px; flex-shrink: 0; background: var(--color-surface); border-right: 1px solid var(--color-border); overflow-y: auto; }
+  #sidebarStatus { padding: 10px 16px; color: var(--color-text-muted); font-size: 12px; }
 
-  .sidebar-machines { background: #f7f9fa; padding: 4px 0; }
+  .sidebar-search { padding: 10px 12px; border-bottom: 1px solid var(--color-border); position: sticky; top: 0; background: var(--color-surface); z-index: 1; }
+  .sidebar-search-box { position: relative; display: flex; align-items: center; }
+  .sidebar-search-box .icon { position: absolute; left: 9px; width: 14px; height: 14px; color: var(--color-text-muted); pointer-events: none; }
+  #sidebarSearch {
+    width: 100%; padding: 7px 8px 7px 28px; font-size: 13px; color: var(--color-text);
+    border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg);
+    transition: border-color var(--transition-fast);
+  }
+  #sidebarSearch:focus { outline: none; border-color: var(--color-accent); }
+
+  .sidebar-project { border-bottom: 2px solid var(--color-border-strong); }
+  .sidebar-item { padding: 12px 16px; cursor: pointer; font-size: 16px; transition: background var(--transition-fast); }
+  .sidebar-item:hover { background: var(--color-bg); }
+  .sidebar-item.active { background: var(--color-accent-soft); color: var(--color-accent-dark); box-shadow: inset 4px 0 0 var(--color-accent); transition: box-shadow var(--transition-fast), background var(--transition-fast); }
+  .sidebar-item-num { font-weight: 700; }
+  .sidebar-item .sidebar-item-customer { display: block; font-size: 14px; font-weight: 400; color: var(--color-text-muted); margin-top: 2px; }
+  .sidebar-item.active .sidebar-item-customer { color: var(--color-accent-dark); }
+
+  .sidebar-machines { background: var(--color-surface-alt); padding: 4px 0; }
   .sidebar-machine-btn {
     display: block; width: 100%; text-align: left; padding: 8px 16px 8px 32px;
-    border: none; background: none; cursor: pointer; font-size: 14px; color: #263238;
+    border: none; background: none; cursor: pointer; font-size: 14px; color: var(--color-text);
+    transition: background var(--transition-fast);
   }
-  .sidebar-machine-btn:hover { background: #eef1f3; }
-  .sidebar-machine-btn.active { background: #e3f2fd; color: #0d47a1; box-shadow: inset 4px 0 0 #1565c0; }
-  .sidebar-machine-empty { padding: 8px 16px 8px 32px; color: #78909c; font-size: 13px; }
+  .sidebar-machine-btn:hover { background: var(--color-bg); }
+  .sidebar-machine-btn.active { background: var(--color-accent-soft); color: var(--color-accent-dark); box-shadow: inset 4px 0 0 var(--color-accent); }
+  .sidebar-machine-empty { padding: 8px 16px 8px 32px; color: var(--color-text-muted); font-size: 13px; }
 
   /* 右：メインエリア */
   .main { flex: 1; padding: 24px; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
