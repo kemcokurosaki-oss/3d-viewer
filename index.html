@@ -627,14 +627,49 @@ function buildPreviewColumn() {
   const header = document.createElement("div");
   header.id = "previewHeader";
 
+  const titleBlock = document.createElement("div");
+  titleBlock.id = "previewTitleBlock";
   previewTitle = document.createElement("span");
-  header.appendChild(previewTitle);
+  previewTitle.id = "previewTitle";
+  previewMeta = document.createElement("span");
+  previewMeta.id = "previewMeta";
+  titleBlock.appendChild(previewTitle);
+  titleBlock.appendChild(previewMeta);
+  header.appendChild(titleBlock);
 
   const actions = document.createElement("div");
   actions.className = "actions";
 
+  const bgGroup = document.createElement("div");
+  bgGroup.className = "bg-swatch-group";
+  const bgOptions = [
+    { key: "dark", label: "暗い背景", cls: "bg-swatch-dark", color: 0x1a1a1a },
+    { key: "gray", label: "グレー背景", cls: "bg-swatch-gray", color: 0x6b7280 },
+    { key: "light", label: "明るい背景", cls: "bg-swatch-light", color: 0xf2f2f2 },
+  ];
+  bgOptions.forEach((opt) => {
+    const swatchBtn = document.createElement("button");
+    swatchBtn.className = "bg-swatch-btn " + opt.cls + (opt.key === "dark" ? " active" : "");
+    swatchBtn.title = opt.label;
+    swatchBtn.onclick = () => {
+      currentViewer?.setBackground(opt.color);
+      bgGroup.querySelectorAll(".bg-swatch-btn").forEach((b) => b.classList.remove("active"));
+      swatchBtn.classList.add("active");
+    };
+    bgGroup.appendChild(swatchBtn);
+  });
+  actions.appendChild(bgGroup);
+
+  const resetViewBtnEl = document.createElement("button");
+  resetViewBtnEl.id = "resetViewBtn";
+  resetViewBtnEl.title = "視点をリセット";
+  resetViewBtnEl.innerHTML = ICON_RESET;
+  resetViewBtnEl.onclick = () => currentViewer?.resetView();
+  actions.appendChild(resetViewBtnEl);
+
   const fullscreenBtnEl = document.createElement("button");
-  fullscreenBtnEl.textContent = "全画面表示";
+  fullscreenBtnEl.id = "fullscreenBtn";
+  fullscreenBtnEl.innerHTML = `${ICON_EXPAND}<span>全画面表示</span>`;
   fullscreenBtnEl.onclick = () => {
     if (!currentUrl) return;
     window.open("viewer.html?url=" + encodeURIComponent(currentUrl), "_blank");
@@ -642,7 +677,8 @@ function buildPreviewColumn() {
   actions.appendChild(fullscreenBtnEl);
 
   const closePreviewBtnEl = document.createElement("button");
-  closePreviewBtnEl.textContent = "閉じる";
+  closePreviewBtnEl.id = "closePreviewBtn";
+  closePreviewBtnEl.innerHTML = `${ICON_CLOSE}<span>閉じる</span>`;
   closePreviewBtnEl.onclick = closePreview;
   actions.appendChild(closePreviewBtnEl);
 
