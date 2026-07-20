@@ -26,7 +26,7 @@ function buildSpinner() {
 
 function buildHint() {
   const hint = document.createElement("div");
-  hint.style.cssText = "position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.6);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;white-space:nowrap;pointer-events:none;transition:opacity .6s ease;z-index:5;";
+  hint.style.cssText = "position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;white-space:nowrap;pointer-events:none;transition:opacity .5s ease;z-index:5;box-shadow:0 2px 12px rgba(0,0,0,.25);";
   hint.innerHTML = `${ICON_HAND}<span>ドラッグ：回転／スクロール：ズーム</span>`;
   return hint;
 }
