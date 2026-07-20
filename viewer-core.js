@@ -118,6 +118,7 @@ export function initViewer(container, url, { onStatus, hint = true, background =
     },
     dispose() {
       clearTimeout(hintTimer);
+      controls.removeEventListener("start", hideHint);
       hintEl?.remove();
       spinner.remove();
       renderer.setAnimationLoop(null);
