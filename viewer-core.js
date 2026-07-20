@@ -65,14 +65,19 @@ export function initViewer(container, url, { onStatus, hint = true, background =
 
   let hintEl = null;
   let hintTimer = null;
+  const hideHint = () => {
+    if (!hintEl) return;
+    clearTimeout(hintTimer);
+    hintEl.style.opacity = "0";
+    const el = hintEl;
+    hintEl = null;
+    setTimeout(() => el.remove(), 500);
+  };
   if (hint) {
     hintEl = buildHint();
     container.appendChild(hintEl);
-    hintTimer = setTimeout(() => {
-      if (!hintEl) return;
-      hintEl.style.opacity = "0";
-      setTimeout(() => hintEl?.remove(), 600);
-    }, 3500);
+    hintTimer = setTimeout(hideHint, 3500);
+    controls.addEventListener("start", hideHint);
   }
 
   onStatus?.("読み込み中...");
