@@ -78,11 +78,11 @@
 
   /* 左：工事番号一覧（工事番号の下に機械名をネストして表示） */
   .sidebar { width: 200px; flex-shrink: 0; background: var(--color-surface); border-right: 1px solid var(--color-border); overflow-y: auto; }
-  #sidebarStatus { padding: 10px 16px; color: var(--color-text-muted); font-size: 12px; }
+  #sidebarStatus, .sidebar-empty-msg { padding: 10px 16px; color: var(--color-text-muted); font-size: 12px; }
 
   .sidebar-search { padding: 10px 12px; border-bottom: 1px solid var(--color-border); position: sticky; top: 0; background: var(--color-surface); z-index: 1; }
   .sidebar-search-box { position: relative; display: flex; align-items: center; }
-  .sidebar-search-box .icon { position: absolute; left: 9px; width: 14px; height: 14px; color: var(--color-text-muted); pointer-events: none; }
+  .sidebar-search-box .icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--color-text-muted); pointer-events: none; }
   #sidebarSearch {
     width: 100%; padding: 7px 8px 7px 28px; font-size: 13px; color: var(--color-text);
     border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg);
@@ -492,7 +492,7 @@ function renderSidebar() {
 
   if (searchQuery && visibleProjects.length === 0) {
     const empty = document.createElement("div");
-    empty.id = "sidebarStatus";
+    empty.className = "sidebar-empty-msg";
     empty.textContent = "該当する案件が見つかりません";
     sidebarList.appendChild(empty);
   }
