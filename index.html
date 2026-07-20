@@ -332,15 +332,22 @@
     <h2>3Dキャプチャ アップロード</h2>
     <p id="uploadContext"></p>
 
-    <label for="partLabel">パーツ番号・撮影箇所（任意）</label>
-    <input type="text" id="partLabel" placeholder="例：①、正面、上部など">
+    <div class="upload-field">
+      <label for="partLabel">パーツ番号・撮影箇所（任意）</label>
+      <input type="text" id="partLabel" placeholder="例：①、正面、上部など">
+    </div>
 
-    <label for="fileInput">3Dファイル（.splat / .ply / .ksplat / .spz / .sog）</label>
-    <input type="file" id="fileInput" accept=".splat,.ply,.ksplat,.spz,.sog">
-    <div id="dropZone">ここに3Dファイルをドラッグ&ドロップもできます</div>
+    <div class="upload-field">
+      <label for="fileInput">3Dファイル（.splat / .ply / .ksplat / .spz / .sog）</label>
+      <input type="file" id="fileInput" accept=".splat,.ply,.ksplat,.spz,.sog">
+      <div class="drop-zone" id="dropZone">ここに3Dファイルをドラッグ&ドロップもできます</div>
+    </div>
 
-    <label for="thumbnailInput">サムネイル画像（任意・未指定なら自動撮影）</label>
-    <input type="file" id="thumbnailInput" accept="image/*">
+    <div class="upload-field">
+      <label for="thumbnailInput">サムネイル画像（任意・未指定なら自動撮影）</label>
+      <input type="file" id="thumbnailInput" accept="image/*">
+      <div class="drop-zone" id="thumbnailDropZone">ここに画像をドラッグ&ドロップもできます</div>
+    </div>
 
     <div class="modal-actions">
       <button class="primary" id="uploadBtn">アップロード</button>
