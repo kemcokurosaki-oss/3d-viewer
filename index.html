@@ -63,8 +63,8 @@
     padding: 10px 16px; box-shadow: var(--shadow-md);
     display: flex; align-items: center; justify-content: space-between;
   }
-  .app-header h1 { margin: 0; font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-  .app-header .icon { width: 20px; height: 20px; flex-shrink: 0; }
+  .app-header h1 { margin: 0; font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 0; }
+  .app-header #headerIcon { font-size: 18px; line-height: 1; }
 
   .theme-toggle-btn {
     display: flex; align-items: center; justify-content: center;
@@ -307,7 +307,7 @@
 <body>
 
 <header class="app-header">
-  <h1><span id="headerIcon"></span> 3Dモデルキャプチャ</h1>
+  <h1><span id="headerIcon"></span><span>3Dモデルキャプチャ</span></h1>
   <button class="theme-toggle-btn" id="themeToggleBtn" title="ダークモード切替"></button>
 </header>
 
@@ -359,7 +359,7 @@
 <script type="module">
 import { initViewer } from "./viewer-core.js";
 import { fetchProjectMachineTree, fetchMachineFiles, uploadPart, updateThumbnail } from "./upload-core.js";
-import { ICON_GEAR, ICON_SUN, ICON_MOON, ICON_SEARCH, ICON_EDIT, ICON_CUBE, ICON_PLUS,
+import { ICON_SUN, ICON_MOON, ICON_SEARCH, ICON_EDIT, ICON_CUBE, ICON_PLUS,
          ICON_EXPAND, ICON_CLOSE, ICON_RESET, ICON_CLOCK } from "./icons.js";
 
 const sidebarStatus = document.getElementById("sidebarStatus");
@@ -372,7 +372,7 @@ const sidebarSearchIcon = document.getElementById("sidebarSearchIcon");
 const recentMachinesSection = document.getElementById("recentMachines");
 const recentMachinesList = document.getElementById("recentMachinesList");
 
-headerIcon.innerHTML = ICON_GEAR;
+headerIcon.textContent = "⚙️";
 sidebarSearchIcon.innerHTML = ICON_SEARCH;
 
 // ---- ライト/ダークモード切替（localStorageに保存） ----
