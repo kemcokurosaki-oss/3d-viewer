@@ -29,8 +29,19 @@ function buildSpinner() {
 
 function buildHint() {
   const hint = document.createElement("div");
-  hint.style.cssText = "position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;white-space:nowrap;pointer-events:none;transition:opacity .5s ease;z-index:5;box-shadow:0 2px 12px rgba(0,0,0,.25);";
-  hint.innerHTML = `${ICON_HAND}<span>ドラッグ：回転／スクロール：ズーム</span>`;
+  hint.style.cssText = "position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(10,10,14,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;pointer-events:none;transition:opacity .5s ease;z-index:5;";
+
+  const iconWrap = document.createElement("div");
+  iconWrap.style.cssText = "width:56px;height:56px;animation:viewer-core-drag 1.6s ease-in-out infinite;";
+  iconWrap.innerHTML = ICON_HAND;
+  iconWrap.firstElementChild.style.cssText = "width:100%;height:100%;";
+
+  const label = document.createElement("div");
+  label.style.cssText = "display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);padding:8px 16px;border-radius:20px;font-size:13px;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,.25);";
+  label.innerHTML = `<span>ドラッグ：回転／スクロール：ズーム</span>`;
+
+  hint.appendChild(iconWrap);
+  hint.appendChild(label);
   return hint;
 }
 
