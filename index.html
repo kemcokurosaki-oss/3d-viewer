@@ -763,6 +763,26 @@ function buildPartCard(file) {
   editLabel.appendChild(editInput);
   card.appendChild(editLabel);
 
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "part-delete-btn";
+  deleteBtn.title = "削除";
+  deleteBtn.innerHTML = ICON_TRASH;
+  deleteBtn.onclick = async () => {
+    if (!confirm(`「${file.part_label || "表示"}」を削除しますか？この操作は取り消せません。`)) return;
+    deleteBtn.innerHTML = "…";
+    deleteBtn.disabled = true;
+    try {
+      await deletePart(file.id);
+      await loadMachineFiles();
+    } catch (err) {
+      console.error(err);
+      if (partsStatusEl) partsStatusEl.textContent = "削除に失敗しました：" + (err.message || err);
+      deleteBtn.innerHTML = ICON_TRASH;
+      deleteBtn.disabled = false;
+    }
+  };
+  card.appendChild(deleteBtn);
+
   const label = document.createElement("span");
   label.textContent = file.part_label || "表示";
   card.appendChild(label);
