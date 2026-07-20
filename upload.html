@@ -33,11 +33,11 @@
 <label for="machineName">機械名</label>
 <input type="text" id="machineName" placeholder="例：2814DF">
 
-<label for="partLabel">パーツ番号・撮影箇所（任意）</label>
+<label for="partLabel">パーツ番号・撮影箇所（任意・複数ファイル選択時は無視されファイル名が使われます）</label>
 <input type="text" id="partLabel" placeholder="例：①、正面、上部など">
 
-<label for="fileInput">3Dファイル（.splat / .ply / .ksplat / .spz / .sog）</label>
-<input type="file" id="fileInput" accept=".splat,.ply,.ksplat,.spz,.sog">
+<label for="fileInput">3Dファイル（.splat / .ply / .ksplat / .spz / .sog・複数選択可）</label>
+<input type="file" id="fileInput" accept=".splat,.ply,.ksplat,.spz,.sog" multiple>
 
 <label for="thumbnailInput">サムネイル画像（任意・未指定なら自動撮影）</label>
 <input type="file" id="thumbnailInput" accept="image/*">
