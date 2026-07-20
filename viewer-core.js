@@ -87,17 +87,19 @@ export function initViewer(container, url, { onStatus, hint = true, background =
     hintEl = null;
     setTimeout(() => el.remove(), 500);
   };
-  if (hint) {
+  const showHint = () => {
+    if (!hint) return;
     hintEl = buildHint();
     container.appendChild(hintEl);
     hintTimer = setTimeout(hideHint, 3500);
     controls.addEventListener("start", hideHint);
-  }
+  };
 
   onStatus?.("読み込み中...");
   const ready = splat.initialized.then(() => {
     onStatus?.("表示成功");
     spinner.remove();
+    showHint();
   }).catch((err) => {
     onStatus?.("読み込み失敗：ファイルURLを確認してください");
     console.error(err);
