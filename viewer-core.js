@@ -37,8 +37,12 @@ function buildHint() {
   iconWrap.firstElementChild.style.cssText = "width:100%;height:100%;";
 
   const label = document.createElement("div");
-  label.style.cssText = "display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);padding:8px 16px;border-radius:20px;font-size:13px;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,.25);";
-  label.innerHTML = `<span>ドラッグ：回転／スクロール：ズーム</span>`;
+  label.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:4px;background:rgba(255,255,255,.12);padding:10px 18px;border-radius:16px;font-size:13px;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,.25);";
+  label.innerHTML = `
+    <span>左ドラッグ：回転</span>
+    <span>右ドラッグ：移動</span>
+    <span>スクロール：ズーム</span>
+  `;
 
   hint.appendChild(iconWrap);
   hint.appendChild(label);
