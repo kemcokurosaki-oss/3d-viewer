@@ -444,7 +444,7 @@ function saveRecentMachine(project, machineName) {
   renderRecentMachines();
 }
 function renderRecentMachines() {
-  const recent = loadRecentMachines();
+  const recent = loadRecentMachines().slice(0, 3);
   recentMachinesSection.style.display = recent.length ? "block" : "none";
   recentMachinesList.innerHTML = "";
   recent.forEach((r) => {
