@@ -210,6 +210,38 @@ export async function updateThumbnail(fileId, thumbnailFile) {
   return thumbnailUrl;
 }
 
+// Storageの公開URLからバケット内の相対パスを取り出す
+function extractStoragePath(publicUrl) {
+  if (!publicUrl) return null;
+  const marker = `/object/public/${BUCKET}/`;
+  const idx = publicUrl.indexOf(marker);
+  if (idx === -1) return null;
+  return decodeURIComponent(publicUrl.slice(idx + marker.length));
+}
+
+// パーツを削除する（Storage上のファイル本体・サムネイルとsplat_filesのレコードを削除）
+export async function deletePart(fileId) {
+  const { data: file, error: fetchError } = await supabase
+    .from("splat_files")
+    .select("file_url, thumbnail_url")
+    .eq("id", fileId)
+    .single();
+  if (fetchError) throw fetchError;
+
+  const paths = [extractStoragePath(file.file_url), extractStoragePath(file.thumbnail_url)]
+    .filter(Boolean);
+  if (paths.length) {
+    const { error: removeError } = await supabase.storage.from(BUCKET).remove(paths);
+    if (removeError) throw removeError;
+  }
+
+  const { error: deleteError } = await supabase
+    .from("splat_files")
+    .delete()
+    .eq("id", fileId);
+  if (deleteError) throw deleteError;
+}
+
 // パーツファイルをアップロードし、splat_projects / splat_machines / splat_files に登録する
 export async function uploadPart({ projectNumber, machineName, partLabel, file, thumbnailFile }, onStatus) {
   onStatus?.("アップロード中...");
