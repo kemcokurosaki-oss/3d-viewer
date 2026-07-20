@@ -393,7 +393,7 @@ function applyTheme(theme) {
   themeToggleBtn.innerHTML = theme === "dark" ? ICON_SUN : ICON_MOON;
   themeToggleBtn.title = theme === "dark" ? "ライトモードに切替" : "ダークモードに切替";
 }
-applyTheme(localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light");
+applyTheme(localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark");
 themeToggleBtn.onclick = () => {
   const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
   localStorage.setItem(THEME_KEY, next);
