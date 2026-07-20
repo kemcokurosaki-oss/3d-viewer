@@ -11,7 +11,10 @@ function ensureStylesInjected() {
   if (stylesInjected) return;
   stylesInjected = true;
   const style = document.createElement("style");
-  style.textContent = `@keyframes viewer-core-spin { to { transform: rotate(360deg); } }`;
+  style.textContent = `
+    @keyframes viewer-core-spin { to { transform: rotate(360deg); } }
+    @keyframes viewer-core-drag { 0%, 100% { transform: translateX(-16px); } 50% { transform: translateX(16px); } }
+  `;
   document.head.appendChild(style);
 }
 
