@@ -858,6 +858,7 @@ uploadBtn.addEventListener("click", async () => {
     fileInput.value = "";
     thumbnailInput.value = "";
     dropZone.textContent = dropZoneDefaultText;
+    thumbnailDropZone.textContent = thumbnailDropZoneDefaultText;
     await loadMachineFiles();
     setTimeout(closeUploadModal, 800);
   } catch (err) {
