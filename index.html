@@ -426,7 +426,7 @@ function formatDateTime(iso) {
   return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-// ---- 最近表示した機械（localStorageに保存、最大6件） ----
+// ---- 検索履歴（localStorageに保存、最大6件） ----
 const RECENT_KEY = "3dmodel-recent-machines";
 function loadRecentMachines() {
   try {
