@@ -52,7 +52,8 @@ export async function fetchProjectMachineTree() {
     const entry = projects.get(num);
     if (!entry.customer && row.customer_name) entry.customer = row.customer_name;
     const machine = (row.machine || "").toString().trim();
-    if (machine) entry.machines.add(machine);
+    // カンマ区切りは複数機械にまたがるタスクのため、単一機械名として扱わず除外する
+    if (machine && !machine.includes(",")) entry.machines.add(machine);
   });
 
   const tree = [...projects.entries()].map(([num, { customer, machines }]) => ({
