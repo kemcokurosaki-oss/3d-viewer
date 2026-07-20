@@ -802,33 +802,40 @@ function openUploadModal() {
 function closeUploadModal() {
   uploadOverlay.style.display = "none";
   dropZone.textContent = dropZoneDefaultText;
+  thumbnailDropZone.textContent = thumbnailDropZoneDefaultText;
 }
 
 cancelUploadBtn.onclick = closeUploadModal;
 
-// ---- ドラッグ&ドロップで3Dファイルを選択 ----
-const dropZoneDefaultText = dropZone.textContent;
-["dragenter", "dragover"].forEach((evt) => {
-  dropZone.addEventListener(evt, (e) => {
-    e.preventDefault();
-    dropZone.classList.add("dragover");
+// ---- ドラッグ&ドロップでファイルを選択（3Dファイル・サムネイル画像共通） ----
+function setupDropZone(zone, input, defaultText) {
+  ["dragenter", "dragover"].forEach((evt) => {
+    zone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      zone.classList.add("dragover");
+    });
   });
-});
-["dragleave", "dragend"].forEach((evt) => {
-  dropZone.addEventListener(evt, () => dropZone.classList.remove("dragover"));
-});
-dropZone.addEventListener("drop", (e) => {
-  e.preventDefault();
-  dropZone.classList.remove("dragover");
-  const dropped = e.dataTransfer.files?.[0];
-  if (!dropped) return;
-  fileInput.files = e.dataTransfer.files;
-  dropZone.textContent = `選択中：${dropped.name}`;
-});
-fileInput.addEventListener("change", () => {
-  const chosen = fileInput.files?.[0];
-  dropZone.textContent = chosen ? `選択中：${chosen.name}` : dropZoneDefaultText;
-});
+  ["dragleave", "dragend"].forEach((evt) => {
+    zone.addEventListener(evt, () => zone.classList.remove("dragover"));
+  });
+  zone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    zone.classList.remove("dragover");
+    const dropped = e.dataTransfer.files?.[0];
+    if (!dropped) return;
+    input.files = e.dataTransfer.files;
+    zone.textContent = `選択中：${dropped.name}`;
+  });
+  input.addEventListener("change", () => {
+    const chosen = input.files?.[0];
+    zone.textContent = chosen ? `選択中：${chosen.name}` : defaultText;
+  });
+}
+
+const dropZoneDefaultText = dropZone.textContent;
+const thumbnailDropZoneDefaultText = thumbnailDropZone.textContent;
+setupDropZone(dropZone, fileInput, dropZoneDefaultText);
+setupDropZone(thumbnailDropZone, thumbnailInput, thumbnailDropZoneDefaultText);
 
 uploadBtn.addEventListener("click", async () => {
   const partLabel = partLabelInput.value.trim();
