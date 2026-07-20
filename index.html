@@ -574,32 +574,7 @@ function renderMain() {
     return;
   }
 
-  mainContent.appendChild(buildBreadcrumb());
   renderPartsView();
-}
-
-function buildBreadcrumb() {
-  const breadcrumb = document.createElement("div");
-  breadcrumb.className = "breadcrumb";
-
-  const projectCrumb = document.createElement("span");
-  projectCrumb.className = "crumb";
-  projectCrumb.textContent = currentProject.customer
-    ? `${currentProject.num}（${currentProject.customer}）`
-    : currentProject.num;
-  breadcrumb.appendChild(projectCrumb);
-
-  const sep = document.createElement("span");
-  sep.className = "sep";
-  sep.textContent = "›";
-  breadcrumb.appendChild(sep);
-
-  const machineCrumb = document.createElement("span");
-  machineCrumb.className = "crumb current";
-  machineCrumb.textContent = currentMachine;
-  breadcrumb.appendChild(machineCrumb);
-
-  return breadcrumb;
 }
 
 let partsStatusEl = null;
