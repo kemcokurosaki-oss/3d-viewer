@@ -65,13 +65,14 @@
 <div id="status"></div>
 
 <script type="module">
-import { fetchProjectOptions, uploadPart } from "./upload-core.js";
+import { fetchProjectOptions, uploadPart, captureThumbnailCandidates } from "./upload-core.js";
 
 const projectSelect = document.getElementById("projectSelect");
 const machineNameInput = document.getElementById("machineName");
 const partLabelInput = document.getElementById("partLabel");
 const fileInput = document.getElementById("fileInput");
 const thumbnailInput = document.getElementById("thumbnailInput");
+const thumbnailCandidatesEl = document.getElementById("thumbnailCandidates");
 const uploadBtn = document.getElementById("uploadBtn");
 const statusEl = document.getElementById("status");
 
@@ -79,6 +80,66 @@ function setStatus(msg, kind) {
   statusEl.textContent = msg;
   statusEl.className = kind || "";
 }
+
+// ---- サムネイル候補（単体アップロード時のみ、4アングルを自動撮影して選ばせる） ----
+let candidateBlobs = [];
+let candidateObjectUrls = [];
+let selectedCandidateIndex = -1;
+let candidateSourceUrl = null;
+
+function clearThumbnailCandidates() {
+  candidateObjectUrls.forEach((url) => URL.revokeObjectURL(url));
+  if (candidateSourceUrl) URL.revokeObjectURL(candidateSourceUrl);
+  candidateBlobs = [];
+  candidateObjectUrls = [];
+  selectedCandidateIndex = -1;
+  candidateSourceUrl = null;
+  thumbnailCandidatesEl.innerHTML = "";
+  thumbnailCandidatesEl.classList.remove("visible");
+}
+
+function renderThumbnailCandidates() {
+  thumbnailCandidatesEl.innerHTML = "";
+  candidateObjectUrls.forEach((url, i) => {
+    const img = document.createElement("img");
+    img.src = url;
+    img.className = i === selectedCandidateIndex ? "selected" : "";
+    img.title = "クリックでこの画像をサムネイルに選択";
+    img.addEventListener("click", () => {
+      selectedCandidateIndex = i;
+      renderThumbnailCandidates();
+    });
+    thumbnailCandidatesEl.appendChild(img);
+  });
+  thumbnailCandidatesEl.classList.add("visible");
+}
+
+async function generateThumbnailCandidates(file) {
+  clearThumbnailCandidates();
+  candidateSourceUrl = URL.createObjectURL(file);
+  setStatus("サムネイル候補を生成中...");
+  try {
+    const blobs = await captureThumbnailCandidates(candidateSourceUrl);
+    candidateBlobs = blobs;
+    candidateObjectUrls = blobs.map((b) => URL.createObjectURL(b));
+    selectedCandidateIndex = 0;
+    renderThumbnailCandidates();
+    setStatus("");
+  } catch (err) {
+    console.error(err);
+    clearThumbnailCandidates();
+    setStatus("サムネイル候補の生成に失敗しました（アップロード時は自動生成にフォールバックします）", "error");
+  }
+}
+
+fileInput.addEventListener("change", () => {
+  const files = [...fileInput.files];
+  if (files.length === 1) {
+    generateThumbnailCandidates(files[0]);
+  } else {
+    clearThumbnailCandidates();
+  }
+});
 
 async function loadProjects() {
   try {
