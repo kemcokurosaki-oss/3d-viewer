@@ -550,9 +550,10 @@ function renderSidebar() {
     const projectDiv = document.createElement("div");
     projectDiv.className = "sidebar-project";
 
-    const isExpanded = currentProject?.num === project.num;
+    const isExpanded = expandedNums.has(project.num);
+    const isSelectedProject = currentProject?.num === project.num;
     const item = document.createElement("div");
-    item.className = "sidebar-item" + (isExpanded ? " expanded" : "") + (isExpanded && currentMachine ? " has-selection" : "");
+    item.className = "sidebar-item" + (isExpanded ? " expanded" : "") + (isSelectedProject && currentMachine ? " has-selection" : "");
 
     const chevron = document.createElement("span");
     chevron.className = "sidebar-item-chevron";
