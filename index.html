@@ -751,28 +751,76 @@ function buildPartCard(file) {
   thumbBtn.onclick = () => openPreview(file);
   card.appendChild(thumbBtn);
 
-  const editLabel = document.createElement("label");
-  editLabel.className = "part-edit-btn";
-  editLabel.title = "サムネイルを変更";
-  editLabel.innerHTML = ICON_EDIT;
+  const editBtn = document.createElement("button");
+  editBtn.type = "button";
+  editBtn.className = "part-edit-btn";
+  editBtn.title = "編集";
+  editBtn.innerHTML = ICON_EDIT;
+
   const editInput = document.createElement("input");
   editInput.type = "file";
   editInput.accept = "image/*";
+  editInput.style.display = "none";
   editInput.onchange = async () => {
     const chosen = editInput.files[0];
     if (!chosen) return;
-    editLabel.innerHTML = "…";
+    editBtn.innerHTML = "…";
     try {
       await updateThumbnail(file.id, chosen);
       await loadMachineFiles();
     } catch (err) {
       console.error(err);
       if (partsStatusEl) partsStatusEl.textContent = "サムネイルの更新に失敗しました：" + (err.message || err);
-      editLabel.innerHTML = ICON_EDIT;
+      editBtn.innerHTML = ICON_EDIT;
     }
   };
-  editLabel.appendChild(editInput);
-  card.appendChild(editLabel);
+
+  const editMenu = document.createElement("div");
+  editMenu.className = "part-edit-menu";
+
+  const closeEditMenu = () => editMenu.classList.remove("open");
+
+  const thumbMenuItem = document.createElement("button");
+  thumbMenuItem.type = "button";
+  thumbMenuItem.textContent = "サムネイル画像を変更";
+  thumbMenuItem.onclick = (e) => {
+    e.stopPropagation();
+    closeEditMenu();
+    editInput.click();
+  };
+
+  const nameMenuItem = document.createElement("button");
+  nameMenuItem.type = "button";
+  nameMenuItem.textContent = "ファイル名を編集";
+  nameMenuItem.onclick = async (e) => {
+    e.stopPropagation();
+    closeEditMenu();
+    const current = file.part_label || "";
+    const next = prompt("ファイル名（パーツ番号）を入力してください", current);
+    if (next === null) return;
+    const trimmed = next.trim();
+    if (trimmed === current) return;
+    try {
+      await updatePartLabel(file.id, trimmed);
+      await loadMachineFiles();
+    } catch (err) {
+      console.error(err);
+      if (partsStatusEl) partsStatusEl.textContent = "ファイル名の更新に失敗しました：" + (err.message || err);
+    }
+  };
+
+  editMenu.appendChild(thumbMenuItem);
+  editMenu.appendChild(nameMenuItem);
+
+  editBtn.onclick = (e) => {
+    e.stopPropagation();
+    document.querySelectorAll(".part-edit-menu.open").forEach((m) => { if (m !== editMenu) m.classList.remove("open"); });
+    editMenu.classList.toggle("open");
+  };
+
+  card.appendChild(editBtn);
+  card.appendChild(editMenu);
+  card.appendChild(editInput);
 
   const deleteBtn = document.createElement("button");
   deleteBtn.className = "part-delete-btn";
