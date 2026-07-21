@@ -717,6 +717,45 @@ document.addEventListener("click", () => {
   document.querySelectorAll(".part-edit-menu.open").forEach((m) => m.classList.remove("open"));
 });
 
+// ---- サムネイルカードのドラッグ&ドロップによる並べ替え ----
+function getDragAfterElement(container, y) {
+  const cards = [...container.querySelectorAll(".part-card:not(.dragging)")];
+  return cards.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) return { offset, element: child };
+    return closest;
+  }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+}
+
+function setupPartsDragAndDrop(container) {
+  container.addEventListener("dragover", (e) => {
+    const dragging = container.querySelector(".part-card.dragging");
+    if (!dragging) return;
+    e.preventDefault();
+    const afterElement = getDragAfterElement(container, e.clientY);
+    const addBtn = container.querySelector(".add-part-btn");
+    if (afterElement) {
+      container.insertBefore(dragging, afterElement);
+    } else {
+      container.insertBefore(dragging, addBtn);
+    }
+  });
+
+  container.addEventListener("drop", async (e) => {
+    const dragging = container.querySelector(".part-card.dragging");
+    if (!dragging) return;
+    e.preventDefault();
+    const orderedIds = [...container.querySelectorAll(".part-card")].map((c) => c.dataset.fileId);
+    try {
+      await reorderParts(orderedIds);
+    } catch (err) {
+      console.error(err);
+      if (partsStatusEl) partsStatusEl.textContent = "並び順の保存に失敗しました：" + (err.message || err);
+    }
+  });
+}
+
 async function loadMachineFiles() {
   if (!partsStatusEl || !thumbColumnEl) return;
   partsStatusEl.textContent = "読み込み中...";
