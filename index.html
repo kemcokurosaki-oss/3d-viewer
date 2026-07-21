@@ -391,21 +391,24 @@
     <p id="uploadContext"></p>
 
     <div class="upload-field">
-      <label for="partLabel">パーツ番号・撮影箇所（任意・複数ファイル選択時は無視されファイル名が使われます）</label>
+      <label for="partLabel">【パーツ番号・撮影箇所】（任意・複数ファイル選択時は無視されファイル名が使われます）</label>
       <input type="text" id="partLabel" placeholder="例：①、正面、上部など">
     </div>
 
     <div class="upload-field">
-      <label for="fileInput">3Dファイル（.splat / .ply / .ksplat / .spz / .sog・複数選択可）</label>
+      <label for="fileInput">【3Dファイル】（.splat / .ply / .ksplat / .spz / .sog・複数選択可）</label>
       <input type="file" id="fileInput" accept=".splat,.ply,.ksplat,.spz,.sog" multiple>
       <div class="drop-zone" id="dropZone">ここに3Dファイルをドラッグ&ドロップもできます</div>
-      <div class="thumb-candidates" id="thumbnailCandidates"></div>
     </div>
 
     <div class="upload-field">
-      <label for="thumbnailInput">サムネイル画像（任意・未指定なら自動撮影／複数ファイル選択時は無視されます）</label>
+      <label for="thumbnailInput">【サムネイル画像】（任意・未指定なら自動撮影／複数ファイル選択時は無視されます）</label>
       <input type="file" id="thumbnailInput" accept="image/*">
       <div class="drop-zone" id="thumbnailDropZone">ここに画像をドラッグ&ドロップもできます</div>
+      <div class="thumb-candidates-wrap" id="thumbnailCandidatesWrap">
+        <div class="thumb-candidates-label">自動撮影した候補から選ぶ（クリックでサムネイルに使う画像を選択・未選択なら1枚目を使用）</div>
+        <div class="thumb-candidates" id="thumbnailCandidates"></div>
+      </div>
     </div>
 
     <div class="modal-actions">
