@@ -499,9 +499,8 @@ function renderRecentMachines() {
     btn.onclick = () => {
       const project = tree.find((p) => p.num === r.num);
       if (!project) return;
-      currentProject = project;
       expandedNums.add(project.num);
-      selectMachine(r.machine);
+      selectMachine(project, r.machine);
     };
     recentMachinesList.appendChild(btn);
   });
