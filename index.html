@@ -141,7 +141,18 @@
   }
   .part-edit-btn .icon { width: 14px; height: 14px; }
   .part-edit-btn:hover { background: rgba(0,0,0,0.8); }
-  .part-edit-btn input { display: none; }
+  .part-edit-menu {
+    position: absolute; top: 34px; right: 4px; z-index: 5;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius-md); box-shadow: var(--shadow-md);
+    display: none; flex-direction: column; min-width: 168px; overflow: hidden;
+  }
+  .part-edit-menu.open { display: flex; }
+  .part-edit-menu button {
+    padding: 8px 12px; background: none; border: none; text-align: left;
+    font-size: 13px; color: var(--color-text); cursor: pointer;
+  }
+  .part-edit-menu button:hover { background: var(--color-accent-soft); }
   .part-delete-btn {
     position: absolute; top: 4px; left: 4px; width: 28px; height: 28px;
     background: rgba(0,0,0,0.55); color: #fff; border: none; border-radius: 50%; display: flex;
