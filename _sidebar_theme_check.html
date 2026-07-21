@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>サイドバー配色チェック（ライト/ダーク比較用・検証後削除予定）</title>
+<style>
+  :root {
+    --color-bg: #eef1f3;
+    --color-surface: #fff;
+    --color-surface-alt: #f7f9fa;
+    --color-border: #dfe3e6;
+    --color-border-strong: #cfd8dc;
+    --color-text: #263238;
+    --color-text-muted: #78909c;
+    --color-accent: #1565c0;
+    --color-accent-dark: #0d47a1;
+    --color-accent-soft: #e3f2fd;
+    --transition-fast: .15s ease;
+  }
+  html[data-theme="dark"] {
+    --color-bg: #14181b;
+    --color-surface: #1e2429;
+    --color-surface-alt: #262d33;
+    --color-border: #333c42;
+    --color-border-strong: #3d474e;
+    --color-text: #dce3e8;
+    --color-text-muted: #8ea0ab;
+    --color-accent: #4d9de8;
+    --color-accent-dark: #7fbcf2;
+    --color-accent-soft: #1f3a52;
+  }
+  body { margin: 0; font-family: "Yu Gothic UI", "メイリオ", Meiryo, sans-serif; }
+  .panes { display: flex; }
+  .pane { width: 260px; }
+  .pane-label { padding: 8px 12px; font-size: 12px; font-weight: 700; color: #fff; }
+  .pane.light-wrap { background: #eee; }
+  .pane.dark-wrap { background: #111; }
+  .sidebar { background: var(--color-surface); }
+  .sidebar-project { border-bottom: 2px solid var(--color-border-strong); }
+  .sidebar-item {
+    display: flex; align-items: flex-start; gap: 8px; padding: 12px 16px 12px 10px;
+    cursor: pointer; font-size: 16px; transition: background var(--transition-fast), box-shadow var(--transition-fast);
+    color: var(--color-text);
+  }
+  .sidebar-item:hover { background: var(--color-bg); }
+  .sidebar-item.expanded { background: var(--color-surface-alt); box-shadow: inset 3px 0 0 var(--color-border-strong); }
+  .sidebar-item.expanded.has-selection { background: var(--color-accent-soft); color: var(--color-accent-dark); box-shadow: inset 4px 0 0 var(--color-accent); }
+  .sidebar-item.expanded.has-selection .sidebar-item-customer { color: var(--color-accent-dark); }
+  .sidebar-item-chevron { flex-shrink: 0; width: 12px; height: 12px; margin-top: 5px; color: var(--color-text-muted); transition: transform var(--transition-fast); }
+  .sidebar-item-chevron svg { width: 100%; height: 100%; }
+  .sidebar-item.expanded .sidebar-item-chevron { transform: rotate(90deg); }
+  .sidebar-item.expanded.has-selection .sidebar-item-chevron { color: var(--color-accent-dark); }
+  .sidebar-item-text { flex: 1; min-width: 0; }
+  .sidebar-item-num { font-weight: 700; }
+  .sidebar-item .sidebar-item-customer { display: block; font-size: 14px; font-weight: 400; color: var(--color-text-muted); margin-top: 2px; }
+  .sidebar-machines { background: var(--color-surface-alt); padding: 4px 0; }
+  .sidebar-machine-btn {
+    display: block; width: 100%; text-align: left; padding: 8px 16px 8px 34px;
+    border: none; background: none; cursor: pointer; font-size: 14px; color: var(--color-text);
+    transition: background var(--transition-fast);
+  }
+  .sidebar-machine-btn.active { background: var(--color-accent-soft); color: var(--color-accent-dark); font-weight: 700; box-shadow: inset 4px 0 0 var(--color-accent); }
+  .swatches { display: flex; gap: 4px; padding: 8px 10px; flex-wrap: wrap; }
+  .sw { width: 40px; height: 24px; border-radius: 4px; font-size: 9px; display: flex; align-items: center; justify-content: center; color: #000; border: 1px solid rgba(0,0,0,.2); }
+</style>
+</head>
+<body>
+<div class="panes">
+  <div class="pane light-wrap" data-theme-root="light">
+    <div class="pane-label" style="background:#34495e;">LIGHT (data-theme なし)</div>
+    <div class="sidebar" id="lightSidebar"></div>
+    <div class="swatches" id="lightSwatch"></div>
+  </div>
+  <div class="pane dark-wrap" data-theme-root="dark">
+    <div class="pane-label" style="background:#12171a;">DARK (data-theme="dark")</div>
+    <div class="sidebar" id="darkSidebar"></div>
+    <div class="swatches" id="darkSwatch"></div>
+  </div>
+</div>
+<script>
+const CHEVRON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
+
+function buildSidebar(root) {
+  root.innerHTML = `
+    <div class="sidebar-project">
+      <div class="sidebar-item">
+        <span class="sidebar-item-chevron">${CHEVRON}</span>
+        <div class="sidebar-item-text">
+          <span class="sidebar-item-num">2401</span>
+          <span class="sidebar-item-customer">未展開の案件</span>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-project">
+      <div class="sidebar-item expanded">
+        <span class="sidebar-item-chevron">${CHEVRON}</span>
+        <div class="sidebar-item-text">
+          <span class="sidebar-item-num">2402</span>
+          <span class="sidebar-item-customer">展開中・機械未選択</span>
+        </div>
+      </div>
+      <div class="sidebar-machines">
+        <button class="sidebar-machine-btn">機械A</button>
+        <button class="sidebar-machine-btn">機械B</button>
+      </div>
+    </div>
+    <div class="sidebar-project">
+      <div class="sidebar-item expanded has-selection">
+        <span class="sidebar-item-chevron">${CHEVRON}</span>
+        <div class="sidebar-item-text">
+          <span class="sidebar-item-num">2403</span>
+          <span class="sidebar-item-customer">展開中・機械選択済み</span>
+        </div>
+      </div>
+      <div class="sidebar-machines">
+        <button class="sidebar-machine-btn active">機械C（選択中）</button>
+        <button class="sidebar-machine-btn">機械D</button>
+      </div>
+    </div>
+  `;
+}
+
+function computedSwatches(container, vars) {
+  const cs = getComputedStyle(container);
+  return vars.map(v => `<div class="sw" style="background:${cs.getPropertyValue(v).trim()}">${v.replace('--color-','')}</div>`).join('');
+}
+
+buildSidebar(document.getElementById('lightSidebar'));
+buildSidebar(document.getElementById('darkSidebar'));
+document.querySelector('.dark-wrap').setAttribute('data-theme', 'dark');
+// dark-wrap自体にdata-theme="dark"を付与し、その子孫でCSS変数を上書きさせる
+document.documentElement.setAttribute('data-theme-note', '1');
+
+const vars = ['--color-surface','--color-surface-alt','--color-border-strong','--color-accent-soft','--color-accent','--color-accent-dark','--color-text-muted'];
+document.getElementById('lightSwatch').innerHTML = computedSwatches(document.getElementById('lightSidebar'), vars);
+document.getElementById('darkSwatch').innerHTML = computedSwatches(document.getElementById('darkSidebar'), vars);
+</script>
+</body>
+</html>
