@@ -348,6 +348,21 @@
   }
   .drop-zone-clear-btn:hover { background: var(--color-danger); color: #fff; }
 
+  .selected-file-list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .selected-file-list li {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 8px 10px; background: var(--color-surface-alt); border-radius: var(--radius-sm);
+    font-size: 13px; color: var(--color-text);
+  }
+  .selected-file-list .file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .selected-file-list .file-remove-btn {
+    flex-shrink: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+    border: none; border-radius: 50%; background: transparent; color: var(--color-text-muted);
+    cursor: pointer; font-size: 14px; line-height: 1; padding: 0;
+    transition: background var(--transition-fast), color var(--transition-fast);
+  }
+  .selected-file-list .file-remove-btn:hover { background: var(--color-danger); color: #fff; }
+
   .thumb-candidates-wrap { display: none; margin-top: 14px; }
   .thumb-candidates-wrap.visible { display: block; }
   .thumb-candidates-label { font-size: 13px; color: var(--color-text-muted); margin-bottom: 8px; }
