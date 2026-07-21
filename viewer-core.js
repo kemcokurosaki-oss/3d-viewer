@@ -50,7 +50,7 @@ function buildHint() {
 }
 
 // container内に3Dビューアを構築する。戻り値のdispose()で描画ループとWebGLコンテキストを破棄する。
-export function initViewer(container, url, { onStatus, hint = true, background = DEFAULT_BACKGROUND } = {}) {
+export function initViewer(container, url, { onStatus, hint = true, background = DEFAULT_BACKGROUND, fileType } = {}) {
   ensureStylesInjected();
 
   const width = container.clientWidth;
