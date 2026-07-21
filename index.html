@@ -118,12 +118,13 @@
   /* サムネイル列とプレビュー列の横並び */
   .content-columns { flex: 1; min-height: 0; display: flex; gap: 24px; align-items: stretch; }
 
-  .thumb-column { width: 260px; flex-shrink: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding-right: 10px; }
-  html[data-theme="dark"] .thumb-column { scrollbar-color: var(--color-border-strong) transparent; }
-  html[data-theme="dark"] .thumb-column::-webkit-scrollbar { width: 10px; }
-  html[data-theme="dark"] .thumb-column::-webkit-scrollbar-track { background: transparent; }
-  html[data-theme="dark"] .thumb-column::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: var(--radius-sm); }
-  html[data-theme="dark"] .thumb-column::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+  .thumb-column { width: 260px; flex-shrink: 0; min-height: 0; display: flex; flex-direction: column; gap: 16px; }
+  .thumb-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding-right: 10px; }
+  html[data-theme="dark"] .thumb-list { scrollbar-color: var(--color-border-strong) transparent; }
+  html[data-theme="dark"] .thumb-list::-webkit-scrollbar { width: 10px; }
+  html[data-theme="dark"] .thumb-list::-webkit-scrollbar-track { background: transparent; }
+  html[data-theme="dark"] .thumb-list::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: var(--radius-sm); }
+  html[data-theme="dark"] .thumb-list::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
   .part-card { position: relative; width: 100%; display: flex; flex-direction: column;
     align-items: center; gap: 6px; font-size: 14px; cursor: grab; }
   .part-card.dragging { opacity: 0.4; }
