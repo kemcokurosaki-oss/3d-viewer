@@ -455,7 +455,8 @@ const uploadBtn = document.getElementById("uploadBtn");
 const uploadStatusEl = document.getElementById("uploadStatus");
 
 let tree = [];
-let currentProject = null;   // { num, customer, machines }
+let expandedNums = new Set(); // 展開中の工事番号（複数可）
+let currentProject = null;   // { num, customer, machines } - 選択中の機械の所属案件
 let currentMachine = null;   // 機械名の文字列
 let currentViewer = null;
 let currentUrl = null;
