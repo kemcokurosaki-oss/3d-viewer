@@ -87,11 +87,22 @@ export async function fetchMachineFiles(projectNumber, machineName) {
 
   const { data: files, error } = await supabase
     .from("splat_files")
-    .select("id, part_label, file_url, thumbnail_url, created_at")
-    .eq("machine_id", machine.id);
+    .select("id, part_label, file_url, thumbnail_url, created_at, sort_order")
+    .eq("machine_id", machine.id)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
   if (error) throw error;
 
   return files || [];
+}
+
+// パーツの並び順を、指定した並び順（fileIdの配列）の通りに更新する
+export async function reorderParts(orderedFileIds) {
+  await Promise.all(
+    orderedFileIds.map((id, index) =>
+      supabase.from("splat_files").update({ sort_order: index }).eq("id", id)
+    )
+  );
 }
 
 // splat_projects に該当案件があれば取得、無ければ作成
