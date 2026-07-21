@@ -92,22 +92,34 @@
   #sidebarSearch:focus { outline: none; border-color: var(--color-accent); }
 
   .sidebar-project { border-bottom: 2px solid var(--color-border-strong); }
-  .sidebar-item { padding: 12px 16px; cursor: pointer; font-size: 16px; transition: background var(--transition-fast); }
+  .sidebar-item {
+    display: flex; align-items: flex-start; gap: 8px; padding: 12px 16px 12px 10px;
+    cursor: pointer; font-size: 16px; transition: background var(--transition-fast), box-shadow var(--transition-fast);
+  }
   .sidebar-item:hover { background: var(--color-bg); }
-  .sidebar-item.active { background: var(--color-accent-soft); color: var(--color-accent-dark); box-shadow: inset 4px 0 0 var(--color-accent); transition: box-shadow var(--transition-fast), background var(--transition-fast); }
+  /* 階層が開いている状態：中立色（アクセント色は使わず「開いた」ことだけを示す） */
+  .sidebar-item.expanded { background: var(--color-surface-alt); box-shadow: inset 3px 0 0 var(--color-border-strong); }
+  /* 実際にこの工事番号配下の機械が選択されている状態：強いアクセント色で「今ここを見ている」ことを示す */
+  .sidebar-item.expanded.has-selection { background: var(--color-accent-soft); color: var(--color-accent-dark); box-shadow: inset 4px 0 0 var(--color-accent); }
+  .sidebar-item.expanded.has-selection .sidebar-item-customer { color: var(--color-accent-dark); }
+  .sidebar-item-chevron { flex-shrink: 0; width: 12px; height: 12px; margin-top: 5px; color: var(--color-text-muted); transition: transform var(--transition-fast); }
+  .sidebar-item-chevron .icon { width: 100%; height: 100%; }
+  .sidebar-item.expanded .sidebar-item-chevron { transform: rotate(90deg); }
+  .sidebar-item.expanded.has-selection .sidebar-item-chevron { color: var(--color-accent-dark); }
+  .sidebar-item-text { flex: 1; min-width: 0; }
   .sidebar-item-num { font-weight: 700; }
   .sidebar-item .sidebar-item-customer { display: block; font-size: 14px; font-weight: 400; color: var(--color-text-muted); margin-top: 2px; }
-  .sidebar-item.active .sidebar-item-customer { color: var(--color-accent-dark); }
 
   .sidebar-machines { background: var(--color-surface-alt); padding: 4px 0; }
   .sidebar-machine-btn {
-    display: block; width: 100%; text-align: left; padding: 8px 16px 8px 32px;
+    display: block; width: 100%; text-align: left; padding: 8px 16px 8px 34px;
     border: none; background: none; cursor: pointer; font-size: 14px; color: var(--color-text);
     transition: background var(--transition-fast);
   }
   .sidebar-machine-btn:hover { background: var(--color-bg); }
-  .sidebar-machine-btn.active { background: var(--color-accent-soft); color: var(--color-accent-dark); box-shadow: inset 4px 0 0 var(--color-accent); }
-  .sidebar-machine-empty { padding: 8px 16px 8px 32px; color: var(--color-text-muted); font-size: 13px; }
+  /* 選択中の機械名：工事番号側より一段強く（太字＋濃いライン）して「最終的にどこを見ているか」を明確にする */
+  .sidebar-machine-btn.active { background: var(--color-accent-soft); color: var(--color-accent-dark); font-weight: 700; box-shadow: inset 4px 0 0 var(--color-accent); }
+  .sidebar-machine-empty { padding: 8px 16px 8px 34px; color: var(--color-text-muted); font-size: 13px; }
 
   /* 右：メインエリア */
   .main { flex: 1; padding: 12px 24px 24px; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
