@@ -309,6 +309,14 @@ export async function uploadPart({ projectNumber, machineName, partLabel, file, 
   if (thumbnailFile) {
     onStatus?.("サムネイル画像をアップロード中...");
     thumbnailUrl = await uploadThumbnailImage(thumbnailFile, safeName);
+  } else if (thumbnailBlob) {
+    onStatus?.("選択したサムネイル候補をアップロード中...");
+    try {
+      thumbnailUrl = await uploadThumbnailBlob(thumbnailBlob, safeName);
+    } catch (err) {
+      console.error("サムネイル候補のアップロードに失敗しました", err);
+      thumbnailUrl = null;
+    }
   } else {
     onStatus?.("サムネイルを生成中...");
     thumbnailUrl = await generateAndUploadThumbnail(fileUrl, safeName);
