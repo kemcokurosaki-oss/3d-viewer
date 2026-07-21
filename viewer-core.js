@@ -159,7 +159,7 @@ export function initViewer(container, url, { onStatus, hint = true, background =
     },
     // 初期カメラと同じ距離・高さを保ったまま、Y軸周りの角度だけ変えてカメラを配置する（サムネイル候補撮影用）
     setCameraAngle(angleDeg) {
-      const radius = Math.hypot(initialCameraPosition.x, initialCameraPosition.z);
+      const radius = Math.hypot(initialCameraPosition.x - initialTarget.x, initialCameraPosition.z - initialTarget.z);
       const rad = (angleDeg * Math.PI) / 180;
       camera.position.set(
         initialTarget.x + radius * Math.sin(rad),
