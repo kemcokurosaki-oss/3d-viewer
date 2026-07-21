@@ -291,6 +291,15 @@ export async function uploadPart({ projectNumber, machineName, partLabel, file, 
   const machineId = await findOrCreateMachine(projectId, machineName);
 
   onStatus?.("ファイル情報を登録中...");
+  const { data: existing } = await supabase
+    .from("splat_files")
+    .select("sort_order")
+    .eq("machine_id", machineId)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const nextSortOrder = existing ? existing.sort_order + 1 : 0;
+
   const { error: insertError } = await supabase
     .from("splat_files")
     .insert({
@@ -298,6 +307,7 @@ export async function uploadPart({ projectNumber, machineName, partLabel, file, 
       part_label: partLabel || null,
       file_url: fileUrl,
       thumbnail_url: thumbnailUrl,
+      sort_order: nextSortOrder,
     });
   if (insertError) throw insertError;
 
