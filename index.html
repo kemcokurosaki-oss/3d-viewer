@@ -1063,11 +1063,9 @@ function openUploadModal() {
 
 function closeUploadModal() {
   uploadOverlay.style.display = "none";
-  fileInput.value = "";
+  clearSelectedFiles();
   thumbnailInput.value = "";
-  dropZoneText.textContent = dropZoneDefaultText;
   thumbnailDropZoneText.textContent = thumbnailDropZoneDefaultText;
-  dropZoneClearBtn.style.display = "none";
   thumbnailDropZoneClearBtn.style.display = "none";
   clearThumbnailCandidates();
 }
