@@ -99,8 +99,32 @@ export function initViewer(container, url, { onStatus, hint = true, background =
     controls.addEventListener("start", hideHint);
   };
 
+  // 読み込んだモデルの実際のバウンディングボックスに合わせてカメラを配置し直す
+  // （モデル原点が(0,0,0)から離れている/サイズが想定と違う場合に、固定カメラだと対象が画面外になるのを防ぐ）
+  function frameToObject() {
+    try {
+      splat.updateMatrixWorld(true);
+      const box = splat.getBoundingBox().applyMatrix4(splat.matrixWorld);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const boundingRadius = size.length() / 2;
+      if (!Number.isFinite(boundingRadius) || boundingRadius <= 0) return;
+      const halfFovRad = THREE.MathUtils.degToRad(camera.fov / 2);
+      const distance = (boundingRadius / Math.sin(halfFovRad)) * 1.15;
+      initialTarget = center.clone();
+      initialCameraPosition = new THREE.Vector3(center.x, center.y + distance * 0.33, center.z + distance);
+      camera.position.copy(initialCameraPosition);
+      controls.target.copy(initialTarget);
+      camera.lookAt(initialTarget);
+      controls.update();
+    } catch (err) {
+      console.error("バウンディングボックスの取得に失敗しました", err);
+    }
+  }
+
   onStatus?.("読み込み中...");
   const ready = splat.initialized.then(() => {
+    frameToObject();
     onStatus?.("表示成功");
     spinner.remove();
     showHint();
