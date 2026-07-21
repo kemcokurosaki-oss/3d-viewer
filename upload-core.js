@@ -293,7 +293,7 @@ export async function deletePart(fileId) {
 }
 
 // パーツファイルをアップロードし、splat_projects / splat_machines / splat_files に登録する
-export async function uploadPart({ projectNumber, machineName, partLabel, file, thumbnailFile }, onStatus) {
+export async function uploadPart({ projectNumber, machineName, partLabel, file, thumbnailFile, thumbnailBlob }, onStatus) {
   onStatus?.("アップロード中...");
   const safeName = buildSafeFileName(machineName, partLabel, file.name);
 
