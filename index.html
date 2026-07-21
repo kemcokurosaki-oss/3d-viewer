@@ -618,7 +618,8 @@ function toggleProject(project) {
   renderSidebar();
 }
 
-function selectMachine(machineName) {
+function selectMachine(project, machineName) {
+  currentProject = project;
   currentMachine = machineName;
   closePreview();
   saveRecentMachine(currentProject, machineName);
