@@ -210,6 +210,15 @@ export async function updateThumbnail(fileId, thumbnailFile) {
   return thumbnailUrl;
 }
 
+// 登録済みのパーツのファイル名（パーツ番号）を、後から指定した名前に差し替える
+export async function updatePartLabel(fileId, partLabel) {
+  const { error } = await supabase
+    .from("splat_files")
+    .update({ part_label: partLabel || null })
+    .eq("id", fileId);
+  if (error) throw error;
+}
+
 // Storageの公開URLからバケット内の相対パスを取り出す
 function extractStoragePath(publicUrl) {
   if (!publicUrl) return null;
