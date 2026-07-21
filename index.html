@@ -1214,9 +1214,11 @@ uploadBtn.addEventListener("click", async () => {
       );
     }
     partLabelInput.value = "";
-    clearSelectedFiles();
+    fileInput.value = "";
     thumbnailInput.value = "";
+    dropZoneText.textContent = dropZoneDefaultText;
     thumbnailDropZoneText.textContent = thumbnailDropZoneDefaultText;
+    dropZoneClearBtn.style.display = "none";
     thumbnailDropZoneClearBtn.style.display = "none";
     clearThumbnailCandidates();
     await loadMachineFiles();
