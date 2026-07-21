@@ -330,6 +330,7 @@
   #uploadStatus.success { color: var(--color-success); }
 
   .drop-zone {
+    position: relative;
     margin-top: 10px; border: 2px dashed var(--color-border-strong); border-radius: var(--radius-md);
     padding: 40px 20px; min-height: 100px; box-sizing: border-box;
     display: flex; align-items: center; justify-content: center;
@@ -337,6 +338,15 @@
     transition: border-color var(--transition-fast), background var(--transition-fast);
   }
   .drop-zone.dragover { border-color: var(--color-accent); background: var(--color-accent-soft); }
+  .drop-zone-text { padding: 0 28px; word-break: break-all; }
+  .drop-zone-clear-btn {
+    position: absolute; top: 8px; right: 8px; width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    border: none; border-radius: 50%; background: var(--color-surface-alt); color: var(--color-text-muted);
+    font-size: 16px; line-height: 1; cursor: pointer; padding: 0;
+    transition: background var(--transition-fast), color var(--transition-fast);
+  }
+  .drop-zone-clear-btn:hover { background: var(--color-danger); color: #fff; }
 
   .thumb-candidates-wrap { display: none; margin-top: 14px; }
   .thumb-candidates-wrap.visible { display: block; }
