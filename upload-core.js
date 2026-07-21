@@ -181,12 +181,13 @@ async function captureThumbnail(url) {
 }
 
 // 画面外にビューアを一時生成し、Y軸回転させた複数アングルからサムネイル候補（PNG Blob）を撮影する
-export async function captureThumbnailCandidates(url, angles = [0, 90, 180, 270]) {
+// fileType: blob URL（ローカル選択直後のファイル）は拡張子を持たないため、明示的に渡す
+export async function captureThumbnailCandidates(url, fileType, angles = [0, 90, 180, 270]) {
   const container = document.createElement("div");
   container.style.cssText = "position:absolute; left:-9999px; top:-9999px; width:320px; height:240px;";
   document.body.appendChild(container);
 
-  const viewer = initViewer(container, url, { hint: false });
+  const viewer = initViewer(container, url, { hint: false, fileType });
   try {
     await viewer.ready;
     const blobs = [];
