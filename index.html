@@ -758,11 +758,10 @@ function setupPartsDragAndDrop(container) {
     if (!dragging) return;
     e.preventDefault();
     const afterElement = getDragAfterElement(container, e.clientY);
-    const addBtn = container.querySelector(".add-part-btn");
     if (afterElement) {
       container.insertBefore(indicator, afterElement);
     } else {
-      container.insertBefore(indicator, addBtn);
+      container.appendChild(indicator);
     }
   });
 
