@@ -1170,68 +1170,7 @@ function labelFromFileName(fileName) {
 
 const dropZoneDefaultText = dropZoneText.textContent;
 const thumbnailDropZoneDefaultText = thumbnailDropZoneText.textContent;
-
-// ---- 3Dファイル選択（複数可・個別に削除できるようリストで管理） ----
-let selectedFiles = [];
-
-function buildFileListObject(files) {
-  const dt = new DataTransfer();
-  files.forEach((file) => dt.items.add(file));
-  return dt.files;
-}
-
-function renderSelectedFileList() {
-  selectedFileListEl.innerHTML = "";
-  selectedFiles.forEach((file, i) => {
-    const li = document.createElement("li");
-    const nameSpan = document.createElement("span");
-    nameSpan.className = "file-name";
-    nameSpan.textContent = file.name;
-    nameSpan.title = file.name;
-    const removeBtn = document.createElement("button");
-    removeBtn.type = "button";
-    removeBtn.className = "file-remove-btn";
-    removeBtn.title = "このファイルを除外";
-    removeBtn.textContent = "×";
-    removeBtn.addEventListener("click", () => {
-      selectedFiles.splice(i, 1);
-      applySelectedFiles();
-    });
-    li.appendChild(nameSpan);
-    li.appendChild(removeBtn);
-    selectedFileListEl.appendChild(li);
-  });
-}
-
-function applySelectedFiles() {
-  fileInput.files = buildFileListObject(selectedFiles);
-  const desc = describeFiles(fileInput.files);
-  dropZoneText.textContent = desc || dropZoneDefaultText;
-  dropZoneClearBtn.style.display = desc ? "flex" : "none";
-  renderSelectedFileList();
-  handleFileInputChanged();
-}
-
-function clearSelectedFiles() {
-  selectedFiles = [];
-  applySelectedFiles();
-}
-
-setupDragEvents(dropZone);
-dropZone.addEventListener("drop", (e) => {
-  e.preventDefault();
-  dropZone.classList.remove("dragover");
-  const dropped = e.dataTransfer.files;
-  if (!dropped || dropped.length === 0) return;
-  selectedFiles = [...dropped];
-  applySelectedFiles();
-});
-fileInput.addEventListener("change", () => {
-  selectedFiles = [...fileInput.files];
-  applySelectedFiles();
-});
-dropZoneClearBtn.addEventListener("click", clearSelectedFiles);
-
+setupDropZone(dropZone, fileInput, dropZoneText, dropZoneClearBtn, dropZoneDefaultText, handleFileInputChanged);
 setupDropZone(thumbnailDropZone, thumbnailInput, thumbnailDropZoneText, thumbnailDropZoneClearBtn, thumbnailDropZoneDefaultText);
 
 uploadBtn.addEventListener("click", async () => {
