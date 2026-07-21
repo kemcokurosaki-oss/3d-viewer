@@ -780,6 +780,14 @@ async function loadMachineFiles() {
 function buildPartCard(file) {
   const card = document.createElement("div");
   card.className = "part-card";
+  card.draggable = true;
+  card.dataset.fileId = file.id;
+  card.addEventListener("dragstart", () => {
+    card.classList.add("dragging");
+  });
+  card.addEventListener("dragend", () => {
+    card.classList.remove("dragging");
+  });
 
   const thumbBtn = document.createElement("button");
   thumbBtn.className = "part-thumb-btn";
