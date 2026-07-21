@@ -613,6 +613,8 @@ function renderPartsView() {
   partsStatusEl.className = "main-placeholder";
   thumbColumnEl.appendChild(partsStatusEl);
 
+  setupPartsDragAndDrop(thumbColumnEl);
+
   columns.appendChild(thumbColumnEl);
   columns.appendChild(buildPreviewColumn());
   mainContent.appendChild(columns);
