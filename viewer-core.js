@@ -74,7 +74,7 @@ export function initViewer(container, url, { onStatus, hint = true, background =
   const spark = new SparkRenderer({ renderer });
   scene.add(spark);
 
-  const splat = new SplatMesh({ url });
+  const splat = new SplatMesh({ url, fileType });
   splat.quaternion.set(1, 0, 0, 0);
   scene.add(splat);
 
