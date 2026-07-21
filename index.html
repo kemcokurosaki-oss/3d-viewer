@@ -1020,9 +1020,70 @@ function closeUploadModal() {
   uploadOverlay.style.display = "none";
   dropZone.textContent = dropZoneDefaultText;
   thumbnailDropZone.textContent = thumbnailDropZoneDefaultText;
+  clearThumbnailCandidates();
 }
 
 cancelUploadBtn.onclick = closeUploadModal;
+
+// ---- サムネイル候補（単体ファイル選択時のみ、4アングルを自動撮影して選ばせる） ----
+let candidateBlobs = [];
+let candidateObjectUrls = [];
+let selectedCandidateIndex = -1;
+let candidateSourceUrl = null;
+
+function clearThumbnailCandidates() {
+  candidateObjectUrls.forEach((url) => URL.revokeObjectURL(url));
+  if (candidateSourceUrl) URL.revokeObjectURL(candidateSourceUrl);
+  candidateBlobs = [];
+  candidateObjectUrls = [];
+  selectedCandidateIndex = -1;
+  candidateSourceUrl = null;
+  thumbnailCandidatesEl.innerHTML = "";
+  thumbnailCandidatesEl.classList.remove("visible");
+}
+
+function renderThumbnailCandidates() {
+  thumbnailCandidatesEl.innerHTML = "";
+  candidateObjectUrls.forEach((url, i) => {
+    const img = document.createElement("img");
+    img.src = url;
+    img.className = i === selectedCandidateIndex ? "selected" : "";
+    img.title = "クリックでこの画像をサムネイルに選択";
+    img.addEventListener("click", () => {
+      selectedCandidateIndex = i;
+      renderThumbnailCandidates();
+    });
+    thumbnailCandidatesEl.appendChild(img);
+  });
+  thumbnailCandidatesEl.classList.add("visible");
+}
+
+async function generateThumbnailCandidates(file) {
+  clearThumbnailCandidates();
+  candidateSourceUrl = URL.createObjectURL(file);
+  setUploadStatus("サムネイル候補を生成中...");
+  try {
+    const blobs = await captureThumbnailCandidates(candidateSourceUrl);
+    candidateBlobs = blobs;
+    candidateObjectUrls = blobs.map((b) => URL.createObjectURL(b));
+    selectedCandidateIndex = 0;
+    renderThumbnailCandidates();
+    setUploadStatus("");
+  } catch (err) {
+    console.error(err);
+    clearThumbnailCandidates();
+    setUploadStatus("サムネイル候補の生成に失敗しました（アップロード時は自動生成にフォールバックします）", "error");
+  }
+}
+
+function handleFileInputChanged() {
+  const files = [...fileInput.files];
+  if (files.length === 1) {
+    generateThumbnailCandidates(files[0]);
+  } else {
+    clearThumbnailCandidates();
+  }
+}
 
 // ---- ドラッグ&ドロップでファイルを選択（3Dファイル・サムネイル画像共通） ----
 function describeFiles(fileList) {
@@ -1031,7 +1092,7 @@ function describeFiles(fileList) {
   return `選択中：${fileList.length}件（${fileList[0].name} 他）`;
 }
 
-function setupDropZone(zone, input, defaultText) {
+function setupDropZone(zone, input, defaultText, onFilesChanged) {
   ["dragenter", "dragover"].forEach((evt) => {
     zone.addEventListener(evt, (e) => {
       e.preventDefault();
@@ -1048,9 +1109,11 @@ function setupDropZone(zone, input, defaultText) {
     if (!dropped || dropped.length === 0) return;
     input.files = dropped;
     zone.textContent = describeFiles(dropped) || defaultText;
+    onFilesChanged?.();
   });
   input.addEventListener("change", () => {
     zone.textContent = describeFiles(input.files) || defaultText;
+    onFilesChanged?.();
   });
 }
 
@@ -1061,7 +1124,7 @@ function labelFromFileName(fileName) {
 
 const dropZoneDefaultText = dropZone.textContent;
 const thumbnailDropZoneDefaultText = thumbnailDropZone.textContent;
-setupDropZone(dropZone, fileInput, dropZoneDefaultText);
+setupDropZone(dropZone, fileInput, dropZoneDefaultText, handleFileInputChanged);
 setupDropZone(thumbnailDropZone, thumbnailInput, thumbnailDropZoneDefaultText);
 
 uploadBtn.addEventListener("click", async () => {
