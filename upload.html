@@ -16,6 +16,13 @@
     border: none; border-radius: 6px; cursor: pointer; font-size: 14px;
   }
   button:disabled { background: #aaa; cursor: not-allowed; }
+  .thumb-candidates { display: none; gap: 8px; margin-top: 8px; }
+  .thumb-candidates.visible { display: flex; }
+  .thumb-candidates img {
+    width: 76px; height: 57px; object-fit: cover; border-radius: 6px; cursor: pointer;
+    border: 2px solid transparent; box-sizing: border-box;
+  }
+  .thumb-candidates img.selected { border-color: #2d6cdf; }
   #status { margin-top: 16px; font-size: 13px; color: #555; white-space: pre-wrap; }
   #status.error { color: #c0392b; }
   #status.success { color: #1a7f37; }
