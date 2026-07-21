@@ -1139,12 +1139,7 @@ function describeFiles(fileList) {
   return `選択中：${fileList.length}件（${fileList[0].name} 他）`;
 }
 
-function setupDropZone(zone, input, textEl, clearBtn, defaultText, onFilesChanged) {
-  const updateDisplay = () => {
-    const desc = describeFiles(input.files);
-    textEl.textContent = desc || defaultText;
-    clearBtn.style.display = desc ? "flex" : "none";
-  };
+function setupDragEvents(zone) {
   ["dragenter", "dragover"].forEach((evt) => {
     zone.addEventListener(evt, (e) => {
       e.preventDefault();
@@ -1154,6 +1149,15 @@ function setupDropZone(zone, input, textEl, clearBtn, defaultText, onFilesChange
   ["dragleave", "dragend"].forEach((evt) => {
     zone.addEventListener(evt, () => zone.classList.remove("dragover"));
   });
+}
+
+function setupDropZone(zone, input, textEl, clearBtn, defaultText, onFilesChanged) {
+  const updateDisplay = () => {
+    const desc = describeFiles(input.files);
+    textEl.textContent = desc || defaultText;
+    clearBtn.style.display = desc ? "flex" : "none";
+  };
+  setupDragEvents(zone);
   zone.addEventListener("drop", (e) => {
     e.preventDefault();
     zone.classList.remove("dragover");
@@ -1181,7 +1185,68 @@ function labelFromFileName(fileName) {
 
 const dropZoneDefaultText = dropZoneText.textContent;
 const thumbnailDropZoneDefaultText = thumbnailDropZoneText.textContent;
-setupDropZone(dropZone, fileInput, dropZoneText, dropZoneClearBtn, dropZoneDefaultText, handleFileInputChanged);
+
+// ---- 3Dファイル選択（複数可・個別に削除できるようリストで管理） ----
+let selectedFiles = [];
+
+function buildFileListObject(files) {
+  const dt = new DataTransfer();
+  files.forEach((file) => dt.items.add(file));
+  return dt.files;
+}
+
+function renderSelectedFileList() {
+  selectedFileListEl.innerHTML = "";
+  selectedFiles.forEach((file, i) => {
+    const li = document.createElement("li");
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "file-name";
+    nameSpan.textContent = file.name;
+    nameSpan.title = file.name;
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "file-remove-btn";
+    removeBtn.title = "このファイルを除外";
+    removeBtn.textContent = "×";
+    removeBtn.addEventListener("click", () => {
+      selectedFiles.splice(i, 1);
+      applySelectedFiles();
+    });
+    li.appendChild(nameSpan);
+    li.appendChild(removeBtn);
+    selectedFileListEl.appendChild(li);
+  });
+}
+
+function applySelectedFiles() {
+  fileInput.files = buildFileListObject(selectedFiles);
+  const desc = describeFiles(fileInput.files);
+  dropZoneText.textContent = desc || dropZoneDefaultText;
+  dropZoneClearBtn.style.display = desc ? "flex" : "none";
+  renderSelectedFileList();
+  handleFileInputChanged();
+}
+
+function clearSelectedFiles() {
+  selectedFiles = [];
+  applySelectedFiles();
+}
+
+setupDragEvents(dropZone);
+dropZone.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dropZone.classList.remove("dragover");
+  const dropped = e.dataTransfer.files;
+  if (!dropped || dropped.length === 0) return;
+  selectedFiles = [...dropped];
+  applySelectedFiles();
+});
+fileInput.addEventListener("change", () => {
+  selectedFiles = [...fileInput.files];
+  applySelectedFiles();
+});
+dropZoneClearBtn.addEventListener("click", clearSelectedFiles);
+
 setupDropZone(thumbnailDropZone, thumbnailInput, thumbnailDropZoneText, thumbnailDropZoneClearBtn, thumbnailDropZoneDefaultText);
 
 uploadBtn.addEventListener("click", async () => {
