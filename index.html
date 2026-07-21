@@ -732,6 +732,9 @@ function getDragAfterElement(container, y) {
 }
 
 function setupPartsDragAndDrop(container) {
+  const indicator = document.createElement("div");
+  indicator.className = "drop-indicator";
+
   container.addEventListener("dragover", (e) => {
     const dragging = container.querySelector(".part-card.dragging");
     if (!dragging) return;
@@ -739,16 +742,26 @@ function setupPartsDragAndDrop(container) {
     const afterElement = getDragAfterElement(container, e.clientY);
     const addBtn = container.querySelector(".add-part-btn");
     if (afterElement) {
-      container.insertBefore(dragging, afterElement);
+      container.insertBefore(indicator, afterElement);
     } else {
-      container.insertBefore(dragging, addBtn);
+      container.insertBefore(indicator, addBtn);
     }
+  });
+
+  container.addEventListener("dragleave", (e) => {
+    if (!container.contains(e.relatedTarget)) indicator.remove();
+  });
+
+  container.addEventListener("dragend", () => {
+    indicator.remove();
   });
 
   container.addEventListener("drop", async (e) => {
     const dragging = container.querySelector(".part-card.dragging");
     if (!dragging) return;
     e.preventDefault();
+    container.insertBefore(dragging, indicator);
+    indicator.remove();
     const orderedIds = [...container.querySelectorAll(".part-card")].map((c) => c.dataset.fileId);
     try {
       await reorderParts(orderedIds);
