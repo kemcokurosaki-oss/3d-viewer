@@ -604,11 +604,18 @@ function renderSidebar() {
 }
 
 function toggleProject(project) {
-  currentProject = currentProject?.num === project.num ? null : project;
-  currentMachine = null;
-  closePreview();
+  if (expandedNums.has(project.num)) {
+    expandedNums.delete(project.num);
+    if (currentProject?.num === project.num) {
+      currentProject = null;
+      currentMachine = null;
+      closePreview();
+      renderMain();
+    }
+  } else {
+    expandedNums.add(project.num);
+  }
   renderSidebar();
-  renderMain();
 }
 
 function selectMachine(machineName) {
