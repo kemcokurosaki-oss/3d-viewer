@@ -592,7 +592,7 @@ function renderSidebar() {
           const btn = document.createElement("button");
           btn.className = "sidebar-machine-btn" + (isSelectedProject && currentMachine === machineName ? " active" : "");
           btn.textContent = machineName;
-          btn.onclick = () => selectMachine(machineName);
+          btn.onclick = () => selectMachine(project, machineName);
           machinesDiv.appendChild(btn);
         });
       }
