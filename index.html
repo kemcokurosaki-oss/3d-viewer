@@ -590,7 +590,7 @@ function renderSidebar() {
       } else {
         project.machines.forEach((machineName) => {
           const btn = document.createElement("button");
-          btn.className = "sidebar-machine-btn" + (currentMachine === machineName ? " active" : "");
+          btn.className = "sidebar-machine-btn" + (isSelectedProject && currentMachine === machineName ? " active" : "");
           btn.textContent = machineName;
           btn.onclick = () => selectMachine(machineName);
           machinesDiv.appendChild(btn);
