@@ -167,17 +167,47 @@ async function captureThumbnail(url) {
   }
 }
 
+// 画面外にビューアを一時生成し、Y軸回転させた複数アングルからサムネイル候補（PNG Blob）を撮影する
+export async function captureThumbnailCandidates(url, angles = [0, 90, 180, 270]) {
+  const container = document.createElement("div");
+  container.style.cssText = "position:absolute; left:-9999px; top:-9999px; width:320px; height:240px;";
+  document.body.appendChild(container);
+
+  const viewer = initViewer(container, url, { hint: false });
+  try {
+    await viewer.ready;
+    const blobs = [];
+    for (const angle of angles) {
+      viewer.setCameraAngle(angle);
+      await new Promise(requestAnimationFrame);
+      const blob = await new Promise((resolve, reject) => {
+        viewer.canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("サムネイル候補の生成に失敗しました"))), "image/png");
+      });
+      blobs.push(blob);
+    }
+    return blobs;
+  } finally {
+    viewer.dispose();
+    container.remove();
+  }
+}
+
+// PNG BlobをStorageの thumbnails/ 以下にアップロードし、公開URLを返す
+async function uploadThumbnailBlob(blob, safeName) {
+  const thumbName = "thumbnails/" + safeName.replace(/\.[^.]+$/, "") + ".png";
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(thumbName, blob, { cacheControl: "3600", upsert: false, contentType: "image/png" });
+  if (error) throw error;
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(thumbName);
+  return data.publicUrl;
+}
+
 // サムネイルを撮影してStorageにアップロードし、公開URLを返す（失敗時はnull）
 async function generateAndUploadThumbnail(fileUrl, safeName) {
   try {
     const blob = await captureThumbnail(fileUrl);
-    const thumbName = "thumbnails/" + safeName.replace(/\.[^.]+$/, "") + ".png";
-    const { error } = await supabase.storage
-      .from(BUCKET)
-      .upload(thumbName, blob, { cacheControl: "3600", upsert: false, contentType: "image/png" });
-    if (error) throw error;
-    const { data } = supabase.storage.from(BUCKET).getPublicUrl(thumbName);
-    return data.publicUrl;
+    return await uploadThumbnailBlob(blob, safeName);
   } catch (err) {
     console.error("サムネイル生成に失敗しました", err);
     return null;
