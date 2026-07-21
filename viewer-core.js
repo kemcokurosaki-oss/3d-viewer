@@ -110,7 +110,7 @@ export function initViewer(container, url, { onStatus, hint = true, background =
       const boundingRadius = size.length() / 2;
       if (!Number.isFinite(boundingRadius) || boundingRadius <= 0) return;
       const halfFovRad = THREE.MathUtils.degToRad(camera.fov / 2);
-      const distance = (boundingRadius / Math.sin(halfFovRad)) * 1.15;
+      const distance = (boundingRadius / Math.sin(halfFovRad)) * 0.7;
       initialTarget = center.clone();
       initialCameraPosition = new THREE.Vector3(center.x, center.y + distance * 0.33, center.z + distance);
       camera.position.copy(initialCameraPosition);
