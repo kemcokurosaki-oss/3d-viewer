@@ -133,6 +133,19 @@ export function initViewer(container, url, { onStatus, hint = true, background =
       controls.target.copy(initialTarget);
       controls.update();
     },
+    // 初期カメラと同じ距離・高さを保ったまま、Y軸周りの角度だけ変えてカメラを配置する（サムネイル候補撮影用）
+    setCameraAngle(angleDeg) {
+      const radius = Math.hypot(initialCameraPosition.x, initialCameraPosition.z);
+      const rad = (angleDeg * Math.PI) / 180;
+      camera.position.set(
+        initialTarget.x + radius * Math.sin(rad),
+        initialCameraPosition.y,
+        initialTarget.z + radius * Math.cos(rad)
+      );
+      controls.target.copy(initialTarget);
+      camera.lookAt(initialTarget);
+      controls.update();
+    },
     setBackground(color) {
       scene.background = new THREE.Color(color);
     },
