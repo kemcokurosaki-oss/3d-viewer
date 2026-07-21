@@ -335,6 +335,14 @@
     transition: border-color var(--transition-fast), background var(--transition-fast);
   }
   .drop-zone.dragover { border-color: var(--color-accent); background: var(--color-accent-soft); }
+
+  .thumb-candidates { display: none; gap: 8px; margin-top: 10px; }
+  .thumb-candidates.visible { display: flex; }
+  .thumb-candidates img {
+    width: 84px; height: 63px; object-fit: cover; border-radius: var(--radius-md); cursor: pointer;
+    border: 2px solid transparent; box-sizing: border-box;
+  }
+  .thumb-candidates img.selected { border-color: var(--color-accent); }
 </style>
 
 <script type="importmap">
