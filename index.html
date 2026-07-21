@@ -1124,7 +1124,12 @@ function describeFiles(fileList) {
   return `選択中：${fileList.length}件（${fileList[0].name} 他）`;
 }
 
-function setupDropZone(zone, input, defaultText, onFilesChanged) {
+function setupDropZone(zone, input, textEl, clearBtn, defaultText, onFilesChanged) {
+  const updateDisplay = () => {
+    const desc = describeFiles(input.files);
+    textEl.textContent = desc || defaultText;
+    clearBtn.style.display = desc ? "flex" : "none";
+  };
   ["dragenter", "dragover"].forEach((evt) => {
     zone.addEventListener(evt, (e) => {
       e.preventDefault();
@@ -1140,11 +1145,16 @@ function setupDropZone(zone, input, defaultText, onFilesChanged) {
     const dropped = e.dataTransfer.files;
     if (!dropped || dropped.length === 0) return;
     input.files = dropped;
-    zone.textContent = describeFiles(dropped) || defaultText;
+    updateDisplay();
     onFilesChanged?.();
   });
   input.addEventListener("change", () => {
-    zone.textContent = describeFiles(input.files) || defaultText;
+    updateDisplay();
+    onFilesChanged?.();
+  });
+  clearBtn.addEventListener("click", () => {
+    input.value = "";
+    updateDisplay();
     onFilesChanged?.();
   });
 }
@@ -1154,10 +1164,10 @@ function labelFromFileName(fileName) {
   return fileName.replace(/\.[^.]+$/, "");
 }
 
-const dropZoneDefaultText = dropZone.textContent;
-const thumbnailDropZoneDefaultText = thumbnailDropZone.textContent;
-setupDropZone(dropZone, fileInput, dropZoneDefaultText, handleFileInputChanged);
-setupDropZone(thumbnailDropZone, thumbnailInput, thumbnailDropZoneDefaultText);
+const dropZoneDefaultText = dropZoneText.textContent;
+const thumbnailDropZoneDefaultText = thumbnailDropZoneText.textContent;
+setupDropZone(dropZone, fileInput, dropZoneText, dropZoneClearBtn, dropZoneDefaultText, handleFileInputChanged);
+setupDropZone(thumbnailDropZone, thumbnailInput, thumbnailDropZoneText, thumbnailDropZoneClearBtn, thumbnailDropZoneDefaultText);
 
 uploadBtn.addEventListener("click", async () => {
   const partLabel = partLabelInput.value.trim();
