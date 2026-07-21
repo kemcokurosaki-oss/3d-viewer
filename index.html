@@ -576,7 +576,7 @@ function renderSidebar() {
     item.onclick = () => toggleProject(project);
     projectDiv.appendChild(item);
 
-    if (currentProject?.num === project.num) {
+    if (isExpanded) {
       const machinesDiv = document.createElement("div");
       machinesDiv.className = "sidebar-machines";
       if (project.machines.length === 0) {
