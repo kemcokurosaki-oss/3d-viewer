@@ -336,8 +336,10 @@
   }
   .drop-zone.dragover { border-color: var(--color-accent); background: var(--color-accent-soft); }
 
-  .thumb-candidates { display: none; gap: 8px; margin-top: 10px; }
-  .thumb-candidates.visible { display: flex; }
+  .thumb-candidates-wrap { display: none; margin-top: 14px; }
+  .thumb-candidates-wrap.visible { display: block; }
+  .thumb-candidates-label { font-size: 13px; color: var(--color-text-muted); margin-bottom: 8px; }
+  .thumb-candidates { display: flex; flex-wrap: wrap; gap: 8px; }
   .thumb-candidates img {
     width: 84px; height: 63px; object-fit: cover; border-radius: var(--radius-md); cursor: pointer;
     border: 2px solid transparent; box-sizing: border-box;
