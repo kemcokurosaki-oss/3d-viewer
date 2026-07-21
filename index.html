@@ -177,8 +177,8 @@
     width: 100%; padding: 14px; background: var(--color-surface); border: 2px dashed #90a4ae;
     border-radius: var(--radius-lg); color: var(--color-accent); font-size: 16px; cursor: pointer;
     display: flex; align-items: center; justify-content: center; gap: 8px;
+    flex-shrink: 0;
     transition: border-color var(--transition-fast), background var(--transition-fast);
-    position: sticky; top: 0; z-index: 2;
   }
   .add-part-btn:hover { border-color: var(--color-accent); background: var(--color-accent-soft); }
   .add-part-btn.dragover { border-color: var(--color-accent); background: var(--color-accent-soft); }
