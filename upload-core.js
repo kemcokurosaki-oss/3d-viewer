@@ -180,8 +180,36 @@ async function captureThumbnail(url) {
   }
 }
 
+// 撮影した画像がほぼ単色（背景のみで対象物が写っていない）かどうかを、輝度の分散から判定する
+const BLANK_LUMA_VARIANCE_THRESHOLD = 60;
+async function isBlobMostlyBlank(blob) {
+  const bitmap = await createImageBitmap(blob);
+  try {
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(bitmap, 0, 0);
+    const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    let sum = 0;
+    let sumSq = 0;
+    const n = data.length / 4;
+    for (let i = 0; i < data.length; i += 4) {
+      const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+      sum += luma;
+      sumSq += luma * luma;
+    }
+    const mean = sum / n;
+    const variance = sumSq / n - mean * mean;
+    return variance < BLANK_LUMA_VARIANCE_THRESHOLD;
+  } finally {
+    bitmap.close();
+  }
+}
+
 // 画面外にビューアを一時生成し、Y軸回転させた複数アングルからサムネイル候補（PNG Blob）を撮影する
 // fileType: blob URL（ローカル選択直後のファイル）は拡張子を持たないため、明示的に渡す
+// 元データの撮影範囲によっては角度次第で対象物が写らない（背景のみになる）ため、そうした候補は除外して返す
 export async function captureThumbnailCandidates(url, fileType, angles = [0, 60, 120, 180, 240, 300]) {
   const container = document.createElement("div");
   container.style.cssText = "position:absolute; left:-9999px; top:-9999px; width:320px; height:240px;";
@@ -193,13 +221,20 @@ export async function captureThumbnailCandidates(url, fileType, angles = [0, 60,
     const blobs = [];
     for (const angle of angles) {
       viewer.setCameraAngle(angle);
-      await new Promise(requestAnimationFrame);
+      // カメラ移動直後の描画が安定するまで数フレーム待つ
+      for (let i = 0; i < 3; i++) {
+        await new Promise(requestAnimationFrame);
+      }
       const blob = await new Promise((resolve, reject) => {
         viewer.canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("サムネイル候補の生成に失敗しました"))), "image/png");
       });
       blobs.push(blob);
     }
-    return blobs;
+    const nonBlankBlobs = [];
+    for (const blob of blobs) {
+      if (!(await isBlobMostlyBlank(blob))) nonBlankBlobs.push(blob);
+    }
+    return nonBlankBlobs.length > 0 ? nonBlankBlobs : blobs;
   } finally {
     viewer.dispose();
     container.remove();
