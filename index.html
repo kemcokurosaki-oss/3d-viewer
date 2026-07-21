@@ -1212,8 +1212,10 @@ uploadBtn.addEventListener("click", async () => {
     partLabelInput.value = "";
     fileInput.value = "";
     thumbnailInput.value = "";
-    dropZone.textContent = dropZoneDefaultText;
-    thumbnailDropZone.textContent = thumbnailDropZoneDefaultText;
+    dropZoneText.textContent = dropZoneDefaultText;
+    thumbnailDropZoneText.textContent = thumbnailDropZoneDefaultText;
+    dropZoneClearBtn.style.display = "none";
+    thumbnailDropZoneClearBtn.style.display = "none";
     clearThumbnailCandidates();
     await loadMachineFiles();
     if (failed.length === 0) setTimeout(closeUploadModal, 800);
