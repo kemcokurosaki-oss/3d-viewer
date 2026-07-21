@@ -60,7 +60,7 @@ export function initViewer(container, url, { onStatus, hint = true, background =
   scene.background = new THREE.Color(background);
 
   const camera = new THREE.PerspectiveCamera(60, width / height, 0.01, 1000);
-  const initialCameraPosition = new THREE.Vector3(0, 1, 3);
+  let initialCameraPosition = new THREE.Vector3(0, 1, 3);
   camera.position.copy(initialCameraPosition);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -69,7 +69,7 @@ export function initViewer(container, url, { onStatus, hint = true, background =
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  const initialTarget = controls.target.clone();
+  let initialTarget = controls.target.clone();
 
   const spark = new SparkRenderer({ renderer });
   scene.add(spark);
