@@ -78,6 +78,11 @@
 
   /* 左：工事番号一覧（工事番号の下に機械名をネストして表示） */
   .sidebar { width: 200px; flex-shrink: 0; background: var(--color-surface); border-right: 1px solid var(--color-border); overflow-y: auto; }
+  html[data-theme="dark"] .sidebar { scrollbar-color: var(--color-border-strong) transparent; }
+  html[data-theme="dark"] .sidebar::-webkit-scrollbar { width: 10px; }
+  html[data-theme="dark"] .sidebar::-webkit-scrollbar-track { background: transparent; }
+  html[data-theme="dark"] .sidebar::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: var(--radius-sm); }
+  html[data-theme="dark"] .sidebar::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
   #sidebarStatus, .sidebar-empty-msg { padding: 10px 16px; color: var(--color-text-muted); font-size: 12px; }
 
   .sidebar-fixed { position: sticky; top: 0; z-index: 1; background: var(--color-surface); }
