@@ -971,6 +971,12 @@ function closeUploadModal() {
 cancelUploadBtn.onclick = closeUploadModal;
 
 // ---- ドラッグ&ドロップでファイルを選択（3Dファイル・サムネイル画像共通） ----
+function describeFiles(fileList) {
+  if (!fileList || fileList.length === 0) return null;
+  if (fileList.length === 1) return `選択中：${fileList[0].name}`;
+  return `選択中：${fileList.length}件（${fileList[0].name} 他）`;
+}
+
 function setupDropZone(zone, input, defaultText) {
   ["dragenter", "dragover"].forEach((evt) => {
     zone.addEventListener(evt, (e) => {
@@ -984,15 +990,19 @@ function setupDropZone(zone, input, defaultText) {
   zone.addEventListener("drop", (e) => {
     e.preventDefault();
     zone.classList.remove("dragover");
-    const dropped = e.dataTransfer.files?.[0];
-    if (!dropped) return;
-    input.files = e.dataTransfer.files;
-    zone.textContent = `選択中：${dropped.name}`;
+    const dropped = e.dataTransfer.files;
+    if (!dropped || dropped.length === 0) return;
+    input.files = dropped;
+    zone.textContent = describeFiles(dropped) || defaultText;
   });
   input.addEventListener("change", () => {
-    const chosen = input.files?.[0];
-    zone.textContent = chosen ? `選択中：${chosen.name}` : defaultText;
+    zone.textContent = describeFiles(input.files) || defaultText;
   });
+}
+
+// 拡張子を除いたファイル名をパーツラベルとして使う（複数ファイル選択時）
+function labelFromFileName(fileName) {
+  return fileName.replace(/\.[^.]+$/, "");
 }
 
 const dropZoneDefaultText = dropZone.textContent;
