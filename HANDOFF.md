@@ -134,7 +134,9 @@ SharePoint に統一する方向で確定。Supabase 登録済み約20件につ�
 
 ## 4. 未確定事項
 
-- [ ] SharePoint のフォルダ構成（社内相談中）
-- [ ] 既存 Supabase データの扱い（社内相談中）
-- [ ] Entra ID のクライアントID・テナントID（アプリ登録後に確定）
+- [x] SharePoint のフォルダ構成 → 確定（上記参照）
+- [ ] 既存 Supabase データの扱い（SharePointへの再アップ作業は誰がいつやるか未確定）
+- [ ] Entra ID のクライアントID・テナントID（明日の打ち合わせでアプリ登録を依頼予定）
 - [ ] 管理者による `Files.Read.All` への同意
+- [ ] `★3Dモデル` フォルダの編集権限設定（誰でも削除できる問題への対応、添付③4番）
+- [ ] `sharepoint-client.js` 作成済み。MSAL_CONFIG の TODO 部分（clientId / tenantId）をEntra ID登録後に差し替えて疎通確認する
