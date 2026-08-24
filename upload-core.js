@@ -27,6 +27,12 @@ function buildSafeFileName(machineName, partLabel, originalFileName) {
   return [base, part, stamp].filter(Boolean).join("_") + "." + ext;
 }
 
+// 工程表アプリ導入前に完了しtasksに存在しない案件を一時的に補うための特例リスト
+// 恒久的な仕組みではない。該当が増えた場合の対応は都度検討すること
+const LEGACY_PROJECTS = [
+  { num: "2817", customer: "Tenaris Saudi", machines: ["MC"] },
+];
+
 // 工程表アプリのtasksテーブルから案件一覧を取得（project_number重複は除去）
 export async function fetchProjectOptions() {
   const { data, error } = await supabase
@@ -41,6 +47,10 @@ export async function fetchProjectOptions() {
     const num = (row.project_number || "").toString().trim();
     if (!num || seen.has(num)) return;
     seen.set(num, row.customer_name || "");
+  });
+
+  LEGACY_PROJECTS.forEach(({ num, customer }) => {
+    if (!seen.has(num)) seen.set(num, customer);
   });
 
   return [...seen.entries()].map(([num, customer]) => ({ num, customer }));
