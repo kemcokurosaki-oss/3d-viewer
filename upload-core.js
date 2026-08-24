@@ -79,6 +79,12 @@ export async function fetchProjectMachineTree() {
     if (machine && !machine.includes(",")) entry.machines.add(machine);
   });
 
+  LEGACY_PROJECTS.forEach(({ num, customer, machines }) => {
+    if (!projects.has(num)) {
+      projects.set(num, { customer, machines: new Set(machines) });
+    }
+  });
+
   const tree = [...projects.entries()].map(([num, { customer, machines }]) => ({
     num,
     customer,
