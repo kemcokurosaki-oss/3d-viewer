@@ -2,361 +2,498 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="build" content="2026-08-04-10">
+<meta http-equiv="Cache-Control" content="no-store">
 <title>3D Model Capture</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234d9de8'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 7 25 12v9l-9 5-9-5v-9z'/%3E%3Cpath d='M7 12l9 5 9-5'/%3E%3Cpath d='M16 17v9'/%3E%3C/g%3E%3C/svg%3E">
 <style>
   :root {
-    --color-bg: #eef1f3;
-    --color-surface: #fff;
-    --color-surface-alt: #f7f9fa;
-    --color-border: #dfe3e6;
-    --color-border-strong: #cfd8dc;
-    --color-text: #263238;
-    --color-text-muted: #78909c;
-    --color-accent: #1565c0;
-    --color-accent-dark: #0d47a1;
-    --color-accent-soft: #e3f2fd;
-    --color-header-start: #34495e;
-    --color-header-end: #2c3e50;
-    --color-danger: #c0392b;
-    --color-success: #1a7f37;
-    --color-viewer-bg: #1a1a1a;
-    --color-viewer-panel: #262626;
-
-    --radius-sm: 4px;
-    --radius-md: 6px;
-    --radius-lg: 8px;
-
+    --bg: #eceff2;
+    --panel: #ffffff;
+    --panel2: #f5f7f9;
+    --panel3: #eaeef1;
+    --line: #e0e5e9;
+    --line2: #c9d2d8;
+    --text: #18232a;
+    --dim: #61727c;
+    --dim2: #8496a1;
+    --accent: #1565c0;
+    --accent2: #0d47a1;
+    --accent-soft: #e3f0fb;
+    --accent-line: #9dc4ea;
+    --ok: #1a7f37;
+    --danger: #c0392b;
+    --shadow: 0 8px 24px rgba(20,30,40,.14);
     --shadow-sm: 0 1px 2px rgba(0,0,0,.06);
-    --shadow-md: 0 2px 6px rgba(0,0,0,.12);
-    --shadow-lg: 0 6px 16px rgba(0,0,0,.16);
+    --viewer-bg: #1a1a1a;
 
-    --transition-fast: .15s ease;
+    --r-sm: 5px;
+    --r-md: 7px;
+    --r-lg: 9px;
+    --t: .15s ease;
   }
 
   html[data-theme="dark"] {
-    --color-bg: #14181b;
-    --color-surface: #1e2429;
-    --color-surface-alt: #262d33;
-    --color-border: #333c42;
-    --color-border-strong: #3d474e;
-    --color-text: #dce3e8;
-    --color-text-muted: #8ea0ab;
-    --color-accent: #4d9de8;
-    --color-accent-dark: #7fbcf2;
-    --color-accent-soft: #1f3a52;
-    --color-header-start: #1c2226;
-    --color-header-end: #12171a;
+    --bg: #0f1215;
+    --panel: #161a1e;
+    --panel2: #1c2126;
+    --panel3: #232a30;
+    --line: #262d33;
+    --line2: #333c42;
+    --text: #e6ecf0;
+    --dim: #8b9aa5;
+    --dim2: #63727c;
+    --accent: #4d9de8;
+    --accent2: #7fbcf2;
+    --accent-soft: #15334f;
+    --accent-line: #2b5f92;
+    --ok: #3ecf8e;
+    --danger: #e5484d;
+    --shadow: 0 8px 24px rgba(0,0,0,.45);
   }
 
   * { box-sizing: border-box; }
   html, body { height: 100%; }
   body {
-    font-family: "Yu Gothic UI", "メイリオ", Meiryo, sans-serif; font-size: 13px; color: var(--color-text);
-    background: var(--color-bg); margin: 0;
+    font-family: "Yu Gothic UI", "メイリオ", Meiryo, sans-serif; font-size: 13px;
+    color: var(--text); background: var(--bg); margin: 0;
     display: flex; flex-direction: column; height: 100vh; overflow: hidden;
-    transition: background var(--transition-fast), color var(--transition-fast);
+    transition: background var(--t), color var(--t);
+  }
+  button { font-family: inherit; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent2); }
+  .icon { width: 100%; height: 100%; }
+  .num { font-variant-numeric: tabular-nums; }
+  .ell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .spacer { flex: 1; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--line2); border-radius: var(--r-sm); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--dim2); }
+
+  /* ========== トップバー ========== */
+  .topbar {
+    flex-shrink: 0; height: 52px; display: flex; align-items: center; gap: 16px;
+    padding: 0 14px; background: var(--panel); border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 9px; padding-right: 16px; border-right: 1px solid var(--line); }
+  .brand-mark {
+    display: flex; width: 26px; height: 26px; align-items: center; justify-content: center;
+    border-radius: var(--r-md); background: var(--accent); color: #fff;
+  }
+  .brand-mark .icon { width: 15px; height: 15px; }
+  .brand-name { font-size: 14px; font-weight: 700; letter-spacing: .01em; }
+
+  .crumbs { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 13px; color: var(--dim); }
+  .crumbs .sep { display: flex; width: 13px; height: 13px; color: var(--dim2); flex-shrink: 0; }
+  .crumbs .cur { font-weight: 700; color: var(--text); }
+  .crumbs .count {
+    margin-left: 6px; font-size: 11px; color: var(--dim); background: var(--panel3);
+    border: 1px solid var(--line); padding: 3px 7px; border-radius: 20px; flex-shrink: 0;
   }
 
-  .app-header {
-    flex-shrink: 0;
-    background: linear-gradient(180deg, var(--color-header-start), var(--color-header-end)); color: #fff;
-    padding: 10px 16px; box-shadow: var(--shadow-md);
-    display: flex; align-items: center; justify-content: space-between;
+  .topbar-btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    height: 32px; padding: 0 11px; border-radius: var(--r-md);
+    border: 1px solid var(--line2); background: var(--panel2); color: var(--text);
+    font-size: 12px; cursor: pointer; transition: background var(--t), border-color var(--t);
   }
-  .app-header h1 { margin: 0; font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 0; }
-  .app-header #headerIcon { font-size: 18px; line-height: 1; display: flex; align-items: center; margin-right: 8px; }
-  .app-header #headerIcon .icon { width: 20px; height: 20px; }
-
-  .theme-toggle-btn {
-    display: flex; align-items: center; justify-content: center;
-    width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer;
-    background: rgba(255,255,255,.12); color: #fff; transition: background var(--transition-fast);
-  }
-  .theme-toggle-btn:hover { background: rgba(255,255,255,.22); }
-  .theme-toggle-btn .icon { width: 18px; height: 18px; }
+  .topbar-btn:hover { background: var(--panel3); }
+  .topbar-btn .icon { width: 14px; height: 14px; }
+  .topbar-btn.icon-only { width: 32px; padding: 0; }
+  .topbar-btn.icon-only .icon { width: 16px; height: 16px; }
+  .topbar-btn.on { border-color: var(--accent-line); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
 
   .layout { display: flex; align-items: stretch; flex: 1; min-height: 0; }
 
-  /* 左：工事番号一覧（工事番号の下に機械名をネストして表示） */
-  .sidebar { width: 200px; flex-shrink: 0; background: var(--color-surface); border-right: 1px solid var(--color-border); overflow-y: auto; }
-  html[data-theme="dark"] .sidebar { scrollbar-color: var(--color-border-strong) transparent; }
-  html[data-theme="dark"] .sidebar::-webkit-scrollbar { width: 10px; }
-  html[data-theme="dark"] .sidebar::-webkit-scrollbar-track { background: transparent; }
-  html[data-theme="dark"] .sidebar::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: var(--radius-sm); }
-  html[data-theme="dark"] .sidebar::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
-  #sidebarStatus, .sidebar-empty-msg { padding: 10px 16px; color: var(--color-text-muted); font-size: 12px; }
-
-  .sidebar-fixed { position: sticky; top: 0; z-index: 1; background: var(--color-surface); }
-  .sidebar-search { padding: 10px 12px; border-bottom: 1px solid var(--color-border); background: var(--color-surface); }
+  /* ========== 左：案件ツリー ========== */
+  .sidebar {
+    width: 230px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--line);
+    display: flex; flex-direction: column; min-height: 0;
+  }
+  .sidebar-fixed { flex-shrink: 0; padding: 10px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
   .sidebar-search-box { position: relative; display: flex; align-items: center; }
-  .sidebar-search-box .icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--color-text-muted); pointer-events: none; }
+  .sidebar-search-box .icon-wrap {
+    position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+    width: 13px; height: 13px; color: var(--dim); pointer-events: none; display: flex;
+  }
   #sidebarSearch {
-    width: 100%; padding: 7px 8px 7px 28px; font-size: 13px; color: var(--color-text);
-    border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg);
-    transition: border-color var(--transition-fast);
+    width: 100%; height: 30px; padding: 0 9px 0 27px; font-size: 12px; color: var(--text);
+    border: 1px solid var(--line2); border-radius: var(--r-md); background: var(--bg);
+    transition: border-color var(--t);
   }
-  #sidebarSearch:focus { outline: none; border-color: var(--color-accent); }
+  #sidebarSearch::placeholder { color: var(--dim); }
+  #sidebarSearch:focus { outline: none; border-color: var(--accent); }
 
-  .sidebar-project { border-bottom: 2px solid var(--color-border-strong); }
+  .recent-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .recent-chip {
+    display: flex; align-items: center; gap: 5px; max-width: 100%;
+    font-size: 11px; color: var(--dim); background: var(--panel3);
+    border: 1px solid var(--line); border-radius: 20px; padding: 3px 9px;
+    cursor: pointer; transition: background var(--t), color var(--t), border-color var(--t);
+  }
+  .recent-chip:hover { color: var(--accent); background: var(--accent-soft); border-color: var(--accent-line); }
+  .recent-chip .icon { width: 11px; height: 11px; flex-shrink: 0; }
+  .recent-chip .recent-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .sidebar-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 0; }
+  .sidebar-caption { padding: 4px 12px 8px; font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--dim2); }
+  #sidebarStatus, .sidebar-empty-msg { padding: 10px 12px; color: var(--dim); font-size: 12px; }
+
+  .sidebar-project.expanded { background: var(--panel2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
   .sidebar-item {
-    display: flex; align-items: flex-start; gap: 8px; padding: 12px 16px 12px 10px;
-    cursor: pointer; font-size: 16px; transition: background var(--transition-fast), box-shadow var(--transition-fast);
+    display: flex; align-items: center; gap: 8px; padding: 9px 12px; cursor: pointer;
+    transition: background var(--t), box-shadow var(--t);
   }
-  .sidebar-item:hover { background: var(--color-bg); }
-  /* 階層が開いている状態：中立色（アクセント色は使わず「開いた」ことだけを示す） */
-  .sidebar-item.expanded { background: var(--color-surface-alt); box-shadow: inset 3px 0 0 var(--color-border-strong); }
-  /* 実際にこの工事番号配下の機械が選択されている状態：強いアクセント色で「今ここを見ている」ことを示す */
-  .sidebar-item.expanded.has-selection { background: var(--color-accent-soft); color: var(--color-accent-dark); box-shadow: inset 4px 0 0 var(--color-accent); }
-  .sidebar-item.expanded.has-selection .sidebar-item-customer { color: var(--color-accent-dark); }
-  .sidebar-item-chevron { flex-shrink: 0; width: 12px; height: 12px; margin-top: 5px; color: var(--color-text-muted); transition: transform var(--transition-fast); }
-  .sidebar-item-chevron .icon { width: 100%; height: 100%; }
+  .sidebar-item:hover { background: var(--panel2); }
+  .sidebar-item.has-selection { box-shadow: inset 3px 0 0 var(--accent); }
+  .sidebar-item-chevron { flex-shrink: 0; width: 12px; height: 12px; display: flex; color: var(--dim2); transition: transform var(--t); }
   .sidebar-item.expanded .sidebar-item-chevron { transform: rotate(90deg); }
-  .sidebar-item.expanded.has-selection .sidebar-item-chevron { color: var(--color-accent-dark); }
-  .sidebar-item-text { flex: 1; min-width: 0; }
-  .sidebar-item-num { font-weight: 700; }
-  .sidebar-item .sidebar-item-customer { display: block; font-size: 14px; font-weight: 400; color: var(--color-text-muted); margin-top: 2px; }
+  .sidebar-item.has-selection .sidebar-item-chevron { color: var(--accent); }
+  .sidebar-item-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .sidebar-item-num { font-size: 13px; font-weight: 700; }
+  .sidebar-item-customer { font-size: 12px; color: var(--dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sidebar-item-count { font-size: 11px; color: var(--dim2); flex-shrink: 0; }
 
-  .sidebar-machines { background: var(--color-surface-alt); padding: 4px 0; }
+  .sidebar-machines { display: flex; flex-direction: column; padding: 0 8px 8px 24px; }
   .sidebar-machine-btn {
-    display: block; width: 100%; text-align: left; padding: 8px 16px 8px 34px;
-    border: none; background: none; cursor: pointer; font-size: 14px; color: var(--color-text);
-    transition: background var(--transition-fast);
+    display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+    padding: 7px 10px; border: none; border-radius: var(--r-md); background: none;
+    cursor: pointer; font-size: 13px; color: var(--text); transition: background var(--t);
   }
-  .sidebar-machine-btn:hover { background: var(--color-bg); }
-  /* 選択中の機械名：工事番号側より一段強く（太字＋濃いライン）して「最終的にどこを見ているか」を明確にする */
-  .sidebar-machine-btn.active { background: var(--color-accent-soft); color: var(--color-accent-dark); font-weight: 700; box-shadow: inset 4px 0 0 var(--color-accent); }
-  .sidebar-machine-empty { padding: 8px 16px 8px 34px; color: var(--color-text-muted); font-size: 13px; }
+  .sidebar-machine-btn:hover { background: var(--panel3); }
+  .sidebar-machine-btn .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--dim2); margin: 0 4px; flex-shrink: 0; }
+  .sidebar-machine-btn .mname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sidebar-machine-btn.active { background: var(--accent); color: #fff; font-weight: 700; }
+  .sidebar-machine-btn.active .dot { display: none; }
+  .sidebar-machine-btn.active .mark { display: flex; }
+  .sidebar-machine-btn .mark { display: none; width: 13px; height: 13px; flex-shrink: 0; }
+  .sidebar-machine-empty { padding: 7px 10px; color: var(--dim); font-size: 12px; }
 
-  /* 右：メインエリア */
-  .main { flex: 1; padding: 12px 24px 24px; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
-  .main-placeholder { color: var(--color-text-muted); font-size: 13px; }
+  /* ========== 中：パーツ列 ========== */
+  .parts-pane {
+    width: 268px; flex-shrink: 0; background: var(--bg); border-right: 1px solid var(--line);
+    display: flex; flex-direction: column; min-height: 0;
+  }
+  .parts-head {
+    flex-shrink: 0; height: 44px; padding: 0 12px; display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .parts-head .ttl { font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+  .parts-head .cnt { font-size: 11px; color: var(--dim2); }
+  .parts-mini-btn {
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    height: 26px; padding: 0 9px; border-radius: var(--r-sm);
+    border: 1px solid var(--line2); background: var(--panel); color: var(--text);
+    font-size: 12px; cursor: pointer; transition: background var(--t);
+  }
+  .parts-mini-btn:hover { background: var(--panel3); }
+  .parts-mini-btn.icon-only { width: 26px; padding: 0; }
+  .parts-mini-btn .icon { width: 13px; height: 13px; }
 
-  #mainContent { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .parts-grid {
+    flex: 1; min-height: 0; overflow-y: auto;
+    padding: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start;
+  }
+  .parts-status { width: 100%; color: var(--dim); font-size: 12px; padding: 4px 2px; }
 
-  /* サムネイル列とプレビュー列の横並び */
-  .content-columns { flex: 1; min-height: 0; display: flex; gap: 24px; align-items: stretch; }
+  .part-card {
+    position: relative; border: 1px solid var(--line); border-radius: var(--r-lg);
+    background: var(--panel); overflow: hidden; cursor: grab;
+    display: flex; flex-direction: column;
+    transition: border-color var(--t), box-shadow var(--t), transform var(--t);
+  }
+  .part-card:hover { border-color: var(--line2); box-shadow: var(--shadow-sm); }
+  .part-card.dragging { opacity: .4; }
+  .part-card.active { border: 1.5px solid var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .part-card.picked { border-color: var(--accent-line); }
 
-  .thumb-column { width: 260px; flex-shrink: 0; min-height: 0; display: flex; flex-direction: column; gap: 16px; }
-  .thumb-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding-right: 10px; }
-  html[data-theme="dark"] .thumb-list { scrollbar-color: var(--color-border-strong) transparent; }
-  html[data-theme="dark"] .thumb-list::-webkit-scrollbar { width: 10px; }
-  html[data-theme="dark"] .thumb-list::-webkit-scrollbar-track { background: transparent; }
-  html[data-theme="dark"] .thumb-list::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: var(--radius-sm); }
-  html[data-theme="dark"] .thumb-list::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
-  .part-card { position: relative; width: 100%; display: flex; flex-direction: column;
-    align-items: center; gap: 6px; font-size: 14px; cursor: grab; }
-  .part-card.dragging { opacity: 0.4; }
-  .drop-indicator {
-    height: 0; width: 100%; border-top: 2px dashed var(--color-accent);
-    pointer-events: none;
+  .part-thumb-btn {
+    position: relative; display: block; flex: none; width: 100%; height: 86px; padding: 0;
+    border: none; border-bottom: 1px solid var(--line); background: var(--panel3); cursor: pointer; overflow: hidden;
   }
-  .part-thumb-btn { padding: 8px; background: var(--color-surface); border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg); cursor: pointer; width: 100%; box-shadow: var(--shadow-sm);
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast); }
-  .part-thumb-btn:hover { border-color: var(--color-accent); box-shadow: var(--shadow-md); transform: translateY(-2px); }
-  .part-thumb, .part-thumb-placeholder {
-    width: 100%; aspect-ratio: 4 / 3; border-radius: var(--radius-sm); object-fit: cover; display: block;
+  .part-thumb { display: block; width: 100%; height: 86px; object-fit: cover; }
+  .part-thumb-placeholder { display: flex; width: 100%; height: 86px; align-items: center; justify-content: center; color: var(--dim2); }
+  .part-thumb-placeholder .icon { width: 24px; height: 24px; }
+
+  .part-check {
+    position: absolute; top: 6px; left: 6px; width: 18px; height: 18px; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: var(--r-sm); border: 1.5px solid rgba(255,255,255,.55);
+    background: rgba(0,0,0,.35); color: #fff; cursor: pointer; opacity: 0;
+    transition: opacity var(--t), background var(--t);
   }
-  .part-thumb-placeholder {
-    background: var(--color-accent); color: #fff; display: flex; align-items: center;
-    justify-content: center; font-size: 24px;
+  .part-card:hover .part-check, .part-check.on { opacity: 1; }
+  .part-check .icon { width: 11px; height: 11px; display: none; }
+  .part-check.on { background: var(--accent); border-color: var(--accent); }
+  .part-check.on .icon { display: block; }
+
+  .part-menu-btn {
+    position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    border: none; border-radius: var(--r-sm); background: rgba(0,0,0,.5); color: #fff;
+    cursor: pointer; opacity: 0; transition: opacity var(--t), background var(--t);
   }
-  .part-thumb-placeholder .icon { width: 28px; height: 28px; }
-  .part-edit-btn {
-    position: absolute; top: 4px; right: 4px; width: 28px; height: 28px;
-    background: rgba(0,0,0,0.55); color: #fff; border-radius: 50%; display: flex;
-    align-items: center; justify-content: center; cursor: pointer;
-    line-height: 1; transition: background var(--transition-fast);
-  }
-  .part-edit-btn .icon { width: 14px; height: 14px; }
-  .part-edit-btn:hover { background: rgba(0,0,0,0.8); }
+  .part-card:hover .part-menu-btn { opacity: 1; }
+  .part-menu-btn:hover { background: rgba(0,0,0,.75); }
+  .part-menu-btn .icon { width: 12px; height: 12px; }
+
   .part-edit-menu {
-    position: absolute; top: 34px; right: 4px; z-index: 5;
-    background: var(--color-surface); border: 1px solid var(--color-border);
-    border-radius: var(--radius-md); box-shadow: var(--shadow-md);
-    display: none; flex-direction: column; min-width: 168px; overflow: hidden;
+    position: absolute; top: 30px; right: 6px; z-index: 5;
+    background: var(--panel); border: 1px solid var(--line2); border-radius: var(--r-md);
+    box-shadow: var(--shadow); display: none; flex-direction: column; min-width: 168px; overflow: hidden;
   }
   .part-edit-menu.open { display: flex; }
   .part-edit-menu button {
     padding: 8px 12px; background: none; border: none; text-align: left;
-    font-size: 13px; color: var(--color-text); cursor: pointer;
+    font-size: 12px; color: var(--text); cursor: pointer;
   }
-  .part-edit-menu button:hover { background: var(--color-accent-soft); }
-  .part-delete-btn {
-    position: absolute; top: 4px; left: 4px; width: 28px; height: 28px;
-    background: rgba(0,0,0,0.55); color: #fff; border: none; border-radius: 50%; display: flex;
-    align-items: center; justify-content: center; cursor: pointer;
-    line-height: 1; transition: background var(--transition-fast);
-  }
-  .part-delete-btn .icon { width: 14px; height: 14px; }
-  .part-delete-btn:hover { background: #d32f2f; }
+  .part-edit-menu button:hover { background: var(--accent-soft); color: var(--accent); }
+  .part-edit-menu button.danger:hover { background: var(--danger); color: #fff; }
 
-  .add-part-btn {
-    width: 100%; padding: 14px; background: var(--color-surface); border: 2px dashed #90a4ae;
-    border-radius: var(--radius-lg); color: var(--color-accent); font-size: 16px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    flex-shrink: 0;
-    transition: border-color var(--transition-fast), background var(--transition-fast);
+  .part-cap {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 22px; padding: 0 7px;
+    display: flex; align-items: center; gap: 6px;
+    background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.78));
+    color: #fff; pointer-events: none;
   }
-  .add-part-btn:hover { border-color: var(--color-accent); background: var(--color-accent-soft); }
-  .add-part-btn.dragover { border-color: var(--color-accent); background: var(--color-accent-soft); }
-  .add-part-btn .icon { width: 18px; height: 18px; }
+  .part-cap .cap-lbl { font-size: 11px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .part-cap .cap-date { margin-left: auto; font-size: 10px; color: #cfd6db; flex-shrink: 0; }
 
-  button.primary {
-    padding: 8px 16px; background: var(--color-accent); color: #fff; border: none;
-    border-radius: var(--radius-md); cursor: pointer; font-size: 14px;
-    display: inline-flex; align-items: center; gap: 6px; transition: background var(--transition-fast);
+  .part-foot {
+    flex: none; height: 30px; padding: 0 9px; display: flex; align-items: center; gap: 6px;
+    background: var(--panel);
   }
-  button.primary:hover { background: var(--color-accent-dark); }
+  .part-foot .lbl { font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .part-card.active .part-foot .lbl { font-weight: 700; }
+  .part-foot .date { margin-left: auto; font-size: 10px; color: var(--dim2); flex-shrink: 0; }
 
-  /* プレビュー列（工事番号列・サムネイル列を除いた残り全体を使う） */
-  .preview-column {
-    flex: 1; min-width: 0; min-height: 0;
-    display: flex; align-items: stretch; justify-content: center;
+  .add-part-tile {
+    width: 100%; border: 1px dashed var(--line2); border-radius: var(--r-lg);
+    background: transparent; display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px; color: var(--accent); cursor: pointer;
+    transition: border-color var(--t), background var(--t);
   }
+  .add-part-tile:hover, .add-part-tile.dragover { border-color: var(--accent); background: var(--accent-soft); }
+  .add-part-tile .icon { width: 16px; height: 16px; }
+  .add-part-tile .t1 { font-size: 12px; font-weight: 700; }
+  .add-part-tile .t2 { font-size: 11px; color: var(--dim); }
+
+  .drop-indicator { width: 2px; height: 118px; border-radius: 2px; background: var(--accent); flex: none; pointer-events: none; }
+
+  .parts-selbar {
+    flex-shrink: 0; margin: 0 10px 10px; padding: 8px 10px; border-radius: var(--r-lg);
+    background: var(--accent); color: #fff; display: none; align-items: center; gap: 8px; box-shadow: var(--shadow);
+  }
+  .parts-selbar.visible { display: flex; }
+  .parts-selbar .n { font-size: 12px; font-weight: 700; }
+  .parts-selbar button {
+    display: flex; align-items: center; gap: 5px; font-size: 12px; padding: 4px 8px;
+    border: none; border-radius: var(--r-sm); background: rgba(255,255,255,.16); color: #fff; cursor: pointer;
+  }
+  .parts-selbar button:hover { background: rgba(255,255,255,.28); }
+  .parts-selbar button .icon { width: 12px; height: 12px; }
+
+  /* ========== 右：ビューア ========== */
+  .viewer-pane { flex: 1; min-width: 0; position: relative; background: var(--viewer-bg); display: flex; }
   #previewPlaceholder {
-    display: flex; align-items: center; justify-content: center;
-    width: 100%; height: 100%;
-    background: var(--color-surface); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-lg);
-    color: var(--color-text-muted); font-size: 14px;
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    color: #7c868d; font-size: 13px;
+    background: radial-gradient(60% 60% at 50% 45%, #23272b 0%, #17191c 70%, #121416 100%);
   }
-  #previewPanel {
-    display: none; flex-direction: column;
-    width: 100%; height: 100%;
-    background: var(--color-viewer-bg); border-radius: var(--radius-lg); overflow: hidden;
-    box-shadow: var(--shadow-lg);
-  }
-  #previewHeader {
-    flex-shrink: 0;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 14px; background: var(--color-viewer-panel); color: #fff; font-size: 13px;
-  }
-  #previewTitleBlock { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  #previewTitle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  #previewMeta { font-size: 11px; color: #9aa5ab; }
-  #previewHeader .actions { display: flex; align-items: center; }
-  #previewHeader .actions button {
-    margin-left: 8px; padding: 6px 12px; border: none; border-radius: var(--radius-md);
-    cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;
-    transition: background var(--transition-fast);
-  }
-  #previewHeader .actions button .icon { width: 14px; height: 14px; }
-  #fullscreenBtn { background: var(--color-accent); color: #fff; }
-  #fullscreenBtn:hover { background: var(--color-accent-dark); }
-  #resetViewBtn, .bg-swatch-btn { background: #3a3a3a; color: #fff; }
-  #resetViewBtn:hover { background: #4a4a4a; }
-  #closePreviewBtn { background: #444; color: #fff; }
-  #closePreviewBtn:hover { background: #333; }
-  #previewViewer { position: relative; flex: 1; min-height: 0; }
-  #previewStatus {
-    position: absolute; top: 10px; left: 10px; color: #fff;
-    background: rgba(0,0,0,0.6); padding: 6px 10px; border-radius: var(--radius-md); font-size: 12px;
-  }
+  #previewStage { display: none; position: relative; flex: 1; min-width: 0; }
+  #previewStage canvas { display: block; }
 
-  /* 読み込み中スピナー */
-  .viewer-spinner {
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    pointer-events: none;
+  .v-badge {
+    position: absolute; top: 12px; left: 12px; display: flex; align-items: center; gap: 8px;
+    padding: 6px 11px; border-radius: 20px; background: rgba(20,22,25,.72);
+    border: 1px solid rgba(255,255,255,.1); color: #fff; font-size: 12px; font-weight: 700;
+    max-width: 60%;
   }
-  .viewer-spinner .ring {
-    width: 40px; height: 40px; border-radius: 50%;
-    border: 3px solid rgba(255,255,255,.2); border-top-color: #fff;
-    animation: spin .8s linear infinite;
+  .v-badge .idx { font-weight: 400; color: #b3bcc2; flex-shrink: 0; }
+
+  .v-tools { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; gap: 7px; }
+  .bg-swatch-group {
+    display: flex; align-items: center; gap: 4px; padding: 5px; border-radius: var(--r-lg);
+    background: rgba(20,22,25,.75); border: 1px solid rgba(255,255,255,.1);
   }
+  .bg-swatch-btn { width: 20px; height: 20px; border-radius: 50%; padding: 0; cursor: pointer; border: 2px solid transparent; }
+  .bg-swatch-btn.active { border-color: var(--accent); }
+  .bg-swatch-dark { background: #1a1a1a; }
+  .bg-swatch-gray { background: #6b7280; }
+  .bg-swatch-light { background: #f2f2f2; }
+
+  .v-btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,.1);
+    background: rgba(20,22,25,.75); color: #fff; font-size: 12px; cursor: pointer; transition: background var(--t);
+  }
+  .v-btn:hover { background: rgba(40,44,49,.9); }
+  .v-btn.icon-only { width: 32px; padding: 0; }
+  .v-btn .icon { width: 14px; height: 14px; }
+  .v-btn.primary { background: var(--accent); border-color: transparent; font-weight: 700; }
+  .v-btn.primary:hover { background: var(--accent2); }
+
+  .v-hint {
+    position: absolute; left: 12px; bottom: 12px; display: flex; align-items: center; gap: 6px;
+    padding: 6px 10px; border-radius: 8px; background: rgba(20,22,25,.75);
+    border: 1px solid rgba(255,255,255,.1); color: #c7ccd1; font-size: 11px;
+    white-space: nowrap; pointer-events: none; transition: opacity .6s ease;
+  }
+  .v-hint .icon { width: 14px; height: 14px; }
+
+  #previewStatus {
+    position: absolute; right: 12px; bottom: 12px; display: flex; align-items: center; gap: 7px;
+    padding: 6px 10px; border-radius: 8px; background: rgba(20,22,25,.75);
+    border: 1px solid rgba(255,255,255,.1); color: #c7ccd1; font-size: 11px;
+  }
+  #previewStatus .led { width: 7px; height: 7px; border-radius: 50%; background: var(--dim2); flex-shrink: 0; }
+  #previewStatus.done .led { background: #3ecf8e; }
+  #previewStatus.loading .led { background: #4d9de8; animation: pulse 1.1s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .25; } }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* 操作ヒント */
-  .viewer-hint {
-    position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
-    display: flex; align-items: center; gap: 8px;
-    background: rgba(0,0,0,0.6); color: #fff; padding: 8px 16px; border-radius: 20px;
-    font-size: 12px; white-space: nowrap; pointer-events: none;
-    transition: opacity .6s ease;
+  .viewer-spinner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+  .viewer-spinner .ring {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 3px solid rgba(255,255,255,.2); border-top-color: #fff; animation: spin .8s linear infinite;
   }
-  .viewer-hint .icon { width: 14px; height: 14px; }
 
-  /* 背景色スウォッチ */
-  .bg-swatch-group { display: flex; gap: 4px; margin-left: 8px; }
-  .bg-swatch-btn {
-    width: 22px; height: 22px; border-radius: 50%; padding: 0; cursor: pointer;
-    border: 2px solid transparent;
+  /* ========== 右端：インスペクター ========== */
+  .inspector {
+    width: 256px; flex-shrink: 0; background: var(--panel); border-left: 1px solid var(--line);
+    display: flex; flex-direction: column; min-height: 0;
   }
-  .bg-swatch-btn.active { border-color: var(--color-accent); }
-  .bg-swatch-dark { background: #1a1a1a; }
-  .bg-swatch-light { background: #f2f2f2; }
-  .bg-swatch-gray { background: #6b7280; }
+  .inspector.hidden { display: none; }
+  .insp-head { height: 44px; flex-shrink: 0; display: flex; align-items: center; gap: 6px; padding: 0 12px; border-bottom: 1px solid var(--line); }
+  .insp-head .ttl { font-size: 12px; font-weight: 700; letter-spacing: .04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .insp-icon-btn {
+    display: flex; align-items: center; justify-content: center; width: 26px; height: 26px;
+    border: none; border-radius: var(--r-sm); background: none; color: var(--dim); cursor: pointer;
+    flex-shrink: 0; transition: background var(--t), color var(--t);
+  }
+  .insp-icon-btn:hover { background: var(--panel3); color: var(--text); }
+  .insp-icon-btn.danger:hover { background: var(--panel3); color: var(--danger); }
+  .insp-icon-btn .icon { width: 13px; height: 13px; }
 
-  /* 検索履歴 */
-  .recent-machines { padding: 10px 12px; border-bottom: 1px solid var(--color-border); }
-  .recent-machines h2 {
-    margin: 0 0 6px; font-size: 11px; font-weight: 700; letter-spacing: .04em;
-    color: var(--color-text-muted); text-transform: uppercase;
+  .insp-meta { padding: 12px; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid var(--line); }
+  .insp-row { display: flex; align-items: baseline; gap: 10px; }
+  .insp-row .k { width: 74px; flex-shrink: 0; font-size: 11px; color: var(--dim2); }
+  .insp-row .v { font-size: 12px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .insp-row .v.ok { display: inline-flex; align-items: center; gap: 5px; color: var(--ok); }
+  .insp-row .v.ok .led { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
+  .insp-wide-btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; height: 30px;
+    border-radius: var(--r-md); border: 1px solid var(--line2); background: var(--panel2);
+    color: var(--text); font-size: 12px; cursor: pointer; transition: background var(--t);
   }
-  .recent-machine-btn {
-    display: flex; align-items: center; gap: 6px; width: 100%; text-align: left;
-    padding: 6px 8px; border: none; background: none; cursor: pointer;
-    font-size: 14px; color: var(--color-text); border-radius: var(--radius-sm);
-  }
-  .recent-machine-btn:hover { background: var(--color-bg); }
-  .recent-machine-btn .icon { width: 14px; height: 14px; flex-shrink: 0; color: var(--color-text-muted); }
-  .recent-machine-btn .recent-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .insp-wide-btn:hover { background: var(--panel3); }
+  .insp-wide-btn .icon { width: 13px; height: 13px; }
 
-  /* アップロードモーダル */
+  .insp-order { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 11px 12px; gap: 8px; overflow: hidden; }
+  .insp-order-head { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .insp-order-head .cap { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--dim2); }
+  .insp-order-head .hint { margin-left: auto; font-size: 11px; color: var(--dim2); }
+  .insp-order-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
+  .insp-order-row {
+    display: flex; align-items: center; gap: 9px; padding: 7px 9px; border-radius: var(--r-md);
+    border: 1px solid transparent; cursor: grab; transition: background var(--t);
+  }
+  .insp-order-row:hover { background: var(--panel2); }
+  .insp-order-row.dragging { opacity: .4; }
+  .insp-order-row.active { background: var(--accent-soft); border-color: var(--accent-line); }
+  .insp-order-row.active .name, .insp-order-row.active .pos { color: var(--accent); font-weight: 700; }
+  .insp-order-row .grip { width: 13px; height: 13px; flex-shrink: 0; display: flex; color: var(--dim2); }
+  .insp-order-row.active .grip { color: var(--accent); }
+  .insp-order-row .name { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .insp-order-row .pos { margin-left: auto; font-size: 11px; color: var(--dim2); flex-shrink: 0; }
+  .insp-order-ind { height: 2px; border-radius: 2px; background: var(--accent); margin: 1px 9px; pointer-events: none; }
+  .insp-empty { font-size: 12px; color: var(--dim); }
+
+  /* ========== アップロードモーダル ========== */
   #uploadOverlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
-    align-items: center; justify-content: center; z-index: 100;
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45);
+    align-items: center; justify-content: center; z-index: 100; padding: 24px;
   }
   #uploadModal {
-    background: var(--color-surface); border-radius: var(--radius-lg); padding: 36px; width: 100%; max-width: 880px;
-    box-shadow: var(--shadow-lg);
+    background: var(--panel); border: 1px solid var(--line2); border-radius: 12px;
+    box-shadow: var(--shadow); width: 100%; max-width: 720px; max-height: 100%;
+    display: flex; flex-direction: column; overflow: hidden;
   }
-  #uploadModal h2 { font-size: 24px; margin: 0 0 6px; color: var(--color-text); }
-  #uploadContext { margin: 0; color: var(--color-text-muted); font-size: 15px; }
-  #uploadModal .upload-field { margin-top: 24px; }
-  #uploadModal label { display: block; font-size: 16px; font-weight: 700; color: var(--color-text); margin-bottom: 8px; }
-  #uploadModal input[type="text"], #uploadModal input[type="file"] {
-    width: 100%; padding: 12px; box-sizing: border-box; font-size: 16px; color: var(--color-text);
-    border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface);
+  .um-head { flex-shrink: 0; display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  .um-head-mark {
+    display: flex; align-items: center; justify-content: center; width: 28px; height: 28px;
+    border-radius: 8px; background: var(--accent-soft); color: var(--accent); flex-shrink: 0;
   }
-  #uploadModal .modal-actions { margin-top: 28px; display: flex; gap: 10px; }
-  #uploadModal .modal-actions button.primary { padding: 12px 24px; font-size: 16px; }
-  #uploadModal button.secondary {
-    padding: 12px 24px; background: var(--color-surface-alt); color: var(--color-text); border: none;
-    border-radius: var(--radius-md); cursor: pointer; font-size: 16px;
-  }
-  #uploadModal button:disabled { background: #aaa; cursor: not-allowed; }
-  #uploadStatus { margin-top: 16px; font-size: 14px; color: var(--color-text-muted); white-space: pre-wrap; }
-  #uploadStatus.error { color: var(--color-danger); }
-  #uploadStatus.success { color: var(--color-success); }
+  .um-head-mark .icon { width: 15px; height: 15px; }
+  .um-head h2 { margin: 0; font-size: 15px; font-weight: 700; color: var(--text); }
+  #uploadContext { margin: 2px 0 0; font-size: 11px; color: var(--dim); }
+
+  .um-body { flex: 1; min-height: 0; overflow-y: auto; padding: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .um-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .um-label { font-size: 12px; font-weight: 700; color: var(--text); }
+  .um-label .req { color: var(--danger); margin-left: 4px; }
+  .um-label .opt { color: var(--dim2); font-weight: 400; margin-left: 4px; }
 
   .drop-zone {
-    position: relative;
-    margin-top: 10px; border: 2px dashed var(--color-border-strong); border-radius: var(--radius-md);
-    padding: 40px 20px; min-height: 100px; box-sizing: border-box;
-    display: flex; align-items: center; justify-content: center;
-    text-align: center; color: var(--color-text-muted); font-size: 15px;
-    transition: border-color var(--transition-fast), background var(--transition-fast);
+    position: relative; border: 1.5px dashed var(--line2); border-radius: 10px;
+    padding: 22px 14px; display: flex; flex-direction: column; align-items: center; gap: 7px;
+    text-align: center; color: var(--dim); font-size: 12px; cursor: pointer;
+    transition: border-color var(--t), background var(--t);
   }
-  .drop-zone.dragover { border-color: var(--color-accent); background: var(--color-accent-soft); }
-  .drop-zone-text { padding: 0 28px; word-break: break-all; }
+  .drop-zone:hover, .drop-zone.dragover { border-color: var(--accent); background: var(--accent-soft); }
+  .drop-zone .dz-icon { width: 22px; height: 22px; color: var(--accent); display: flex; }
+  .drop-zone .dz-title { font-size: 13px; font-weight: 700; color: var(--accent); }
+  .drop-zone-text { font-size: 11px; color: var(--dim); word-break: break-all; padding: 0 20px; }
+  .drop-zone.small { padding: 16px 14px; }
   .drop-zone-clear-btn {
-    position: absolute; top: 8px; right: 8px; width: 26px; height: 26px;
-    display: flex; align-items: center; justify-content: center;
-    border: none; border-radius: 50%; background: var(--color-surface-alt); color: var(--color-text-muted);
-    font-size: 16px; line-height: 1; cursor: pointer; padding: 0;
-    transition: background var(--transition-fast), color var(--transition-fast);
+    position: absolute; top: 6px; right: 6px; width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center; padding: 0;
+    border: none; border-radius: 50%; background: var(--panel3); color: var(--dim);
+    font-size: 14px; line-height: 1; cursor: pointer; transition: background var(--t), color var(--t);
   }
-  .drop-zone-clear-btn:hover { background: var(--color-danger); color: #fff; }
+  .drop-zone-clear-btn:hover { background: var(--danger); color: #fff; }
 
-  .thumb-candidates-wrap { display: none; margin-top: 14px; }
-  .thumb-candidates-wrap.visible { display: block; }
-  .thumb-candidates-label { font-size: 13px; color: var(--color-text-muted); margin-bottom: 8px; }
-  .thumb-candidates { display: flex; flex-wrap: wrap; gap: 8px; }
-  .thumb-candidates img {
-    width: 84px; height: 63px; object-fit: cover; border-radius: var(--radius-md); cursor: pointer;
-    border: 2px solid transparent; box-sizing: border-box;
+  #partLabel {
+    width: 100%; height: 34px; padding: 0 10px; font-size: 13px; color: var(--text);
+    border: 1px solid var(--line2); border-radius: 8px; background: var(--bg);
   }
-  .thumb-candidates img.selected { border-color: var(--color-accent); }
+  #partLabel::placeholder { color: var(--dim2); }
+  #partLabel:focus { outline: none; border-color: var(--accent); }
+  .um-note { font-size: 11px; color: var(--dim2); line-height: 1.6; }
+
+  .thumb-candidates-wrap { display: none; flex-direction: column; gap: 8px; }
+  .thumb-candidates-wrap.visible { display: flex; }
+  .thumb-candidates { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+  .thumb-candidates img {
+    width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--r-md); cursor: pointer;
+    border: 2px solid transparent; background: var(--panel3);
+  }
+  .thumb-candidates img.selected { border-color: var(--accent); }
+
+  #uploadStatus { font-size: 12px; color: var(--dim); white-space: pre-wrap; line-height: 1.6; }
+  #uploadStatus.error { color: var(--danger); }
+  #uploadStatus.success { color: var(--ok); }
+
+  .um-foot { flex-shrink: 0; display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-top: 1px solid var(--line); background: var(--panel2); }
+  .um-foot .note { font-size: 11px; color: var(--dim); }
+  button.primary {
+    height: 34px; padding: 0 18px; background: var(--accent); color: #fff; border: none;
+    border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 6px; transition: background var(--t);
+  }
+  button.primary:hover { background: var(--accent2); }
+  button.primary .icon { width: 14px; height: 14px; }
+  button.secondary {
+    height: 34px; padding: 0 16px; background: var(--panel); color: var(--text);
+    border: 1px solid var(--line2); border-radius: 8px; cursor: pointer; font-size: 13px;
+    transition: background var(--t);
+  }
+  button.secondary:hover { background: var(--panel3); }
+  button:disabled { opacity: .55; cursor: not-allowed; }
 </style>
 
 <script type="importmap">
@@ -371,72 +508,138 @@
 </head>
 <body>
 
-<header class="app-header">
-  <h1><span id="headerIcon"></span><span>3D Model Capture</span></h1>
-  <button class="theme-toggle-btn" id="themeToggleBtn" title="ダークモード切替"></button>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" id="brandIcon"></span>
+    <span class="brand-name">3D Model Capture</span>
+  </div>
+  <nav class="crumbs" id="crumbs"></nav>
+  <div class="spacer"></div>
+  <button class="topbar-btn on" id="inspectorToggleBtn" title="詳細パネルの表示切替">
+    <span class="icon-wrap" id="inspectorToggleIcon" style="display:flex;width:14px;height:14px"></span>
+    <span>詳細</span>
+  </button>
+  <button class="topbar-btn icon-only" id="themeToggleBtn" title="ダークモード切替"></button>
 </header>
 
 <div class="layout">
   <aside class="sidebar">
     <div class="sidebar-fixed">
-      <div class="sidebar-search">
-        <div class="sidebar-search-box">
-          <span id="sidebarSearchIcon"></span>
-          <input type="text" id="sidebarSearch" placeholder="工事番号・客先名で絞り込み">
-        </div>
+      <div class="sidebar-search-box">
+        <span class="icon-wrap" id="sidebarSearchIcon"></span>
+        <input type="text" id="sidebarSearch" placeholder="工事番号・客先名で絞り込み">
       </div>
-      <div class="recent-machines" id="recentMachines" style="display:none;">
-        <h2>検索履歴</h2>
-        <div id="recentMachinesList"></div>
-      </div>
+      <div class="recent-chips" id="recentMachinesList"></div>
     </div>
-    <div id="sidebarStatus">読み込み中...</div>
-    <div id="sidebarList"></div>
+    <div class="sidebar-scroll">
+      <div class="sidebar-caption">案件 / 機械</div>
+      <div id="sidebarStatus">読み込み中...</div>
+      <div id="sidebarList"></div>
+    </div>
   </aside>
 
-  <main class="main">
-    <div id="mainContent"></div>
-  </main>
+  <section class="parts-pane">
+    <div class="parts-head">
+      <span class="ttl">パーツ</span>
+      <span class="cnt" id="partsCount"></span>
+      <span class="spacer"></span>
+      <button class="parts-mini-btn icon-only" id="addPartHeadBtn" title="アップロード"></button>
+    </div>
+    <div class="parts-grid" id="partsGrid"></div>
+    <div class="parts-selbar" id="partsSelBar">
+      <span class="n" id="partsSelCount"></span>
+      <span class="spacer"></span>
+      <button id="partsSelDeleteBtn"></button>
+      <button id="partsSelClearBtn">解除</button>
+    </div>
+  </section>
+
+  <section class="viewer-pane">
+    <div id="previewPlaceholder">左の一覧から工事番号 → 機械名 → パーツを選択してください</div>
+    <div id="previewStage">
+      <div class="v-badge">
+        <span id="previewTitle" class="ell"></span>
+        <span class="idx" id="previewIndex"></span>
+      </div>
+      <div class="v-tools">
+        <div class="bg-swatch-group" id="bgSwatchGroup"></div>
+        <button class="v-btn icon-only" id="resetViewBtn" title="視点をリセット"></button>
+        <button class="v-btn primary" id="fullscreenBtn"></button>
+      </div>
+      <div class="v-hint" id="viewerHint"></div>
+      <div id="previewStatus"><span class="led"></span><span id="previewStatusText"></span></div>
+    </div>
+  </section>
+
+  <aside class="inspector" id="inspector">
+    <div class="insp-head">
+      <span class="ttl" id="inspTitle">詳細</span>
+      <span class="spacer"></span>
+      <button class="insp-icon-btn" id="inspRenameBtn" title="ファイル名を編集"></button>
+      <button class="insp-icon-btn danger" id="inspDeleteBtn" title="削除"></button>
+      <button class="insp-icon-btn" id="inspCloseBtn" title="閉じる"></button>
+    </div>
+    <div class="insp-meta" id="inspMeta"></div>
+    <div class="insp-order">
+      <div class="insp-order-head">
+        <span class="cap">並び順</span>
+        <span class="hint">ドラッグで変更</span>
+      </div>
+      <div class="insp-order-list" id="inspOrderList"></div>
+    </div>
+  </aside>
 </div>
 
 <div id="uploadOverlay">
   <div id="uploadModal">
-    <h2>3Dキャプチャ アップロード</h2>
-    <p id="uploadContext"></p>
-
-    <div class="upload-field">
-      <label for="partLabel">【パーツ番号・撮影箇所】（任意・複数ファイル選択時は無視されファイル名が使われます）</label>
-      <input type="text" id="partLabel" placeholder="例：①、正面、上部など">
+    <div class="um-head">
+      <span class="um-head-mark" id="uploadHeadIcon"></span>
+      <div>
+        <h2>3Dキャプチャをアップロード</h2>
+        <p id="uploadContext"></p>
+      </div>
+      <span class="spacer"></span>
+      <button class="insp-icon-btn" id="uploadCloseBtn" title="閉じる"></button>
     </div>
 
-    <div class="upload-field">
-      <label for="fileInput">【3Dファイル】（.splat / .ply / .ksplat / .spz / .sog・複数選択可）</label>
-      <input type="file" id="fileInput" accept=".splat,.ply,.ksplat,.spz,.sog" multiple>
-      <div class="drop-zone" id="dropZone">
-        <span class="drop-zone-text" id="dropZoneText">ここに3Dファイルをドラッグ&ドロップもできます</span>
-        <button type="button" class="drop-zone-clear-btn" id="dropZoneClearBtn" title="選択を解除" style="display:none">×</button>
+    <div class="um-body">
+      <div class="um-col">
+        <span class="um-label">3Dファイル<span class="req">必須</span></span>
+        <input type="file" id="fileInput" class="visually-hidden" accept=".splat,.ply,.ksplat,.spz,.sog" multiple>
+        <div class="drop-zone" id="dropZone">
+          <span class="dz-icon" id="dropZoneIcon"></span>
+          <span class="dz-title">ドラッグ&ドロップ／クリックで選択</span>
+          <span class="drop-zone-text" id="dropZoneText">.splat / .ply / .ksplat / .spz / .sog ・ 複数可</span>
+          <button type="button" class="drop-zone-clear-btn" id="dropZoneClearBtn" title="選択を解除" style="display:none">×</button>
+        </div>
+
+        <span class="um-label" style="margin-top:6px">パーツ番号・撮影箇所<span class="opt">任意</span></span>
+        <input type="text" id="partLabel" placeholder="例：① 正面、上部 など">
+        <span class="um-note">複数ファイル選択時はファイル名がパーツ名になります。</span>
+      </div>
+
+      <div class="um-col">
+        <span class="um-label">サムネイル<span class="opt">未指定なら自動撮影</span></span>
+        <input type="file" id="thumbnailInput" class="visually-hidden" accept="image/*">
+        <div class="drop-zone small" id="thumbnailDropZone">
+          <span class="dz-title">画像を指定</span>
+          <span class="drop-zone-text" id="thumbnailDropZoneText">ドラッグ&ドロップ／クリックで選択</span>
+          <button type="button" class="drop-zone-clear-btn" id="thumbnailDropZoneClearBtn" title="選択を解除" style="display:none">×</button>
+        </div>
+        <div class="thumb-candidates-wrap" id="thumbnailCandidatesWrap">
+          <span class="um-note">自動撮影した候補から選べます（未選択なら1枚目を使用）。</span>
+          <div class="thumb-candidates" id="thumbnailCandidates"></div>
+        </div>
+        <div id="uploadStatus"></div>
       </div>
     </div>
 
-    <div class="upload-field">
-      <label for="thumbnailInput">【サムネイル画像】（任意・未指定なら自動撮影／複数ファイル選択時は無視されます）</label>
-      <input type="file" id="thumbnailInput" accept="image/*">
-      <div class="drop-zone" id="thumbnailDropZone">
-        <span class="drop-zone-text" id="thumbnailDropZoneText">ここに画像をドラッグ&ドロップもできます</span>
-        <button type="button" class="drop-zone-clear-btn" id="thumbnailDropZoneClearBtn" title="選択を解除" style="display:none">×</button>
-      </div>
-      <div class="thumb-candidates-wrap" id="thumbnailCandidatesWrap">
-        <div class="thumb-candidates-label">※自動撮影した候補から選ぶ（クリックでサムネイルに使う画像を選択・未選択なら1枚目を使用）</div>
-        <div class="thumb-candidates" id="thumbnailCandidates"></div>
-      </div>
-    </div>
-
-    <div class="modal-actions">
-      <button class="primary" id="uploadBtn">アップロード</button>
+    <div class="um-foot">
+      <span class="note">アップロード後、パーツ一覧の末尾に追加されます</span>
+      <span class="spacer"></span>
       <button class="secondary" id="cancelUploadBtn">キャンセル</button>
+      <button class="primary" id="uploadBtn">アップロード</button>
     </div>
-
-    <div id="uploadStatus"></div>
   </div>
 </div>
 
@@ -444,22 +647,45 @@
 import { initViewer } from "./viewer-core.js";
 import { fetchProjectMachineTree, fetchMachineFiles, uploadPart, updateThumbnail, updatePartLabel, deletePart, reorderParts, captureThumbnailCandidates, splatFileTypeFromFileName } from "./upload-core.js";
 import { ICON_SUN, ICON_MOON, ICON_SEARCH, ICON_EDIT, ICON_CUBE, ICON_PLUS,
-         ICON_EXPAND, ICON_CLOSE, ICON_RESET, ICON_CLOCK, ICON_TRASH, ICON_CHEVRON, ICON_GEAR } from "./icons.js";
+         ICON_EXPAND, ICON_CLOSE, ICON_RESET, ICON_CLOCK, ICON_TRASH, ICON_CHEVRON } from "./icons.js";
 
-const sidebarStatus = document.getElementById("sidebarStatus");
-const sidebarList = document.getElementById("sidebarList");
-const sidebarSearchInput = document.getElementById("sidebarSearch");
-const mainContent = document.getElementById("mainContent");
-const headerIcon = document.getElementById("headerIcon");
-const themeToggleBtn = document.getElementById("themeToggleBtn");
-const sidebarSearchIcon = document.getElementById("sidebarSearchIcon");
-const recentMachinesSection = document.getElementById("recentMachines");
-const recentMachinesList = document.getElementById("recentMachinesList");
+/* 追加アイコン（icons.js に無いものだけこの画面でインライン定義する） */
+const svg = (inner) => `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
+const ICON_CHECK = svg('<path d="M20 6 9 17l-5-5"/>');
+const ICON_DOTS = svg('<circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/>');
+const ICON_GRIP = svg('<path d="M9 6h.01"/><path d="M15 6h.01"/><path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M9 18h.01"/><path d="M15 18h.01"/>');
+const ICON_PANEL = svg('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/>');
+const ICON_UP = svg('<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>');
+const ICON_IMAGE = svg('<rect x="3" y="4" width="18" height="14" rx="2"/><path d="m3 14 5-4 4 3 3-2 6 5"/>');
+const ICON_MOUSE = svg('<path d="M8 13V6a2 2 0 0 1 4 0v6"/><path d="M12 6a2 2 0 0 1 4 0v6"/><path d="M16 8a2 2 0 0 1 4 0v6a7 7 0 0 1-7 7h-1a7 7 0 0 1-6-3.5L3.5 13a1.7 1.7 0 0 1 2.8-1.9L8 13"/>');
 
-headerIcon.innerHTML = ICON_GEAR;
-sidebarSearchIcon.innerHTML = ICON_SEARCH;
+const $ = (id) => document.getElementById(id);
 
-// ---- ライト/ダークモード切替（localStorageに保存） ----
+const sidebarStatus = $("sidebarStatus");
+const sidebarList = $("sidebarList");
+const sidebarSearchInput = $("sidebarSearch");
+const recentMachinesList = $("recentMachinesList");
+const crumbs = $("crumbs");
+const themeToggleBtn = $("themeToggleBtn");
+const inspectorEl = $("inspector");
+const inspectorToggleBtn = $("inspectorToggleBtn");
+
+$("brandIcon").innerHTML = ICON_CUBE;
+$("sidebarSearchIcon").innerHTML = ICON_SEARCH;
+$("inspectorToggleIcon").innerHTML = ICON_PANEL;
+$("addPartHeadBtn").innerHTML = ICON_PLUS;
+$("resetViewBtn").innerHTML = ICON_RESET;
+$("fullscreenBtn").innerHTML = `${ICON_EXPAND}<span>全画面</span>`;
+$("viewerHint").innerHTML = `${ICON_MOUSE}<span>左ドラッグ 回転 ／ ホイール 拡大縮小</span>`;
+$("inspRenameBtn").innerHTML = ICON_EDIT;
+$("inspDeleteBtn").innerHTML = ICON_TRASH;
+$("inspCloseBtn").innerHTML = ICON_CLOSE;
+$("uploadCloseBtn").innerHTML = ICON_CLOSE;
+$("uploadHeadIcon").innerHTML = ICON_UP;
+$("dropZoneIcon").innerHTML = ICON_CUBE;
+$("partsSelDeleteBtn").innerHTML = `${ICON_TRASH}<span>削除</span>`;
+
+/* ---- ライト/ダークモード切替（localStorageに保存） ---- */
 const THEME_KEY = "3dmodel-theme";
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
@@ -473,39 +699,66 @@ themeToggleBtn.onclick = () => {
   applyTheme(next);
 };
 
-// サムネイル一覧・プレビュー列は機械名を選ぶたびに作り直すため、要素参照はletで保持する
-let previewPlaceholder = null;
-let previewPanel = null;
-let previewTitle = null;
-let previewMeta = null;
-let previewViewer = null;
-let previewStatus = null;
+/* ---- 詳細パネルの開閉（localStorageに保存） ---- */
+const INSP_KEY = "3dmodel-inspector-open";
+function applyInspector(open) {
+  inspectorEl.classList.toggle("hidden", !open);
+  inspectorToggleBtn.classList.toggle("on", open);
+}
+let inspectorOpen = localStorage.getItem(INSP_KEY) !== "closed";
+applyInspector(inspectorOpen);
+inspectorToggleBtn.onclick = () => {
+  inspectorOpen = !inspectorOpen;
+  localStorage.setItem(INSP_KEY, inspectorOpen ? "open" : "closed");
+  applyInspector(inspectorOpen);
+};
+$("inspCloseBtn").onclick = () => inspectorToggleBtn.onclick();
 
-const uploadOverlay = document.getElementById("uploadOverlay");
-const uploadContext = document.getElementById("uploadContext");
-const cancelUploadBtn = document.getElementById("cancelUploadBtn");
-const partLabelInput = document.getElementById("partLabel");
-const fileInput = document.getElementById("fileInput");
-const dropZone = document.getElementById("dropZone");
-const dropZoneText = document.getElementById("dropZoneText");
-const dropZoneClearBtn = document.getElementById("dropZoneClearBtn");
-const thumbnailInput = document.getElementById("thumbnailInput");
-const thumbnailDropZone = document.getElementById("thumbnailDropZone");
-const thumbnailDropZoneText = document.getElementById("thumbnailDropZoneText");
-const thumbnailDropZoneClearBtn = document.getElementById("thumbnailDropZoneClearBtn");
-const thumbnailCandidatesWrapEl = document.getElementById("thumbnailCandidatesWrap");
-const thumbnailCandidatesEl = document.getElementById("thumbnailCandidates");
-const uploadBtn = document.getElementById("uploadBtn");
-const uploadStatusEl = document.getElementById("uploadStatus");
+/* ---- 状態 ---- */
+const partsGrid = $("partsGrid");
+const partsCountEl = $("partsCount");
+const partsSelBar = $("partsSelBar");
+const partsSelCount = $("partsSelCount");
+const previewPlaceholder = $("previewPlaceholder");
+const previewStage = $("previewStage");
+const previewTitle = $("previewTitle");
+const previewIndex = $("previewIndex");
+const previewStatusEl = $("previewStatus");
+const previewStatusText = $("previewStatusText");
+const viewerHint = $("viewerHint");
+const inspTitle = $("inspTitle");
+const inspMeta = $("inspMeta");
+const inspOrderList = $("inspOrderList");
+
+const uploadOverlay = $("uploadOverlay");
+const uploadContext = $("uploadContext");
+const partLabelInput = $("partLabel");
+const fileInput = $("fileInput");
+const dropZone = $("dropZone");
+const dropZoneText = $("dropZoneText");
+const dropZoneClearBtn = $("dropZoneClearBtn");
+const thumbnailInput = $("thumbnailInput");
+const thumbnailDropZone = $("thumbnailDropZone");
+const thumbnailDropZoneText = $("thumbnailDropZoneText");
+const thumbnailDropZoneClearBtn = $("thumbnailDropZoneClearBtn");
+const thumbnailCandidatesWrapEl = $("thumbnailCandidatesWrap");
+const thumbnailCandidatesEl = $("thumbnailCandidates");
+const uploadBtn = $("uploadBtn");
+const uploadStatusEl = $("uploadStatus");
 
 let tree = [];
-let expandedNums = new Set(); // 展開中の工事番号（複数可）
-let currentProject = null;   // { num, customer, machines } - 選択中の機械の所属案件
-let currentMachine = null;   // 機械名の文字列
+let expandedNums = new Set();
+let currentProject = null;
+let currentMachine = null;
+let currentFiles = [];
+let selectedIds = new Set();
+let currentFileId = null;
 let currentViewer = null;
 let currentUrl = null;
 let searchQuery = "";
 let selectedBackground = 0x1a1a1a;
+let partsLoading = false;
+let partsError = "";
 
 function formatDateTime(iso) {
   if (!iso) return "";
@@ -514,31 +767,40 @@ function formatDateTime(iso) {
   const pad = (n) => String(n).padStart(2, "0");
   return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
-
-// ---- 検索履歴（localStorageに保存、最大6件） ----
-const RECENT_KEY = "3dmodel-recent-machines";
-function loadRecentMachines() {
+function formatShortDate(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(d.getMonth() + 1)}/${pad(d.getDate())}`;
+}
+function fileNameFromUrl(url) {
+  if (!url) return "";
   try {
-    return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
+    return decodeURIComponent(url.split("?")[0].split("/").pop() || "");
   } catch {
-    return [];
+    return url.split("?")[0].split("/").pop() || "";
   }
 }
+
+/* ---- 検索履歴（localStorageに保存、最大6件） ---- */
+const RECENT_KEY = "3dmodel-recent-machines";
+function loadRecentMachines() {
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return []; }
+}
 function saveRecentMachine(project, machineName) {
-  const recent = loadRecentMachines().filter(
-    (r) => !(r.num === project.num && r.machine === machineName)
-  );
+  const recent = loadRecentMachines().filter((r) => !(r.num === project.num && r.machine === machineName));
   recent.unshift({ num: project.num, customer: project.customer, machine: machineName });
   localStorage.setItem(RECENT_KEY, JSON.stringify(recent.slice(0, 6)));
   renderRecentMachines();
 }
 function renderRecentMachines() {
   const recent = loadRecentMachines().slice(0, 3);
-  recentMachinesSection.style.display = recent.length ? "block" : "none";
   recentMachinesList.innerHTML = "";
   recent.forEach((r) => {
     const btn = document.createElement("button");
-    btn.className = "recent-machine-btn";
+    btn.className = "recent-chip";
+    btn.title = `${r.num}　${r.machine}`;
     btn.innerHTML = `${ICON_CLOCK}<span class="recent-label">${r.num}　${r.machine}</span>`;
     btn.onclick = () => {
       const project = tree.find((p) => p.num === r.num);
@@ -550,7 +812,24 @@ function renderRecentMachines() {
   });
 }
 
-// ---- 左：工事番号一覧（工程表の全件から作成） ----
+/* ---- パンくず ---- */
+function renderCrumbs() {
+  crumbs.innerHTML = "";
+  if (!currentProject) {
+    crumbs.innerHTML = `<span>案件を選択してください</span>`;
+    return;
+  }
+  const sep = () => `<span class="sep">${ICON_CHEVRON}</span>`;
+  let html = `<span class="num">${currentProject.num}</span>`;
+  if (currentProject.customer) html += `${sep()}<span class="ell">${currentProject.customer}</span>`;
+  if (currentMachine) {
+    html += `${sep()}<span class="cur ell">${currentMachine}</span>`;
+    if (!partsLoading) html += `<span class="count num">${currentFiles.length}パーツ</span>`;
+  }
+  crumbs.innerHTML = html;
+}
+
+/* ---- 左：案件ツリー ---- */
 async function loadTree() {
   sidebarStatus.textContent = "読み込み中...";
   try {
@@ -563,7 +842,7 @@ async function loadTree() {
     sidebarStatus.textContent = "";
     renderRecentMachines();
     renderSidebar();
-    renderMain();
+    renderAll();
   } catch (err) {
     sidebarStatus.textContent = "読み込みエラー：" + err.message;
   }
@@ -590,11 +869,12 @@ function renderSidebar() {
   }
 
   visibleProjects.forEach((project) => {
-    const projectDiv = document.createElement("div");
-    projectDiv.className = "sidebar-project";
-
     const isExpanded = expandedNums.has(project.num);
     const isSelectedProject = currentProject?.num === project.num;
+
+    const projectDiv = document.createElement("div");
+    projectDiv.className = "sidebar-project" + (isExpanded ? " expanded" : "");
+
     const item = document.createElement("div");
     item.className = "sidebar-item" + (isExpanded ? " expanded" : "") + (isSelectedProject && currentMachine ? " has-selection" : "");
 
@@ -605,20 +885,23 @@ function renderSidebar() {
 
     const text = document.createElement("div");
     text.className = "sidebar-item-text";
-
     const num = document.createElement("span");
-    num.className = "sidebar-item-num";
+    num.className = "sidebar-item-num num";
     num.textContent = project.num;
     text.appendChild(num);
-
     if (project.customer) {
       const customer = document.createElement("span");
       customer.className = "sidebar-item-customer";
       customer.textContent = project.customer;
       text.appendChild(customer);
     }
-
     item.appendChild(text);
+
+    const count = document.createElement("span");
+    count.className = "sidebar-item-count num";
+    count.textContent = project.machines.length;
+    item.appendChild(count);
+
     item.onclick = () => toggleProject(project);
     projectDiv.appendChild(item);
 
@@ -632,9 +915,11 @@ function renderSidebar() {
         machinesDiv.appendChild(empty);
       } else {
         project.machines.forEach((machineName) => {
+          const isActive = isSelectedProject && currentMachine === machineName;
           const btn = document.createElement("button");
-          btn.className = "sidebar-machine-btn" + (isSelectedProject && currentMachine === machineName ? " active" : "");
-          btn.textContent = machineName;
+          btn.className = "sidebar-machine-btn" + (isActive ? " active" : "");
+          btn.title = machineName;
+          btn.innerHTML = `<span class="dot"></span><span class="mark">${ICON_CUBE}</span><span class="mname">${machineName}</span>`;
           btn.onclick = () => selectMachine(project, machineName);
           machinesDiv.appendChild(btn);
         });
@@ -652,8 +937,10 @@ function toggleProject(project) {
     if (currentProject?.num === project.num) {
       currentProject = null;
       currentMachine = null;
+      currentFiles = [];
+      selectedIds.clear();
       closePreview();
-      renderMain();
+      renderAll();
     }
   } else {
     expandedNums.add(project.num);
@@ -664,165 +951,258 @@ function toggleProject(project) {
 function selectMachine(project, machineName) {
   currentProject = project;
   currentMachine = machineName;
+  currentFiles = [];
+  selectedIds.clear();
   closePreview();
   saveRecentMachine(currentProject, machineName);
   renderSidebar();
-  renderMain();
-}
-
-// ---- 右：メインエリア（機械名を選ぶとサムネイル一覧を表示） ----
-function renderMain() {
-  mainContent.innerHTML = "";
-
-  if (!currentMachine) {
-    const placeholder = document.createElement("div");
-    placeholder.className = "main-placeholder";
-    placeholder.textContent = "左の一覧から工事番号→機械名を選択してください";
-    mainContent.appendChild(placeholder);
-    return;
-  }
-
-  renderPartsView();
-}
-
-let partsStatusEl = null;
-let thumbColumnEl = null;
-let thumbListEl = null;
-
-function renderPartsView() {
-  const columns = document.createElement("div");
-  columns.className = "content-columns";
-
-  thumbColumnEl = document.createElement("div");
-  thumbColumnEl.className = "thumb-column";
-
-  const addBtn = document.createElement("button");
-  addBtn.className = "add-part-btn";
-  addBtn.innerHTML = `${ICON_PLUS}<span>アップロード</span>`;
-  addBtn.onclick = openUploadModal;
-  thumbColumnEl.appendChild(addBtn);
-
-  thumbListEl = document.createElement("div");
-  thumbListEl.className = "thumb-list";
-  thumbColumnEl.appendChild(thumbListEl);
-
-  partsStatusEl = document.createElement("div");
-  partsStatusEl.className = "main-placeholder";
-  thumbListEl.appendChild(partsStatusEl);
-
-  setupPartsDragAndDrop(thumbListEl);
-
-  columns.appendChild(thumbColumnEl);
-  columns.appendChild(buildPreviewColumn());
-  mainContent.appendChild(columns);
-
+  renderAll();
   loadMachineFiles();
 }
 
-// プレビュー列（プレースホルダー／実際の3Dビューア）を組み立てる
-function buildPreviewColumn() {
-  const previewColumn = document.createElement("div");
-  previewColumn.className = "preview-column";
+function renderAll() {
+  renderCrumbs();
+  renderParts();
+  renderInspector();
+}
 
-  previewPlaceholder = document.createElement("div");
-  previewPlaceholder.id = "previewPlaceholder";
-  previewPlaceholder.textContent = "サムネイルを選択してください";
-  previewColumn.appendChild(previewPlaceholder);
+/* ---- 中：パーツ一覧 ---- */
+async function loadMachineFiles() {
+  if (!currentMachine) return;
+  partsLoading = true;
+  partsError = "";
+  renderAll();
+  try {
+    const files = await fetchMachineFiles(currentProject.num, currentMachine);
+    currentFiles = files;
+    selectedIds = new Set([...selectedIds].filter((id) => files.some((f) => String(f.id) === String(id))));
+  } catch (err) {
+    partsError = "読み込みエラー：" + err.message;
+  } finally {
+    partsLoading = false;
+    renderAll();
+  }
+}
 
-  previewPanel = document.createElement("div");
-  previewPanel.id = "previewPanel";
+function renderParts() {
+  partsGrid.innerHTML = "";
+  partsCountEl.textContent = currentMachine && !partsLoading ? `${currentFiles.length}件` : "";
 
-  const header = document.createElement("div");
-  header.id = "previewHeader";
+  if (!currentMachine) {
+    partsGrid.innerHTML = `<div class="parts-status">左の一覧から工事番号 → 機械名を選択してください</div>`;
+    renderSelBar();
+    return;
+  }
+  if (partsLoading) {
+    partsGrid.innerHTML = `<div class="parts-status">読み込み中...</div>`;
+    renderSelBar();
+    return;
+  }
+  if (partsError) {
+    partsGrid.innerHTML = `<div class="parts-status">${partsError}</div>`;
+    renderSelBar();
+    return;
+  }
+  if (currentFiles.length === 0) {
+    partsGrid.innerHTML = `<div class="parts-status">アップロード済みの3Dモデルはまだありません</div>`;
+  } else {
+    currentFiles.forEach((file) => partsGrid.appendChild(buildPartCard(file)));
+  }
 
-  const titleBlock = document.createElement("div");
-  titleBlock.id = "previewTitleBlock";
-  previewTitle = document.createElement("span");
-  previewTitle.id = "previewTitle";
-  previewMeta = document.createElement("span");
-  previewMeta.id = "previewMeta";
-  titleBlock.appendChild(previewTitle);
-  titleBlock.appendChild(previewMeta);
-  header.appendChild(titleBlock);
+  const tile = document.createElement("div");
+  tile.className = "add-part-tile";
+  tile.id = "addPartTile";
+  tile.innerHTML = `${ICON_PLUS}<span class="t1">アップロード</span><span class="t2">ドロップでも可</span>`;
+  tile.onclick = openUploadModal;
+  setupTileDrop(tile);
+  partsGrid.appendChild(tile);
 
-  const actions = document.createElement("div");
-  actions.className = "actions";
+  renderSelBar();
+}
 
-  const bgGroup = document.createElement("div");
-  bgGroup.className = "bg-swatch-group";
-  const bgOptions = [
-    { key: "dark", label: "暗い背景", cls: "bg-swatch-dark", color: 0x1a1a1a },
-    { key: "gray", label: "グレー背景", cls: "bg-swatch-gray", color: 0x6b7280 },
-    { key: "light", label: "明るい背景", cls: "bg-swatch-light", color: 0xf2f2f2 },
-  ];
-  bgOptions.forEach((opt) => {
-    const swatchBtn = document.createElement("button");
-    swatchBtn.className = "bg-swatch-btn " + opt.cls + (opt.key === "dark" ? " active" : "");
-    swatchBtn.title = opt.label;
-    swatchBtn.onclick = () => {
-      selectedBackground = opt.color;
-      currentViewer?.setBackground(opt.color);
-      bgGroup.querySelectorAll(".bg-swatch-btn").forEach((b) => b.classList.remove("active"));
-      swatchBtn.classList.add("active");
-    };
-    bgGroup.appendChild(swatchBtn);
-  });
-  actions.appendChild(bgGroup);
+function renderSelBar() {
+  const n = selectedIds.size;
+  partsSelBar.classList.toggle("visible", n > 0);
+  partsSelCount.textContent = `${n}件を選択中`;
+}
 
-  const resetViewBtnEl = document.createElement("button");
-  resetViewBtnEl.id = "resetViewBtn";
-  resetViewBtnEl.title = "視点をリセット";
-  resetViewBtnEl.innerHTML = ICON_RESET;
-  resetViewBtnEl.onclick = () => currentViewer?.resetView();
-  actions.appendChild(resetViewBtnEl);
+function buildPartCard(file) {
+  const id = String(file.id);
+  const card = document.createElement("div");
+  card.className = "part-card"
+    + (String(currentFileId) === id ? " active" : "")
+    + (selectedIds.has(id) ? " picked" : "");
+  card.draggable = true;
+  card.dataset.fileId = id;
+  card.style.cssText = "position:relative;display:block;flex:none;width:calc(50% - 5px);height:118px;overflow:hidden;cursor:grab";
+  card.addEventListener("dragstart", () => card.classList.add("dragging"));
+  card.addEventListener("dragend", () => card.classList.remove("dragging"));
 
-  const fullscreenBtnEl = document.createElement("button");
-  fullscreenBtnEl.id = "fullscreenBtn";
-  fullscreenBtnEl.innerHTML = `${ICON_EXPAND}<span>全画面表示</span>`;
-  fullscreenBtnEl.onclick = () => {
-    if (!currentUrl) return;
-    const params = new URLSearchParams({
-      url: currentUrl,
-      title: previewTitle.textContent || "",
-      bg: "0x" + selectedBackground.toString(16).padStart(6, "0"),
-    });
-    window.open("viewer.html?" + params.toString(), "_blank");
+  const thumbBtn = document.createElement("div");
+  thumbBtn.className = "part-thumb-btn";
+  thumbBtn.setAttribute("role", "button");
+  thumbBtn.title = file.part_label || "";
+  thumbBtn.style.cssText = "position:relative;display:block;width:100%;height:86px;overflow:hidden;cursor:pointer;background:var(--panel3);border-bottom:1px solid var(--line)";
+  if (file.thumbnail_url) {
+    const img = document.createElement("img");
+    img.className = "part-thumb";
+    img.src = file.thumbnail_url;
+    img.alt = "";
+    img.style.cssText = "display:block;width:100%;height:86px;object-fit:cover";
+    thumbBtn.appendChild(img);
+  } else {
+    const placeholder = document.createElement("span");
+    placeholder.className = "part-thumb-placeholder";
+    placeholder.innerHTML = ICON_CUBE;
+    placeholder.style.cssText = "display:flex;width:100%;height:86px;align-items:center;justify-content:center;color:var(--dim2)";
+    thumbBtn.appendChild(placeholder);
+  }
+  thumbBtn.onclick = () => openPreview(file);
+  card.appendChild(thumbBtn);
+
+  const check = document.createElement("button");
+  check.type = "button";
+  check.className = "part-check" + (selectedIds.has(id) ? " on" : "");
+  check.title = "選択";
+  check.innerHTML = ICON_CHECK;
+  check.onclick = (e) => {
+    e.stopPropagation();
+    if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
+    renderParts();
   };
-  actions.appendChild(fullscreenBtnEl);
+  card.appendChild(check);
 
-  const closePreviewBtnEl = document.createElement("button");
-  closePreviewBtnEl.id = "closePreviewBtn";
-  closePreviewBtnEl.innerHTML = `${ICON_CLOSE}<span>閉じる</span>`;
-  closePreviewBtnEl.onclick = closePreview;
-  actions.appendChild(closePreviewBtnEl);
+  const menuBtn = document.createElement("button");
+  menuBtn.type = "button";
+  menuBtn.className = "part-menu-btn";
+  menuBtn.title = "編集";
+  menuBtn.innerHTML = ICON_DOTS;
 
-  header.appendChild(actions);
-  previewPanel.appendChild(header);
+  const editInput = document.createElement("input");
+  editInput.type = "file";
+  editInput.accept = "image/*";
+  editInput.style.display = "none";
+  editInput.onchange = async () => {
+    const chosen = editInput.files[0];
+    if (!chosen) return;
+    try {
+      await updateThumbnail(file.id, chosen);
+      await loadMachineFiles();
+    } catch (err) {
+      console.error(err);
+      partsError = "サムネイルの更新に失敗しました：" + (err.message || err);
+      renderParts();
+    }
+  };
 
-  previewViewer = document.createElement("div");
-  previewViewer.id = "previewViewer";
-  previewStatus = document.createElement("div");
-  previewStatus.id = "previewStatus";
-  previewViewer.appendChild(previewStatus);
-  previewPanel.appendChild(previewViewer);
+  const editMenu = document.createElement("div");
+  editMenu.className = "part-edit-menu";
+  const closeEditMenu = () => editMenu.classList.remove("open");
 
-  previewColumn.appendChild(previewPanel);
-  return previewColumn;
+  const thumbMenuItem = document.createElement("button");
+  thumbMenuItem.type = "button";
+  thumbMenuItem.textContent = "サムネイル画像を変更";
+  thumbMenuItem.onclick = (e) => { e.stopPropagation(); closeEditMenu(); editInput.click(); };
+
+  const nameMenuItem = document.createElement("button");
+  nameMenuItem.type = "button";
+  nameMenuItem.textContent = "ファイル名を編集";
+  nameMenuItem.onclick = (e) => { e.stopPropagation(); closeEditMenu(); renamePart(file); };
+
+  const delMenuItem = document.createElement("button");
+  delMenuItem.type = "button";
+  delMenuItem.className = "danger";
+  delMenuItem.textContent = "削除";
+  delMenuItem.onclick = (e) => { e.stopPropagation(); closeEditMenu(); removeParts([file]); };
+
+  editMenu.appendChild(thumbMenuItem);
+  editMenu.appendChild(nameMenuItem);
+  editMenu.appendChild(delMenuItem);
+
+  menuBtn.onclick = (e) => {
+    e.stopPropagation();
+    document.querySelectorAll(".part-edit-menu.open").forEach((m) => { if (m !== editMenu) m.classList.remove("open"); });
+    editMenu.classList.toggle("open");
+  };
+
+  card.appendChild(menuBtn);
+  card.appendChild(editMenu);
+  card.appendChild(editInput);
+
+  const foot = document.createElement("div");
+  foot.className = "part-foot";
+  foot.style.cssText = "display:flex;align-items:center;gap:6px;height:30px;padding:0 9px;background:var(--panel)";
+  const lbl = document.createElement("span");
+  lbl.className = "lbl";
+  lbl.style.cssText = "font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
+  lbl.textContent = file.part_label || "表示";
+  lbl.title = file.part_label || "";
+  foot.appendChild(lbl);
+  const date = document.createElement("span");
+  date.className = "date num";
+  date.style.cssText = "margin-left:auto;font-size:10px;color:var(--dim2);flex-shrink:0";
+  date.textContent = formatShortDate(file.created_at);
+  foot.appendChild(date);
+  card.appendChild(foot);
+
+  return card;
 }
 
 document.addEventListener("click", () => {
   document.querySelectorAll(".part-edit-menu.open").forEach((m) => m.classList.remove("open"));
 });
 
-// ---- サムネイルカードのドラッグ&ドロップによる並べ替え ----
-function getDragAfterElement(container, y) {
+async function renamePart(file) {
+  const current = file.part_label || "";
+  const next = prompt("ファイル名（パーツ番号）を入力してください", current);
+  if (next === null) return;
+  const trimmed = next.trim();
+  if (trimmed === current) return;
+  try {
+    await updatePartLabel(file.id, trimmed);
+    await loadMachineFiles();
+  } catch (err) {
+    console.error(err);
+    partsError = "ファイル名の更新に失敗しました：" + (err.message || err);
+    renderParts();
+  }
+}
+
+async function removeParts(files) {
+  if (files.length === 0) return;
+  const msg = files.length === 1
+    ? `「${files[0].part_label || "表示"}」を削除しますか？この操作は取り消せません。`
+    : `${files.length}件のパーツを削除しますか？この操作は取り消せません。`;
+  if (!confirm(msg)) return;
+  try {
+    for (const f of files) {
+      if (String(currentFileId) === String(f.id)) closePreview();
+      await deletePart(f.id);
+      selectedIds.delete(String(f.id));
+    }
+    await loadMachineFiles();
+  } catch (err) {
+    console.error(err);
+    partsError = "削除に失敗しました：" + (err.message || err);
+    renderParts();
+  }
+}
+
+$("partsSelDeleteBtn").onclick = () => {
+  removeParts(currentFiles.filter((f) => selectedIds.has(String(f.id))));
+};
+$("partsSelClearBtn").onclick = () => { selectedIds.clear(); renderParts(); };
+$("addPartHeadBtn").onclick = openUploadModal;
+
+/* ---- 並べ替え（グリッド） ---- */
+function getGridDropTarget(container, x, y) {
   const cards = [...container.querySelectorAll(".part-card:not(.dragging)")];
-  return cards.reduce((closest, child) => {
-    const box = child.getBoundingClientRect();
-    const offset = y - box.top - box.height / 2;
-    if (offset < 0 && offset > closest.offset) return { offset, element: child };
-    return closest;
-  }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+  for (const c of cards) {
+    const b = c.getBoundingClientRect();
+    if (y < b.top) return c;
+    if (y <= b.bottom && x < b.left + b.width / 2) return c;
+  }
+  return null;
 }
 
 function setupPartsDragAndDrop(container) {
@@ -833,22 +1213,16 @@ function setupPartsDragAndDrop(container) {
     const dragging = container.querySelector(".part-card.dragging");
     if (!dragging) return;
     e.preventDefault();
-    const afterElement = getDragAfterElement(container, e.clientY);
-    if (afterElement) {
-      container.insertBefore(indicator, afterElement);
-    } else {
-      container.appendChild(indicator);
-    }
+    const target = getGridDropTarget(container, e.clientX, e.clientY);
+    const tile = $("addPartTile");
+    if (target) container.insertBefore(indicator, target);
+    else if (tile) container.insertBefore(indicator, tile);
+    else container.appendChild(indicator);
   });
-
   container.addEventListener("dragleave", (e) => {
     if (!container.contains(e.relatedTarget)) indicator.remove();
   });
-
-  container.addEventListener("dragend", () => {
-    indicator.remove();
-  });
-
+  container.addEventListener("dragend", () => indicator.remove());
   container.addEventListener("drop", async (e) => {
     const dragging = container.querySelector(".part-card.dragging");
     if (!dragging) return;
@@ -856,194 +1230,232 @@ function setupPartsDragAndDrop(container) {
     container.insertBefore(dragging, indicator);
     indicator.remove();
     const orderedIds = [...container.querySelectorAll(".part-card")].map((c) => c.dataset.fileId);
-    try {
-      await reorderParts(orderedIds);
-    } catch (err) {
-      console.error(err);
-      if (partsStatusEl) partsStatusEl.textContent = "並び順の保存に失敗しました：" + (err.message || err);
-    }
+    await applyOrder(orderedIds);
   });
 }
+setupPartsDragAndDrop(partsGrid);
 
-async function loadMachineFiles() {
-  if (!partsStatusEl || !thumbListEl) return;
-  partsStatusEl.textContent = "読み込み中...";
-
+async function applyOrder(orderedIds) {
+  currentFiles = orderedIds
+    .map((id) => currentFiles.find((f) => String(f.id) === String(id)))
+    .filter(Boolean);
+  renderAll();
   try {
-    const files = await fetchMachineFiles(currentProject.num, currentMachine);
-    thumbListEl.querySelectorAll(".part-card").forEach(el => el.remove());
-    partsStatusEl.textContent = files.length === 0 ? "アップロード済みの3Dモデルはまだありません" : "";
-
-    files.forEach((file) => thumbListEl.appendChild(buildPartCard(file)));
+    await reorderParts(orderedIds);
   } catch (err) {
-    partsStatusEl.textContent = "読み込みエラー：" + err.message;
+    console.error(err);
+    partsError = "並び順の保存に失敗しました：" + (err.message || err);
+    renderParts();
   }
 }
 
-function buildPartCard(file) {
-  const card = document.createElement("div");
-  card.className = "part-card";
-  card.draggable = true;
-  card.dataset.fileId = file.id;
-  card.addEventListener("dragstart", () => {
-    card.classList.add("dragging");
-  });
-  card.addEventListener("dragend", () => {
-    card.classList.remove("dragging");
-  });
+/* ---- 右端：インスペクター ---- */
+function renderInspector() {
+  const file = currentFiles.find((f) => String(f.id) === String(currentFileId));
+  inspTitle.textContent = file ? (file.part_label || "表示") : "詳細";
+  $("inspRenameBtn").disabled = !file;
+  $("inspDeleteBtn").disabled = !file;
 
-  const thumbBtn = document.createElement("button");
-  thumbBtn.className = "part-thumb-btn";
-  if (file.thumbnail_url) {
-    const img = document.createElement("img");
-    img.className = "part-thumb";
-    img.src = file.thumbnail_url;
-    img.alt = "";
-    thumbBtn.appendChild(img);
+  inspMeta.innerHTML = "";
+  if (!file) {
+    const empty = document.createElement("div");
+    empty.className = "insp-empty";
+    empty.textContent = currentMachine ? "パーツを選択すると詳細を表示します" : "機械名を選択してください";
+    inspMeta.appendChild(empty);
   } else {
-    const placeholder = document.createElement("span");
-    placeholder.className = "part-thumb-placeholder";
-    placeholder.innerHTML = ICON_CUBE;
-    thumbBtn.appendChild(placeholder);
+    const rows = [
+      ["ファイル", fileNameFromUrl(file.file_url)],
+      ["登録日時", formatDateTime(file.created_at)],
+    ];
+    rows.forEach(([k, v]) => {
+      if (!v) return;
+      const row = document.createElement("div");
+      row.className = "insp-row";
+      row.innerHTML = `<span class="k">${k}</span><span class="v num" title="${v}">${v}</span>`;
+      inspMeta.appendChild(row);
+    });
+    const statusRow = document.createElement("div");
+    statusRow.className = "insp-row";
+    statusRow.innerHTML = `<span class="k">状態</span><span class="v ok"><span class="led"></span><span id="inspStatusText">${previewStatusText.textContent || "読み込み中"}</span></span>`;
+    inspMeta.appendChild(statusRow);
+
+    const thumbBtn = document.createElement("button");
+    thumbBtn.className = "insp-wide-btn";
+    thumbBtn.innerHTML = `${ICON_IMAGE}<span>サムネイルを変更</span>`;
+    const thumbFileInput = document.createElement("input");
+    thumbFileInput.type = "file";
+    thumbFileInput.accept = "image/*";
+    thumbFileInput.style.display = "none";
+    thumbFileInput.onchange = async () => {
+      const chosen = thumbFileInput.files[0];
+      if (!chosen) return;
+      try {
+        await updateThumbnail(file.id, chosen);
+        await loadMachineFiles();
+      } catch (err) {
+        console.error(err);
+        partsError = "サムネイルの更新に失敗しました：" + (err.message || err);
+        renderParts();
+      }
+    };
+    thumbBtn.onclick = () => thumbFileInput.click();
+    inspMeta.appendChild(thumbBtn);
+    inspMeta.appendChild(thumbFileInput);
   }
-  thumbBtn.onclick = () => openPreview(file);
-  card.appendChild(thumbBtn);
 
-  const editBtn = document.createElement("button");
-  editBtn.type = "button";
-  editBtn.className = "part-edit-btn";
-  editBtn.title = "編集";
-  editBtn.innerHTML = ICON_EDIT;
-
-  const editInput = document.createElement("input");
-  editInput.type = "file";
-  editInput.accept = "image/*";
-  editInput.style.display = "none";
-  editInput.onchange = async () => {
-    const chosen = editInput.files[0];
-    if (!chosen) return;
-    editBtn.innerHTML = "…";
-    try {
-      await updateThumbnail(file.id, chosen);
-      await loadMachineFiles();
-    } catch (err) {
-      console.error(err);
-      if (partsStatusEl) partsStatusEl.textContent = "サムネイルの更新に失敗しました：" + (err.message || err);
-      editBtn.innerHTML = ICON_EDIT;
-    }
-  };
-
-  const editMenu = document.createElement("div");
-  editMenu.className = "part-edit-menu";
-
-  const closeEditMenu = () => editMenu.classList.remove("open");
-
-  const thumbMenuItem = document.createElement("button");
-  thumbMenuItem.type = "button";
-  thumbMenuItem.textContent = "サムネイル画像を変更";
-  thumbMenuItem.onclick = (e) => {
-    e.stopPropagation();
-    closeEditMenu();
-    editInput.click();
-  };
-
-  const nameMenuItem = document.createElement("button");
-  nameMenuItem.type = "button";
-  nameMenuItem.textContent = "ファイル名を編集";
-  nameMenuItem.onclick = async (e) => {
-    e.stopPropagation();
-    closeEditMenu();
-    const current = file.part_label || "";
-    const next = prompt("ファイル名（パーツ番号）を入力してください", current);
-    if (next === null) return;
-    const trimmed = next.trim();
-    if (trimmed === current) return;
-    try {
-      await updatePartLabel(file.id, trimmed);
-      await loadMachineFiles();
-    } catch (err) {
-      console.error(err);
-      if (partsStatusEl) partsStatusEl.textContent = "ファイル名の更新に失敗しました：" + (err.message || err);
-    }
-  };
-
-  editMenu.appendChild(thumbMenuItem);
-  editMenu.appendChild(nameMenuItem);
-
-  editBtn.onclick = (e) => {
-    e.stopPropagation();
-    document.querySelectorAll(".part-edit-menu.open").forEach((m) => { if (m !== editMenu) m.classList.remove("open"); });
-    editMenu.classList.toggle("open");
-  };
-
-  card.appendChild(editBtn);
-  card.appendChild(editMenu);
-  card.appendChild(editInput);
-
-  const deleteBtn = document.createElement("button");
-  deleteBtn.className = "part-delete-btn";
-  deleteBtn.title = "削除";
-  deleteBtn.innerHTML = ICON_TRASH;
-  deleteBtn.onclick = async () => {
-    if (!confirm(`「${file.part_label || "表示"}」を削除しますか？この操作は取り消せません。`)) return;
-    deleteBtn.innerHTML = "…";
-    deleteBtn.disabled = true;
-    try {
-      await deletePart(file.id);
-      await loadMachineFiles();
-    } catch (err) {
-      console.error(err);
-      if (partsStatusEl) partsStatusEl.textContent = "削除に失敗しました：" + (err.message || err);
-      deleteBtn.innerHTML = ICON_TRASH;
-      deleteBtn.disabled = false;
-    }
-  };
-  card.appendChild(deleteBtn);
-
-  const label = document.createElement("span");
-  label.textContent = file.part_label || "表示";
-  card.appendChild(label);
-
-  return card;
+  renderOrderList();
 }
 
-// ---- インラインプレビュー ----
+function renderOrderList() {
+  inspOrderList.innerHTML = "";
+  if (!currentMachine || currentFiles.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "insp-empty";
+    empty.textContent = "パーツがありません";
+    inspOrderList.appendChild(empty);
+    return;
+  }
+  currentFiles.forEach((file, i) => {
+    const id = String(file.id);
+    const row = document.createElement("div");
+    row.className = "insp-order-row" + (String(currentFileId) === id ? " active" : "");
+    row.draggable = true;
+    row.dataset.fileId = id;
+    row.innerHTML = `<span class="grip">${ICON_GRIP}</span><span class="name">${file.part_label || "表示"}</span><span class="pos num">${i + 1}</span>`;
+    row.addEventListener("dragstart", () => row.classList.add("dragging"));
+    row.addEventListener("dragend", () => row.classList.remove("dragging"));
+    row.onclick = () => openPreview(file);
+    inspOrderList.appendChild(row);
+  });
+}
+
+function setupOrderListDrag(container) {
+  const indicator = document.createElement("div");
+  indicator.className = "insp-order-ind";
+  container.addEventListener("dragover", (e) => {
+    const dragging = container.querySelector(".insp-order-row.dragging");
+    if (!dragging) return;
+    e.preventDefault();
+    const rows = [...container.querySelectorAll(".insp-order-row:not(.dragging)")];
+    const after = rows.find((r) => {
+      const b = r.getBoundingClientRect();
+      return e.clientY < b.top + b.height / 2;
+    });
+    if (after) container.insertBefore(indicator, after);
+    else container.appendChild(indicator);
+  });
+  container.addEventListener("dragleave", (e) => {
+    if (!container.contains(e.relatedTarget)) indicator.remove();
+  });
+  container.addEventListener("dragend", () => indicator.remove());
+  container.addEventListener("drop", async (e) => {
+    const dragging = container.querySelector(".insp-order-row.dragging");
+    if (!dragging) return;
+    e.preventDefault();
+    container.insertBefore(dragging, indicator);
+    indicator.remove();
+    const orderedIds = [...container.querySelectorAll(".insp-order-row")].map((r) => r.dataset.fileId);
+    await applyOrder(orderedIds);
+  });
+}
+setupOrderListDrag(inspOrderList);
+
+$("inspRenameBtn").onclick = () => {
+  const file = currentFiles.find((f) => String(f.id) === String(currentFileId));
+  if (file) renamePart(file);
+};
+$("inspDeleteBtn").onclick = () => {
+  const file = currentFiles.find((f) => String(f.id) === String(currentFileId));
+  if (file) removeParts([file]);
+};
+
+/* ---- ビューア ---- */
+const bgSwatchGroup = $("bgSwatchGroup");
+[
+  { key: "dark", label: "暗い背景", cls: "bg-swatch-dark", color: 0x1a1a1a },
+  { key: "gray", label: "グレー背景", cls: "bg-swatch-gray", color: 0x6b7280 },
+  { key: "light", label: "明るい背景", cls: "bg-swatch-light", color: 0xf2f2f2 },
+].forEach((opt) => {
+  const b = document.createElement("button");
+  b.className = "bg-swatch-btn " + opt.cls + (opt.key === "dark" ? " active" : "");
+  b.title = opt.label;
+  b.onclick = () => {
+    selectedBackground = opt.color;
+    currentViewer?.setBackground(opt.color);
+    bgSwatchGroup.querySelectorAll(".bg-swatch-btn").forEach((x) => x.classList.remove("active"));
+    b.classList.add("active");
+  };
+  bgSwatchGroup.appendChild(b);
+});
+
+$("resetViewBtn").onclick = () => currentViewer?.resetView();
+$("fullscreenBtn").onclick = () => {
+  if (!currentUrl) return;
+  const params = new URLSearchParams({
+    url: currentUrl,
+    title: previewTitle.textContent || "",
+    bg: "0x" + selectedBackground.toString(16).padStart(6, "0"),
+  });
+  window.open("viewer.html?" + params.toString(), "_blank");
+};
+
+function setViewerStatus(msg) {
+  previewStatusText.textContent = msg;
+  const done = /完了|表示|読み込みました/.test(msg);
+  previewStatusEl.classList.toggle("done", done);
+  previewStatusEl.classList.toggle("loading", !done);
+  const inspStatus = $("inspStatusText");
+  if (inspStatus) inspStatus.textContent = msg;
+}
+
+let hintTimer = null;
 function openPreview(file) {
   currentViewer?.dispose();
-  previewViewer.querySelectorAll("canvas").forEach(c => c.remove());
+  previewStage.querySelectorAll("canvas").forEach((c) => c.remove());
 
+  currentFileId = String(file.id);
   currentUrl = file.file_url;
-  previewTitle.textContent = `${currentMachine}　${file.part_label || ""}`;
-  previewMeta.textContent = file.created_at ? `アップロード：${formatDateTime(file.created_at)}` : "";
+  previewTitle.textContent = `${currentMachine}　${file.part_label || ""}`.trim();
+  const idx = currentFiles.findIndex((f) => String(f.id) === currentFileId);
+  previewIndex.textContent = idx >= 0 ? `${idx + 1} / ${currentFiles.length}` : "";
   previewPlaceholder.style.display = "none";
-  previewPanel.style.display = "flex";
+  previewStage.style.display = "block";
 
-  currentViewer = initViewer(previewViewer, file.file_url, {
+  viewerHint.style.opacity = "1";
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(() => { viewerHint.style.opacity = "0"; }, 6000);
+
+  setViewerStatus("読み込み中...");
+  currentViewer = initViewer(previewStage, file.file_url, {
     background: selectedBackground,
-    onStatus: (msg) => { previewStatus.textContent = msg; },
+    onStatus: (msg) => setViewerStatus(msg),
   });
+
+  renderParts();
+  renderInspector();
 }
 
 function closePreview() {
   currentViewer?.dispose();
   currentViewer = null;
   currentUrl = null;
-  if (previewPanel) previewPanel.style.display = "none";
-  if (previewPlaceholder) previewPlaceholder.style.display = "flex";
+  currentFileId = null;
+  previewStage.style.display = "none";
+  previewStage.querySelectorAll("canvas").forEach((c) => c.remove());
+  previewPlaceholder.style.display = "flex";
 }
 
-// ---- アップロードモーダル（選択中の工事番号・機械名に対してアップロードする） ----
+/* ---- アップロードモーダル ---- */
 function setUploadStatus(msg, kind) {
   uploadStatusEl.textContent = msg;
   uploadStatusEl.className = kind || "";
 }
-
 function openUploadModal() {
+  if (!currentMachine) return;
   uploadOverlay.style.display = "flex";
   setUploadStatus("");
-  uploadContext.textContent = `案件：${currentProject.num}　機械名：${currentMachine}`;
+  uploadContext.textContent = `${currentProject.num} ${currentProject.customer || ""} ／ ${currentMachine}`;
 }
-
 function closeUploadModal() {
   uploadOverlay.style.display = "none";
   fileInput.value = "";
@@ -1054,10 +1466,11 @@ function closeUploadModal() {
   thumbnailDropZoneClearBtn.style.display = "none";
   clearThumbnailCandidates();
 }
+$("cancelUploadBtn").onclick = closeUploadModal;
+$("uploadCloseBtn").onclick = closeUploadModal;
+uploadOverlay.addEventListener("click", (e) => { if (e.target === uploadOverlay) closeUploadModal(); });
 
-cancelUploadBtn.onclick = closeUploadModal;
-
-// ---- サムネイル候補（単体ファイル選択時のみ、6アングルを自動撮影して選ばせる） ----
+/* ---- サムネイル候補（単体ファイル選択時のみ、6アングルを自動撮影して選ばせる） ---- */
 let candidateBlobs = [];
 let candidateObjectUrls = [];
 let selectedCandidateIndex = -1;
@@ -1110,14 +1523,11 @@ async function generateThumbnailCandidates(file) {
 
 function handleFileInputChanged() {
   const files = [...fileInput.files];
-  if (files.length === 1) {
-    generateThumbnailCandidates(files[0]);
-  } else {
-    clearThumbnailCandidates();
-  }
+  if (files.length === 1) generateThumbnailCandidates(files[0]);
+  else clearThumbnailCandidates();
 }
 
-// ---- ドラッグ&ドロップでファイルを選択（3Dファイル・サムネイル画像共通） ----
+/* ---- ドラッグ&ドロップでファイルを選択 ---- */
 function describeFiles(fileList) {
   if (!fileList || fileList.length === 0) return null;
   if (fileList.length === 1) return `選択中：${fileList[0].name}`;
@@ -1126,10 +1536,7 @@ function describeFiles(fileList) {
 
 function setupDragEvents(zone) {
   ["dragenter", "dragover"].forEach((evt) => {
-    zone.addEventListener(evt, (e) => {
-      e.preventDefault();
-      zone.classList.add("dragover");
-    });
+    zone.addEventListener(evt, (e) => { e.preventDefault(); zone.classList.add("dragover"); });
   });
   ["dragleave", "dragend"].forEach((evt) => {
     zone.addEventListener(evt, () => zone.classList.remove("dragover"));
@@ -1143,6 +1550,10 @@ function setupDropZone(zone, input, textEl, clearBtn, defaultText, onFilesChange
     clearBtn.style.display = desc ? "flex" : "none";
   };
   setupDragEvents(zone);
+  zone.addEventListener("click", (e) => {
+    if (e.target.closest(".drop-zone-clear-btn")) return;
+    input.click();
+  });
   zone.addEventListener("drop", (e) => {
     e.preventDefault();
     zone.classList.remove("dragover");
@@ -1152,18 +1563,29 @@ function setupDropZone(zone, input, textEl, clearBtn, defaultText, onFilesChange
     updateDisplay();
     onFilesChanged?.();
   });
-  input.addEventListener("change", () => {
-    updateDisplay();
-    onFilesChanged?.();
-  });
-  clearBtn.addEventListener("click", () => {
+  input.addEventListener("change", () => { updateDisplay(); onFilesChanged?.(); });
+  clearBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
     input.value = "";
     updateDisplay();
     onFilesChanged?.();
   });
 }
 
-// 拡張子を除いたファイル名をパーツラベルとして使う（複数ファイル選択時）
+/* パーツ列のタイルに直接ドロップしてもアップロードモーダルを開く */
+function setupTileDrop(tile) {
+  setupDragEvents(tile);
+  tile.addEventListener("drop", (e) => {
+    e.preventDefault();
+    tile.classList.remove("dragover");
+    const dropped = e.dataTransfer.files;
+    if (!dropped || dropped.length === 0) return;
+    openUploadModal();
+    fileInput.files = dropped;
+    fileInput.dispatchEvent(new Event("change"));
+  });
+}
+
 function labelFromFileName(fileName) {
   return fileName.replace(/\.[^.]+$/, "");
 }
@@ -1208,10 +1630,7 @@ uploadBtn.addEventListener("click", async () => {
       setUploadStatus(isBatch ? `アップロード完了しました！（${files.length}件）` : "アップロード完了しました！", "success");
     } else {
       const failedList = failed.map((f) => `${f.name}：${f.message}`).join("\n");
-      setUploadStatus(
-        `${files.length - failed.length}/${files.length}件アップロードしました。失敗：\n${failedList}`,
-        "error"
-      );
+      setUploadStatus(`${files.length - failed.length}/${files.length}件アップロードしました。失敗：\n${failedList}`, "error");
     }
     partLabelInput.value = "";
     fileInput.value = "";
@@ -1228,6 +1647,7 @@ uploadBtn.addEventListener("click", async () => {
   }
 });
 
+renderAll();
 loadTree();
 </script>
 </body>
