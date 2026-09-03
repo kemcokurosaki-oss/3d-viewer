@@ -1,10 +1,9 @@
 import * as msal from "https://cdn.jsdelivr.net/npm/@azure/msal-browser@3/+esm";
 
-// TODO: Entra IDアプリ登録が完了したら、下記3つを確定した値に差し替える
 const MSAL_CONFIG = {
   auth: {
-    clientId: "TODO_CLIENT_ID",
-    authority: "https://login.microsoftonline.com/TODO_TENANT_ID",
+    clientId: "a947a172-1208-4f57-8960-1a1956240adb",
+    authority: "https://login.microsoftonline.com/b825147d-5f85-4b12-bda8-8e3108196121",
     redirectUri: "https://kemcokurosaki-oss.github.io/3d-viewer/",
   },
   cache: {
