@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>SharePoint疎通確認</title>
+<style>
+  body { font-family: sans-serif; background: #f4f4f4; margin: 0; padding: 24px; max-width: 640px; }
+  h1 { font-size: 18px; }
+  button {
+    margin: 4px 8px 4px 0; padding: 10px 16px; background: #2d6cdf; color: #fff;
+    border: none; border-radius: 6px; cursor: pointer; font-size: 14px;
+  }
+  button:disabled { background: #aaa; cursor: not-allowed; }
+  pre {
+    background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 12px;
+    white-space: pre-wrap; word-break: break-all; font-size: 13px; min-height: 100px;
+  }
+  .error { color: #c0392b; }
+</style>
+</head>
+<body>
+
+<h1>SharePoint疎通確認（このページだけの検証用。本実装ではない）</h1>
+
+<button id="signInBtn">1. サインイン</button>
+<button id="listBtn">2. 2815 / 日鉄建材仙台 / WA のファイル一覧を取得</button>
+<button id="urlBtn">3. フォルダのWeb URLを取得</button>
+
+<pre id="output">ここに結果が表示されます</pre>
+
+<script type="module">
+import { ensureSignedIn, listMachineFiles, getMachineFolderWebUrl } from "./sharepoint-client.js";
+
+const outputEl = document.getElementById("output");
+
+function show(label, data) {
+  outputEl.textContent = `[${label}]\n` + JSON.stringify(data, null, 2);
+  outputEl.classList.remove("error");
+}
+
+function showError(label, err) {
+  console.error(err);
+  outputEl.textContent = `[${label}] エラー\n` + (err?.message || String(err));
+  outputEl.classList.add("error");
+}
+
+document.getElementById("signInBtn").addEventListener("click", async () => {
+  try {
+    const account = await ensureSignedIn();
+    show("サインイン成功", { username: account.username, name: account.name });
+  } catch (err) {
+    showError("サインイン", err);
+  }
+});
+
+document.getElementById("listBtn").addEventListener("click", async () => {
+  try {
+    const files = await listMachineFiles("2815", "日鉄建材仙台", "WA");
+    show("ファイル一覧", files);
+  } catch (err) {
+    showError("ファイル一覧取得", err);
+  }
+});
+
+document.getElementById("urlBtn").addEventListener("click", async () => {
+  try {
+    const url = await getMachineFolderWebUrl("2815", "日鉄建材仙台", "WA");
+    show("フォルダURL", { url });
+  } catch (err) {
+    showError("フォルダURL取得", err);
+  }
+});
+</script>
+</body>
+</html>
