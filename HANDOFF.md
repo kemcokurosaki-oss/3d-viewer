@@ -136,7 +136,7 @@ SharePoint に統一する方向で確定。Supabase 登録済み約20件につ�
 
 - [x] SharePoint のフォルダ構成 → 確定（上記参照）
 - [ ] 既存 Supabase データの扱い（SharePointへの再アップ・フォルダ整理は黒崎さんが対応予定）
-- [ ] Entra ID のクライアントID・テナントID（明日の打ち合わせでアプリ登録を依頼予定）
-- [ ] 管理者による `Files.Read.All` への同意
+- [x] Entra ID のクライアントID・テナントID → 確定済み。`sharepoint-client.js` に反映済み
+- [ ] 管理者による `Files.Read.All` への同意（要確認。同意が済んでいないとサインイン時にエラーになる）
 - [ ] `★3Dモデル` フォルダの編集権限設定 → **後回しと判断（意図的に保留）**。社内の人はこのフォルダの存在自体を認知していないため誤削除のリスクは低いと判断。必要になった時点で設定する（手順は本ファイルの過去のやり取り、または会話履歴を参照）
 - [ ] `sharepoint-client.js` 作成済み。MSAL_CONFIG の TODO 部分（clientId / tenantId）をEntra ID登録後に差し替えて疎通確認する
