@@ -808,6 +808,7 @@ function renderParts() {
 
   const tile = document.createElement("div");
   tile.className = "sp-link-tile";
+  tile.id = "spLinkTile";
   tile.innerHTML = `${ICON_EXTERNAL}<span class="t1">SharePointで開く</span><span class="t2">アップロード・削除はこちらで</span>`;
   tile.onclick = openSharePointFolder;
   partsGrid.appendChild(tile);
