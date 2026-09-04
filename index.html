@@ -845,18 +845,6 @@ function buildPartCard(file) {
   thumbBtn.onclick = () => openPreview(file);
   card.appendChild(thumbBtn);
 
-  const check = document.createElement("button");
-  check.type = "button";
-  check.className = "part-check" + (selectedIds.has(id) ? " on" : "");
-  check.title = "選択";
-  check.innerHTML = ICON_CHECK;
-  check.onclick = (e) => {
-    e.stopPropagation();
-    if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
-    renderParts();
-  };
-  card.appendChild(check);
-
   const menuBtn = document.createElement("button");
   menuBtn.type = "button";
   menuBtn.className = "part-menu-btn";
