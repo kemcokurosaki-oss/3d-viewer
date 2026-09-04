@@ -584,15 +584,6 @@ function formatShortDate(iso) {
   const pad = (n) => String(n).padStart(2, "0");
   return `${pad(d.getMonth() + 1)}/${pad(d.getDate())}`;
 }
-function fileNameFromUrl(url) {
-  if (!url) return "";
-  try {
-    return decodeURIComponent(url.split("?")[0].split("/").pop() || "");
-  } catch {
-    return url.split("?")[0].split("/").pop() || "";
-  }
-}
-
 /* ---- 検索履歴（localStorageに保存、最大6件） ---- */
 const RECENT_KEY = "3dmodel-recent-machines";
 function loadRecentMachines() {
