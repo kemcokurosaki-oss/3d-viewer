@@ -907,7 +907,7 @@ function buildPartCard(file) {
   const date = document.createElement("span");
   date.className = "date num";
   date.style.cssText = "margin-left:auto;font-size:10px;color:var(--dim2);flex-shrink:0";
-  date.textContent = formatShortDate(file.created_at);
+  date.textContent = formatShortDate(file.lastModifiedDateTime);
   foot.appendChild(date);
   card.appendChild(foot);
 
