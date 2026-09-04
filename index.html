@@ -774,9 +774,8 @@ async function loadMachineFiles() {
   partsError = "";
   renderAll();
   try {
-    const files = await fetchMachineFiles(currentProject.num, currentMachine);
+    const files = await fetchMachineFiles(currentProject, currentMachine);
     currentFiles = files;
-    selectedIds = new Set([...selectedIds].filter((id) => files.some((f) => String(f.id) === String(id))));
   } catch (err) {
     partsError = "読み込みエラー：" + err.message;
   } finally {
