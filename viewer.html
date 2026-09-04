@@ -91,6 +91,7 @@ if (!splatURL) {
 
   const viewer = initViewer(container, splatURL, {
     background: initialBackground,
+    fileType,
     onStatus: (msg) => { info.textContent = msg; },
   });
 
