@@ -1016,7 +1016,6 @@ function renderInspector() {
   const file = currentFiles.find((f) => String(f.id) === String(currentFileId));
   inspTitle.textContent = file ? (file.part_label || "表示") : "詳細";
   $("inspRenameBtn").disabled = !file;
-  $("inspDeleteBtn").disabled = !file;
 
   inspMeta.innerHTML = "";
   if (!file) {
@@ -1026,8 +1025,8 @@ function renderInspector() {
     inspMeta.appendChild(empty);
   } else {
     const rows = [
-      ["ファイル", fileNameFromUrl(file.file_url)],
-      ["登録日時", formatDateTime(file.created_at)],
+      ["ファイル", file.name],
+      ["更新日時", formatDateTime(file.lastModifiedDateTime)],
     ];
     rows.forEach(([k, v]) => {
       if (!v) return;
