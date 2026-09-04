@@ -882,15 +882,8 @@ function buildPartCard(file) {
   nameMenuItem.textContent = "ファイル名を編集";
   nameMenuItem.onclick = (e) => { e.stopPropagation(); closeEditMenu(); renamePart(file); };
 
-  const delMenuItem = document.createElement("button");
-  delMenuItem.type = "button";
-  delMenuItem.className = "danger";
-  delMenuItem.textContent = "削除";
-  delMenuItem.onclick = (e) => { e.stopPropagation(); closeEditMenu(); removeParts([file]); };
-
   editMenu.appendChild(thumbMenuItem);
   editMenu.appendChild(nameMenuItem);
-  editMenu.appendChild(delMenuItem);
 
   menuBtn.onclick = (e) => {
     e.stopPropagation();
