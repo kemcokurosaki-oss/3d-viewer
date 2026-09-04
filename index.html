@@ -934,31 +934,26 @@ async function renamePart(file) {
   }
 }
 
-async function removeParts(files) {
-  if (files.length === 0) return;
-  const msg = files.length === 1
-    ? `「${files[0].part_label || "表示"}」を削除しますか？この操作は取り消せません。`
-    : `${files.length}件のパーツを削除しますか？この操作は取り消せません。`;
-  if (!confirm(msg)) return;
+$("openSharePointHeadBtn").onclick = openSharePointFolder;
+
+// ユーザーの操作直後に空タブを同期的に開き、URL解決後にそこへ遷移させる（ポップアップブロック対策）
+async function openSharePointFolder() {
+  if (!currentProject || !currentMachine) return;
+  const win = window.open("", "_blank");
   try {
-    for (const f of files) {
-      if (String(currentFileId) === String(f.id)) closePreview();
-      await deletePart(f.id);
-      selectedIds.delete(String(f.id));
+    const url = await getMachineFolderWebUrl(currentProject.num, currentProject.customer, currentMachine);
+    if (url) {
+      win.location.href = url;
+    } else {
+      win.close();
+      alert("SharePoint上にまだこのフォルダがありません。命名規則（工事番号_客先名／機械名）を確認してください。");
     }
-    await loadMachineFiles();
   } catch (err) {
     console.error(err);
-    partsError = "削除に失敗しました：" + (err.message || err);
-    renderParts();
+    win.close();
+    alert("SharePointフォルダを開けませんでした：" + (err.message || err));
   }
 }
-
-$("partsSelDeleteBtn").onclick = () => {
-  removeParts(currentFiles.filter((f) => selectedIds.has(String(f.id))));
-};
-$("partsSelClearBtn").onclick = () => { selectedIds.clear(); renderParts(); };
-$("addPartHeadBtn").onclick = openUploadModal;
 
 /* ---- 並べ替え（グリッド） ---- */
 function getGridDropTarget(container, x, y) {
