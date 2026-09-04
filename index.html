@@ -1125,10 +1125,6 @@ $("inspRenameBtn").onclick = () => {
   const file = currentFiles.find((f) => String(f.id) === String(currentFileId));
   if (file) renamePart(file);
 };
-$("inspDeleteBtn").onclick = () => {
-  const file = currentFiles.find((f) => String(f.id) === String(currentFileId));
-  if (file) removeParts([file]);
-};
 
 /* ---- ビューア ---- */
 const bgSwatchGroup = $("bgSwatchGroup");
