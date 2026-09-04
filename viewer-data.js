@@ -131,27 +131,34 @@ async function captureThumbnailWithRetry(url, fileType, attempts = 3) {
   throw lastErr;
 }
 
-// 初めて見つかったファイルのサムネイルを自動撮影してStorageに保存し、メタ情報を新規作成する
-async function createInitialMeta(file, sortOrder) {
-  let thumbnailUrl = null;
+// バックグラウンドでのサムネイル生成を直列化するキュー
+// （同時に複数のWebGLコンテキストを作ると不安定になるため、1件ずつ順番に処理する）
+let thumbnailQueue = Promise.resolve();
+function enqueueThumbnail(task) {
+  thumbnailQueue = thumbnailQueue.then(task, task);
+}
+
+// サムネイルを撮影してStorageに保存し、メタ情報のthumbnail_urlを更新する
+// 一覧の表示はこの完了を待たないため、完了後にonThumbnailReadyで呼び出し元へ個別に通知する
+async function generateThumbnailInBackground(file, onThumbnailReady) {
   try {
     const blob = await captureThumbnailWithRetry(file.downloadUrl, splatFileTypeFromFileName(file.name));
-    thumbnailUrl = await uploadThumbnailBlob(blob, file.id);
+    const thumbnailUrl = await uploadThumbnailBlob(blob, file.id);
+    const { error } = await supabase
+      .from("sharepoint_file_meta")
+      .update({ thumbnail_url: thumbnailUrl })
+      .eq("drive_item_id", file.id);
+    if (error) throw error;
+    onThumbnailReady?.(file.id, thumbnailUrl);
   } catch (err) {
     console.error("サムネイル自動生成に失敗しました", err);
   }
-
-  const { error } = await supabase
-    .from("sharepoint_file_meta")
-    .upsert({ drive_item_id: file.id, thumbnail_url: thumbnailUrl, sort_order: sortOrder }, { onConflict: "drive_item_id" });
-  if (error) throw error;
-
-  return { part_label: null, thumbnail_url: thumbnailUrl, sort_order: sortOrder };
 }
 
 // 指定した機械のSharePoint上のファイル一覧を取得し、Supabaseのメタ情報（表示名・サムネイル・並び順）と統合する
 // 表示名はアプリ側でカスタマイズしていなければ、SharePoint上の実際のファイル名がそのまま使われる（リネームが自動反映される）
-export async function fetchMachineFiles(project, machineName) {
+// サムネイル未生成のファイルがあれば、一覧はすぐ返しつつ裏側で撮影を進め、完了ごとにonThumbnailReadyで通知する
+export async function fetchMachineFiles(project, machineName, onThumbnailReady) {
   const files = await listMachineFiles(project.num, project.customer, machineName);
   if (files.length === 0) return [];
 
@@ -164,7 +171,15 @@ export async function fetchMachineFiles(project, machineName) {
   for (const file of files) {
     let meta = metaMap.get(file.id);
     if (!meta) {
-      meta = await createInitialMeta(file, nextSortOrder++);
+      const sortOrder = nextSortOrder++;
+      const { error } = await supabase
+        .from("sharepoint_file_meta")
+        .upsert({ drive_item_id: file.id, sort_order: sortOrder }, { onConflict: "drive_item_id" });
+      if (error) throw error;
+      meta = { part_label: null, thumbnail_url: null, sort_order: sortOrder };
+    }
+    if (!meta.thumbnail_url) {
+      enqueueThumbnail(() => generateThumbnailInBackground(file, onThumbnailReady));
     }
     merged.push({
       id: file.id,
