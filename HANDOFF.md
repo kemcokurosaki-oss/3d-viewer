@@ -66,11 +66,11 @@ CSS グリッドの行高でカードが切り取られ、ラベルが表示さ�
 - テーマ切替（localStorage `3dmodel-theme`、既定はダーク）
 - 検索履歴（localStorage `3dmodel-recent-machines`、最大6件・表示3件）
 - 工事番号 2000〜2999 のみ表示するフィルタ
-- Supabase の全API（`fetchProjectMachineTree` / `fetchMachineFiles` / `uploadPart` / `updateThumbnail` / `updatePartLabel` / `deletePart` / `reorderParts` / `captureThumbnailCandidates`）
+- `fetchProjectMachineTree` / `updateThumbnail` / `updatePartLabel` / `reorderParts` は `viewer-data.js` に移行済み（`fetchMachineFiles` はSharePoint統合版に置き換え、`uploadPart` / `deletePart` / `captureThumbnailCandidates` はアップロード機能廃止に伴い削除）
 
 ---
 
-## 3. これから行う作業: SharePoint 方式への移行
+## 3. SharePoint 方式への移行（完了）
 
 ### 背景
 
