@@ -790,48 +790,33 @@ function renderParts() {
 
   if (!currentMachine) {
     partsGrid.innerHTML = `<div class="parts-status">左の一覧から工事番号 → 機械名を選択してください</div>`;
-    renderSelBar();
     return;
   }
   if (partsLoading) {
     partsGrid.innerHTML = `<div class="parts-status">読み込み中...</div>`;
-    renderSelBar();
     return;
   }
   if (partsError) {
     partsGrid.innerHTML = `<div class="parts-status">${partsError}</div>`;
-    renderSelBar();
     return;
   }
   if (currentFiles.length === 0) {
-    partsGrid.innerHTML = `<div class="parts-status">アップロード済みの3Dモデルはまだありません</div>`;
+    partsGrid.innerHTML = `<div class="parts-status">SharePoint上に3Dモデルがまだありません（命名規則を確認してください）</div>`;
   } else {
     currentFiles.forEach((file) => partsGrid.appendChild(buildPartCard(file)));
   }
 
   const tile = document.createElement("div");
-  tile.className = "add-part-tile";
-  tile.id = "addPartTile";
-  tile.innerHTML = `${ICON_PLUS}<span class="t1">アップロード</span><span class="t2">ドロップでも可</span>`;
-  tile.onclick = openUploadModal;
-  setupTileDrop(tile);
+  tile.className = "sp-link-tile";
+  tile.innerHTML = `${ICON_EXTERNAL}<span class="t1">SharePointで開く</span><span class="t2">アップロード・削除はこちらで</span>`;
+  tile.onclick = openSharePointFolder;
   partsGrid.appendChild(tile);
-
-  renderSelBar();
-}
-
-function renderSelBar() {
-  const n = selectedIds.size;
-  partsSelBar.classList.toggle("visible", n > 0);
-  partsSelCount.textContent = `${n}件を選択中`;
 }
 
 function buildPartCard(file) {
   const id = String(file.id);
   const card = document.createElement("div");
-  card.className = "part-card"
-    + (String(currentFileId) === id ? " active" : "")
-    + (selectedIds.has(id) ? " picked" : "");
+  card.className = "part-card" + (String(currentFileId) === id ? " active" : "");
   card.draggable = true;
   card.dataset.fileId = id;
   card.style.cssText = "position:relative;display:block;flex:none;width:calc(50% - 5px);height:118px;overflow:hidden;cursor:grab";
