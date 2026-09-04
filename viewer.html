@@ -64,6 +64,7 @@ const params = new URLSearchParams(window.location.search);
 const splatURL = params.get("url");
 const title = params.get("title");
 const bgParam = params.get("bg");
+const fileType = params.get("type") || undefined;
 
 const info = document.getElementById("info");
 const meta = document.getElementById("meta");
