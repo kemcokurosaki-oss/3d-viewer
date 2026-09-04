@@ -259,31 +259,18 @@
   .part-card.active .part-foot .lbl { font-weight: 700; }
   .part-foot .date { margin-left: auto; font-size: 10px; color: var(--dim2); flex-shrink: 0; }
 
-  .add-part-tile {
+  .sp-link-tile {
     width: 100%; border: 1px dashed var(--line2); border-radius: var(--r-lg);
     background: transparent; display: flex; align-items: center; justify-content: center; gap: 8px;
     padding: 14px; color: var(--accent); cursor: pointer;
     transition: border-color var(--t), background var(--t);
   }
-  .add-part-tile:hover, .add-part-tile.dragover { border-color: var(--accent); background: var(--accent-soft); }
-  .add-part-tile .icon { width: 16px; height: 16px; }
-  .add-part-tile .t1 { font-size: 12px; font-weight: 700; }
-  .add-part-tile .t2 { font-size: 11px; color: var(--dim); }
+  .sp-link-tile:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .sp-link-tile .icon { width: 16px; height: 16px; }
+  .sp-link-tile .t1 { font-size: 12px; font-weight: 700; }
+  .sp-link-tile .t2 { font-size: 11px; color: var(--dim); }
 
   .drop-indicator { width: 2px; height: 118px; border-radius: 2px; background: var(--accent); flex: none; pointer-events: none; }
-
-  .parts-selbar {
-    flex-shrink: 0; margin: 0 10px 10px; padding: 8px 10px; border-radius: var(--r-lg);
-    background: var(--accent); color: #fff; display: none; align-items: center; gap: 8px; box-shadow: var(--shadow);
-  }
-  .parts-selbar.visible { display: flex; }
-  .parts-selbar .n { font-size: 12px; font-weight: 700; }
-  .parts-selbar button {
-    display: flex; align-items: center; gap: 5px; font-size: 12px; padding: 4px 8px;
-    border: none; border-radius: var(--r-sm); background: rgba(255,255,255,.16); color: #fff; cursor: pointer;
-  }
-  .parts-selbar button:hover { background: rgba(255,255,255,.28); }
-  .parts-selbar button .icon { width: 12px; height: 12px; }
 
   /* ========== 右：ビューア ========== */
   .viewer-pane { flex: 1; min-width: 0; position: relative; background: var(--viewer-bg); display: flex; }
