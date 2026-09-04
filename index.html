@@ -976,7 +976,7 @@ function setupPartsDragAndDrop(container) {
     if (!dragging) return;
     e.preventDefault();
     const target = getGridDropTarget(container, e.clientX, e.clientY);
-    const tile = $("addPartTile");
+    const tile = $("spLinkTile");
     if (target) container.insertBefore(indicator, target);
     else if (tile) container.insertBefore(indicator, tile);
     else container.appendChild(indicator);
