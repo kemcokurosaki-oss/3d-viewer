@@ -105,8 +105,9 @@ async function captureThumbnail(url, fileType) {
 }
 
 // PNG BlobをStorageのthumbnails/以下にアップロードし、公開URLを返す
+// ファイル名は毎回一意にする（upsertがStorageのポリシー上使えないため、同名上書きを避ける）
 async function uploadThumbnailBlob(blob, driveItemId) {
-  const thumbName = `thumbnails/${driveItemId}.png`;
+  const thumbName = `thumbnails/${driveItemId}_${Date.now()}.png`;
   const { error } = await supabase.storage
     .from(BUCKET)
     .upload(thumbName, blob, { cacheControl: "3600", upsert: false, contentType: "image/png" });
