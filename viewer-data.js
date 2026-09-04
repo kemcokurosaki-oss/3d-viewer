@@ -111,11 +111,26 @@ async function uploadThumbnailBlob(blob, driveItemId) {
   return data.publicUrl;
 }
 
+// ページ読み込み直後は3D描画ライブラリ（Spark）のワーカー初期化が間に合わず、
+// 撮影の1回目だけ失敗することがあるため、間隔を空けて数回リトライする
+async function captureThumbnailWithRetry(url, fileType, attempts = 3) {
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await captureThumbnail(url, fileType);
+    } catch (err) {
+      lastErr = err;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
+  throw lastErr;
+}
+
 // 初めて見つかったファイルのサムネイルを自動撮影してStorageに保存し、メタ情報を新規作成する
 async function createInitialMeta(file, sortOrder) {
   let thumbnailUrl = null;
   try {
-    const blob = await captureThumbnail(file.downloadUrl, splatFileTypeFromFileName(file.name));
+    const blob = await captureThumbnailWithRetry(file.downloadUrl, splatFileTypeFromFileName(file.name));
     thumbnailUrl = await uploadThumbnailBlob(blob, file.id);
   } catch (err) {
     console.error("サムネイル自動生成に失敗しました", err);
