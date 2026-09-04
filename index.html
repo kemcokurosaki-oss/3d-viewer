@@ -771,8 +771,18 @@ async function loadMachineFiles() {
   partsLoading = true;
   partsError = "";
   renderAll();
+  const project = currentProject;
+  const machine = currentMachine;
   try {
-    const files = await fetchMachineFiles(currentProject, currentMachine);
+    const files = await fetchMachineFiles(project, machine, (driveItemId, thumbnailUrl) => {
+      // 生成が終わった頃には別の機械に移動している可能性があるため、まだ同じ画面かを確認してから反映する
+      if (currentProject !== project || currentMachine !== machine) return;
+      const target = currentFiles.find((f) => String(f.id) === String(driveItemId));
+      if (target) {
+        target.thumbnail_url = thumbnailUrl;
+        renderParts();
+      }
+    });
     currentFiles = files;
   } catch (err) {
     partsError = "読み込みエラー：" + err.message;
