@@ -13,17 +13,20 @@ Claude Desktop（デザインツール）での作業内容と、これから行
 - 公開URL: https://kemcokurosaki-oss.github.io/3d-viewer/
 - 公開場所: 社内ポータル（https://kemcojp.sharepoint.com/sites/portal ）の「Webツール」配下に別タブで開くリンクとして設置予定
 - 利用者: 事務所のPC中心、現場での利用もあり
-- 現在のデータ保存先: Supabase（プロジェクト `dgekjzkrybrswsxlcbvh`、Storage バケット `splat-files`）
+- データ保存先: **SharePoint方式へ移行済み**（splatファイル本体はSharePoint、サムネイル・パーツ表示名・並び順はSupabase `dgekjzkrybrswsxlcbvh` の `sharepoint_file_meta` テーブル・`splat-files` バケット）
+- アプリからのアップロード・削除機能は廃止済み。「SharePointで開く」ボタンから直接SharePoint側で操作する運用
 
 ### ファイル構成
 
 | ファイル | 役割 |
 | --- | --- |
-| `index.html` | メイン画面（今回リデザイン済み・CSSとJSを内包） |
+| `index.html` | メイン画面（CSSとJSを内包） |
 | `viewer.html` / `viewer-core.js` | 全画面ビューア。three.js + @sparkjsdev/spark で splat を描画 |
-| `upload.html` / `upload-core.js` | アップロード処理、Supabase CRUD、サムネイル自動撮影 |
+| `viewer-data.js` | 案件ツリー取得（Supabase tasks）、SharePointファイル一覧とSupabaseメタ情報の統合、サムネイル自動生成 |
+| `sharepoint-client.js` | MSAL.js認証、Graph API呼び出し（ファイル一覧・フォルダURL取得） |
 | `supabase-client.js` | Supabase クライアントと定数 |
 | `icons.js` | インラインSVGアイコン |
+| `test-sharepoint.html` | SharePoint疎通確認用の検証ページ（本実装ではない、デバッグ用に残置） |
 
 ---
 
