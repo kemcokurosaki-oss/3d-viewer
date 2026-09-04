@@ -1173,7 +1173,7 @@ function openPreview(file) {
   previewStage.querySelectorAll("canvas").forEach((c) => c.remove());
 
   currentFileId = String(file.id);
-  currentUrl = file.file_url;
+  currentUrl = file.downloadUrl;
   previewTitle.textContent = `${currentMachine}　${file.part_label || ""}`.trim();
   const idx = currentFiles.findIndex((f) => String(f.id) === currentFileId);
   previewIndex.textContent = idx >= 0 ? `${idx + 1} / ${currentFiles.length}` : "";
@@ -1185,8 +1185,9 @@ function openPreview(file) {
   hintTimer = setTimeout(() => { viewerHint.style.opacity = "0"; }, 6000);
 
   setViewerStatus("読み込み中...");
-  currentViewer = initViewer(previewStage, file.file_url, {
+  currentViewer = initViewer(previewStage, file.downloadUrl, {
     background: selectedBackground,
+    fileType: splatFileTypeFromFileName(file.name),
     onStatus: (msg) => setViewerStatus(msg),
   });
 
