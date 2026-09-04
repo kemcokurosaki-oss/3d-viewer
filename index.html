@@ -1147,11 +1147,13 @@ const bgSwatchGroup = $("bgSwatchGroup");
 
 $("resetViewBtn").onclick = () => currentViewer?.resetView();
 $("fullscreenBtn").onclick = () => {
-  if (!currentUrl) return;
+  const file = currentFiles.find((f) => String(f.id) === String(currentFileId));
+  if (!currentUrl || !file) return;
   const params = new URLSearchParams({
     url: currentUrl,
     title: previewTitle.textContent || "",
     bg: "0x" + selectedBackground.toString(16).padStart(6, "0"),
+    type: splatFileTypeFromFileName(file.name) || "",
   });
   window.open("viewer.html?" + params.toString(), "_blank");
 };
