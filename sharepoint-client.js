@@ -109,3 +109,27 @@ export async function getMachineFolderWebUrl(projectNumber, customerName, machin
   const folder = await getMachineFolderItem(token, siteId, projectNumber, customerName, machineName);
   return folder?.webUrl || null;
 }
+
+// デバッグ用: 想定パスへの実際のリクエスト結果（ステータス・エラー内容）をそのまま返す
+export async function debugMachineFolderLookup(projectNumber, customerName, machineName) {
+  const token = await getAccessToken();
+  const siteId = await getSiteId(token);
+  const folderName = `${projectNumber}_${customerName}`;
+  const path = [LIBRARY_PATH, folderName, machineName].join("/");
+  const encodedPath = path.split("/").map(encodeURIComponent).join("/");
+  const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/drive/root:/${encodedPath}`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  const body = await res.json().catch(() => null);
+  return { requestedPath: path, url, status: res.status, body };
+}
+
+// デバッグ用: ライブラリのルート直下に実際にある項目一覧を返す（フォルダ名の実態確認用）
+export async function debugListRoot() {
+  const token = await getAccessToken();
+  const siteId = await getSiteId(token);
+  const res = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/drive/root/children`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const body = await res.json().catch(() => null);
+  return { status: res.status, names: (body?.value || []).map((i) => i.name) };
+}
