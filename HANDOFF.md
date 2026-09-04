@@ -98,13 +98,14 @@ Supabase の無料枠は1GB、Pro（月$25）で100GBなので費用面は問題
 
 ### 実装方針
 
-1. **認証**: MSAL.js（SPA、Authorization Code Flow + PKCE）
-2. **Entra ID アプリ登録**
-   - 種類: シングルページアプリケーション
-   - リダイレクトURI: `https://kemcokurosaki-oss.github.io/3d-viewer/`
-   - 委任アクセス許可 `Files.Read.All`（または `Sites.Selected`）＋**管理者の同意が必要**
-   - クライアントID・テナントIDは登録後に確定
-3. **ファイル一覧**: Graph API でフォルダを再帰的に走査し、工事番号／機械名／splat の階層を構築
+1. **認証**: MSAL.js（SPA、Authorization Code Flow + PKCE）→ **疎通確認済み**
+2. **Entra ID アプリ登録** → **完了・疎通確認済み**
+   - 種類: シングルページアプリケーション（**登録時「Web」になっていて認証エラーが出たため、SPAへの登録し直しが必要だった。今後同様のアプリ登録をする際は要注意**）
+   - リダイレクトURI: `https://kemcokurosaki-oss.github.io/3d-viewer`（**末尾スラッシュ無し**で登録されている。コード側もこれに合わせている）
+   - 委任アクセス許可 `Files.Read.All` ＋管理者の同意 → 付与済み
+   - クライアントID・テナントIDは `sharepoint-client.js` に反映済み
+3. **ファイル一覧**: 上記の通りSupabase(tasks)から工事番号・客先名・機械名を取得し、Graph APIでは `工事番号_客先名/機械名` のパスを直接指定してファイル一覧のみ取得（再帰走査はしない）
+   - **重要**: 「写真・動画」ライブラリはサイトの既定ドキュメントライブラリではないため、`/sites/{siteId}/drive`ではなく`/sites/{siteId}/drives`から名前で該当ライブラリを探して`driveId`を使う必要がある（`sharepoint-client.js`の`getLibraryDriveId()`参照）。既定driveだけを見て「空っぽ」と誤認しやすいので注意
 4. **ファイル読み込み**: **必ず `@microsoft.graph.downloadUrl` を使う**
 
    `/content` エンドポイントは302リダイレクトを返し、Authorizationヘッダーを付けるとCORSプリフライトが必要になるためブラウザからは使えない。
