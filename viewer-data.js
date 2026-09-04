@@ -88,7 +88,11 @@ async function captureThumbnail(url, fileType) {
   const viewer = initViewer(container, url, { hint: false, fileType });
   try {
     await viewer.ready;
-    await new Promise(requestAnimationFrame);
+    // readyの直後は実際の描画がまだ追いついておらず、1フレームだけの待機だと
+    // 真っ黒な画像になることがあるため、複数フレーム分待って描画を安定させる
+    for (let i = 0; i < 10; i++) {
+      await new Promise(requestAnimationFrame);
+    }
     return await new Promise((resolve, reject) => {
       viewer.canvas.toBlob((blob) => {
         blob ? resolve(blob) : reject(new Error("サムネイル画像の生成に失敗しました"));
