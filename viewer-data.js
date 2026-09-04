@@ -105,7 +105,7 @@ async function uploadThumbnailBlob(blob, driveItemId) {
   const thumbName = `thumbnails/${driveItemId}.png`;
   const { error } = await supabase.storage
     .from(BUCKET)
-    .upload(thumbName, blob, { cacheControl: "3600", upsert: true, contentType: "image/png" });
+    .upload(thumbName, blob, { cacheControl: "3600", upsert: false, contentType: "image/png" });
   if (error) throw error;
   const { data } = supabase.storage.from(BUCKET).getPublicUrl(thumbName);
   return data.publicUrl;
