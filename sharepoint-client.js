@@ -16,13 +16,17 @@ const GRAPH_SCOPES = ["Files.Read.All"];
 
 const SITE_HOST = "kemcojp.sharepoint.com";
 const SITE_PATH = "/sites/portal";
+// 「写真・動画」は既定のドキュメントライブラリではないため、サイトの /drive ではなく
+// /drives 一覧から名前で該当ライブラリを探して driveId を使う
+const LIBRARY_NAME = "写真・動画";
 // ライブラリ内の3Dモデル格納フォルダへのパス（フォルダ名変更時はここだけ直せばよい）
-const LIBRARY_PATH = "写真・動画/★3Dモデル";
+const LIBRARY_PATH = "★3Dモデル";
 
 const msalInstance = new msal.PublicClientApplication(MSAL_CONFIG);
 const msalReady = msalInstance.initialize();
 
 let cachedSiteId = null;
+let cachedDriveId = null;
 
 // 未サインインならポップアップでログインし、サインイン済みアカウントを返す
 export async function ensureSignedIn() {
@@ -50,7 +54,7 @@ async function getAccessToken() {
   }
 }
 
-// 社内ポータルサイトのdrive IDを取得する（初回のみ呼び出し、以降はキャッシュ）
+// 社内ポータルサイトのsite IDを取得する（初回のみ呼び出し、以降はキャッシュ）
 async function getSiteId(token) {
   if (cachedSiteId) return cachedSiteId;
   const res = await fetch(`https://graph.microsoft.com/v1.0/sites/${SITE_HOST}:${SITE_PATH}`, {
@@ -62,13 +66,27 @@ async function getSiteId(token) {
   return cachedSiteId;
 }
 
+// サイト内の全ライブラリ（drive）から、名前が一致するものの driveId を取得する（初回のみ、以降はキャッシュ）
+async function getLibraryDriveId(token, siteId) {
+  if (cachedDriveId) return cachedDriveId;
+  const res = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/drives`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`ライブラリ一覧の取得に失敗しました (${res.status})`);
+  const data = await res.json();
+  const drive = (data.value || []).find((d) => d.name === LIBRARY_NAME);
+  if (!drive) throw new Error(`ライブラリ「${LIBRARY_NAME}」が見つかりません`);
+  cachedDriveId = drive.id;
+  return cachedDriveId;
+}
+
 // 「工事番号_客先名/機械名」のパスでフォルダのdriveItemを取得する（未作成なら null）
-async function getMachineFolderItem(token, siteId, projectNumber, customerName, machineName) {
+async function getMachineFolderItem(token, driveId, projectNumber, customerName, machineName) {
   const folderName = `${projectNumber}_${customerName}`;
   const path = [LIBRARY_PATH, folderName, machineName].join("/");
   const encodedPath = path.split("/").map(encodeURIComponent).join("/");
 
-  const res = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/drive/root:/${encodedPath}`, {
+  const res = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodedPath}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (res.status === 404) return null;
@@ -82,10 +100,11 @@ async function getMachineFolderItem(token, siteId, projectNumber, customerName, 
 export async function listMachineFiles(projectNumber, customerName, machineName) {
   const token = await getAccessToken();
   const siteId = await getSiteId(token);
-  const folder = await getMachineFolderItem(token, siteId, projectNumber, customerName, machineName);
+  const driveId = await getLibraryDriveId(token, siteId);
+  const folder = await getMachineFolderItem(token, driveId, projectNumber, customerName, machineName);
   if (!folder) return []; // フォルダ未作成・命名規則違反は空扱い（一覧に出さない）
 
-  const res = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/drive/items/${folder.id}/children`, {
+  const res = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${folder.id}/children`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error(`SharePointファイル一覧の取得に失敗しました (${res.status})`);
@@ -106,7 +125,8 @@ export async function listMachineFiles(projectNumber, customerName, machineName)
 export async function getMachineFolderWebUrl(projectNumber, customerName, machineName) {
   const token = await getAccessToken();
   const siteId = await getSiteId(token);
-  const folder = await getMachineFolderItem(token, siteId, projectNumber, customerName, machineName);
+  const driveId = await getLibraryDriveId(token, siteId);
+  const folder = await getMachineFolderItem(token, driveId, projectNumber, customerName, machineName);
   return folder?.webUrl || null;
 }
 
@@ -114,10 +134,11 @@ export async function getMachineFolderWebUrl(projectNumber, customerName, machin
 export async function debugMachineFolderLookup(projectNumber, customerName, machineName) {
   const token = await getAccessToken();
   const siteId = await getSiteId(token);
+  const driveId = await getLibraryDriveId(token, siteId);
   const folderName = `${projectNumber}_${customerName}`;
   const path = [LIBRARY_PATH, folderName, machineName].join("/");
   const encodedPath = path.split("/").map(encodeURIComponent).join("/");
-  const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/drive/root:/${encodedPath}`;
+  const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodedPath}`;
   const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   const body = await res.json().catch(() => null);
   return { requestedPath: path, url, status: res.status, body };
@@ -127,7 +148,8 @@ export async function debugMachineFolderLookup(projectNumber, customerName, mach
 export async function debugListRoot() {
   const token = await getAccessToken();
   const siteId = await getSiteId(token);
-  const res = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/drive/root/children`, {
+  const driveId = await getLibraryDriveId(token, siteId);
+  const res = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/root/children`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   const body = await res.json().catch(() => null);
