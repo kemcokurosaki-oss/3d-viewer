@@ -72,6 +72,24 @@ document.getElementById("urlBtn").addEventListener("click", async () => {
     showError("フォルダURL取得", err);
   }
 });
+
+document.getElementById("debugFolderBtn").addEventListener("click", async () => {
+  try {
+    const result = await debugMachineFolderLookup("2815", "日鉄建材仙台", "WA");
+    show("デバッグ：フォルダ検索結果", result);
+  } catch (err) {
+    showError("デバッグ：フォルダ検索", err);
+  }
+});
+
+document.getElementById("debugRootBtn").addEventListener("click", async () => {
+  try {
+    const result = await debugListRoot();
+    show("デバッグ：ライブラリ直下の一覧", result);
+  } catch (err) {
+    showError("デバッグ：ライブラリ直下の一覧", err);
+  }
+});
 </script>
 </body>
 </html>
