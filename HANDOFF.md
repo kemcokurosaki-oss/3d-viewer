@@ -116,8 +116,8 @@ Supabase の無料枠は1GB、Pro（月$25）で100GBなので費用面は問題
    ただし**1時間程度で失効する**ため、表示のたびに取得し直す実装にすること。
    参考: https://learn.microsoft.com/en-us/graph/api/driveitem-get-content
 
-5. **サムネイル**: SharePoint 上の splat からは自動生成されないので、初回表示時にブラウザで撮影して Supabase に保存する
-6. **メタ情報**: パーツ表示名・並び順は Supabase に残す。SharePoint の driveItem ID をキーにする
+5. **サムネイル**: → **実装済み**。ファイルを一覧取得した際、`sharepoint_file_meta` に未登録のdriveItemがあれば初回にブラウザで自動撮影しSupabase Storageに保存する（`viewer-data.js` の `createInitialMeta()`）
+6. **メタ情報**: → **実装済み**。`sharepoint_file_meta` テーブル（`drive_item_id` 主キー、`part_label` / `thumbnail_url` / `sort_order`）。表示名は未カスタマイズなら SharePoint 上の実ファイル名がそのまま使われ、リネームすれば自動反映される。カスタマイズ済みならそちらが優先される
 
 ### 既存データの扱い
 
