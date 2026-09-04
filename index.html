@@ -546,8 +546,6 @@ $("inspCloseBtn").onclick = () => inspectorToggleBtn.onclick();
 /* ---- 状態 ---- */
 const partsGrid = $("partsGrid");
 const partsCountEl = $("partsCount");
-const partsSelBar = $("partsSelBar");
-const partsSelCount = $("partsSelCount");
 const previewPlaceholder = $("previewPlaceholder");
 const previewStage = $("previewStage");
 const previewTitle = $("previewTitle");
@@ -559,28 +557,11 @@ const inspTitle = $("inspTitle");
 const inspMeta = $("inspMeta");
 const inspOrderList = $("inspOrderList");
 
-const uploadOverlay = $("uploadOverlay");
-const uploadContext = $("uploadContext");
-const partLabelInput = $("partLabel");
-const fileInput = $("fileInput");
-const dropZone = $("dropZone");
-const dropZoneText = $("dropZoneText");
-const dropZoneClearBtn = $("dropZoneClearBtn");
-const thumbnailInput = $("thumbnailInput");
-const thumbnailDropZone = $("thumbnailDropZone");
-const thumbnailDropZoneText = $("thumbnailDropZoneText");
-const thumbnailDropZoneClearBtn = $("thumbnailDropZoneClearBtn");
-const thumbnailCandidatesWrapEl = $("thumbnailCandidatesWrap");
-const thumbnailCandidatesEl = $("thumbnailCandidates");
-const uploadBtn = $("uploadBtn");
-const uploadStatusEl = $("uploadStatus");
-
 let tree = [];
 let expandedNums = new Set();
 let currentProject = null;
 let currentMachine = null;
 let currentFiles = [];
-let selectedIds = new Set();
 let currentFileId = null;
 let currentViewer = null;
 let currentUrl = null;
