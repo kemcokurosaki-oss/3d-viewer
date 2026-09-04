@@ -484,62 +484,10 @@
   </aside>
 </div>
 
-<div id="uploadOverlay">
-  <div id="uploadModal">
-    <div class="um-head">
-      <span class="um-head-mark" id="uploadHeadIcon"></span>
-      <div>
-        <h2>3Dキャプチャをアップロード</h2>
-        <p id="uploadContext"></p>
-      </div>
-      <span class="spacer"></span>
-      <button class="insp-icon-btn" id="uploadCloseBtn" title="閉じる"></button>
-    </div>
-
-    <div class="um-body">
-      <div class="um-col">
-        <span class="um-label">3Dファイル<span class="req">必須</span></span>
-        <input type="file" id="fileInput" class="visually-hidden" accept=".splat,.ply,.ksplat,.spz,.sog" multiple>
-        <div class="drop-zone" id="dropZone">
-          <span class="dz-icon" id="dropZoneIcon"></span>
-          <span class="dz-title">ドラッグ&ドロップ／クリックで選択</span>
-          <span class="drop-zone-text" id="dropZoneText">.splat / .ply / .ksplat / .spz / .sog ・ 複数可</span>
-          <button type="button" class="drop-zone-clear-btn" id="dropZoneClearBtn" title="選択を解除" style="display:none">×</button>
-        </div>
-
-        <span class="um-label" style="margin-top:6px">パーツ番号・撮影箇所<span class="opt">任意</span></span>
-        <input type="text" id="partLabel" placeholder="例：① 正面、上部 など">
-        <span class="um-note">複数ファイル選択時はファイル名がパーツ名になります。</span>
-      </div>
-
-      <div class="um-col">
-        <span class="um-label">サムネイル<span class="opt">未指定なら自動撮影</span></span>
-        <input type="file" id="thumbnailInput" class="visually-hidden" accept="image/*">
-        <div class="drop-zone small" id="thumbnailDropZone">
-          <span class="dz-title">画像を指定</span>
-          <span class="drop-zone-text" id="thumbnailDropZoneText">ドラッグ&ドロップ／クリックで選択</span>
-          <button type="button" class="drop-zone-clear-btn" id="thumbnailDropZoneClearBtn" title="選択を解除" style="display:none">×</button>
-        </div>
-        <div class="thumb-candidates-wrap" id="thumbnailCandidatesWrap">
-          <span class="um-note">自動撮影した候補から選べます（未選択なら1枚目を使用）。</span>
-          <div class="thumb-candidates" id="thumbnailCandidates"></div>
-        </div>
-        <div id="uploadStatus"></div>
-      </div>
-    </div>
-
-    <div class="um-foot">
-      <span class="note">アップロード後、パーツ一覧の末尾に追加されます</span>
-      <span class="spacer"></span>
-      <button class="secondary" id="cancelUploadBtn">キャンセル</button>
-      <button class="primary" id="uploadBtn">アップロード</button>
-    </div>
-  </div>
-</div>
-
 <script type="module">
 import { initViewer } from "./viewer-core.js";
-import { fetchProjectMachineTree, fetchMachineFiles, uploadPart, updateThumbnail, updatePartLabel, deletePart, reorderParts, captureThumbnailCandidates, splatFileTypeFromFileName } from "./upload-core.js";
+import { fetchProjectMachineTree, fetchMachineFiles, updateThumbnail, updatePartLabel, reorderParts, splatFileTypeFromFileName } from "./viewer-data.js";
+import { getMachineFolderWebUrl } from "./sharepoint-client.js";
 import { ICON_SUN, ICON_MOON, ICON_SEARCH, ICON_EDIT, ICON_CUBE, ICON_PLUS,
          ICON_EXPAND, ICON_CLOSE, ICON_RESET, ICON_CLOCK, ICON_TRASH, ICON_CHEVRON } from "./icons.js";
 
