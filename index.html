@@ -938,6 +938,9 @@ function buildPartCard(file) {
 document.addEventListener("click", () => {
   document.querySelectorAll(".part-edit-menu.open").forEach((m) => m.classList.remove("open"));
 });
+partsGrid.addEventListener("scroll", () => {
+  document.querySelectorAll(".part-edit-menu.open").forEach((m) => m.classList.remove("open"));
+});
 
 async function renamePart(file) {
   const current = file.part_label || "";
