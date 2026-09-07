@@ -160,7 +160,10 @@ function enqueueThumbnail(task) {
 // 一覧の表示はこの完了を待たないため、完了後にonThumbnailReadyで呼び出し元へ個別に通知する
 async function generateThumbnailInBackground(file, onThumbnailReady) {
   try {
-    const blob = await captureThumbnailWithRetry(file.downloadUrl, splatFileTypeFromFileName(file.name));
+    // 直列キューで順番待ちの間にfile.downloadUrl（一覧取得時点のURL）が失効することがあるため、
+    // 撮影の直前に改めて最新のダウンロードURLを取得する
+    const freshUrl = await getFileDownloadUrl(file.id);
+    const blob = await captureThumbnailWithRetry(freshUrl, splatFileTypeFromFileName(file.name));
     const thumbnailUrl = await uploadThumbnailBlob(blob, file.id);
     const { error } = await supabase
       .from("sharepoint_file_meta")
