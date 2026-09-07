@@ -14,17 +14,14 @@ def extract(varname):
     content = content.encode().decode('unicode_escape')
     return content
 
-for name in ["jsContent$1", "jsContent"]:
-    content = extract(name)
-    lines = content.split('\n')
-    print(f"=== {name}: {len(lines)} lines, has onMessage: {'onMessage' in content} ===")
-    if 'onMessage' in content:
-        for i, l in enumerate(lines):
-            if 'onMessage' in l:
-                print(i, repr(l))
-    # print around line 961 (1-indexed)
-    if len(lines) >= 961:
-        print("line 955-967:")
-        for i in range(954, min(967, len(lines))):
-            print(i+1, repr(lines[i]))
-    print()
+content = extract("jsContent")
+lines = content.split('\n')
+print("has 'Unknown':", 'Unknown' in content)
+for i, l in enumerate(lines):
+    if 'Unknown' in l or 'nknown file' in l:
+        print(i+1, repr(l))
+
+# also print the handler dispatch area / definitions of handlers object
+for i, l in enumerate(lines):
+    if 'handler' in l.lower() and ('=' in l or 'const' in l or 'function' in l):
+        print('H', i+1, repr(l))
