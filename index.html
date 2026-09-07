@@ -582,6 +582,29 @@ let selectedBackground = 0x1a1a1a;
 let partsLoading = false;
 let partsError = "";
 
+/* ---- パーツ一覧の列数切替（localStorageに保存） ---- */
+const PARTS_COLS_KEY = "3dmodel-parts-cols";
+const partsCols1Btn = $("partsCols1Btn");
+const partsCols2Btn = $("partsCols2Btn");
+function applyPartsCols(cols) {
+  partsGrid.classList.toggle("cols-1", cols === 1);
+  partsGrid.classList.toggle("cols-2", cols === 2);
+  partsCols1Btn.classList.toggle("on", cols === 1);
+  partsCols2Btn.classList.toggle("on", cols === 2);
+}
+let partsCols = localStorage.getItem(PARTS_COLS_KEY) === "2" ? 2 : 1;
+applyPartsCols(partsCols);
+partsCols1Btn.onclick = () => {
+  partsCols = 1;
+  localStorage.setItem(PARTS_COLS_KEY, "1");
+  applyPartsCols(partsCols);
+};
+partsCols2Btn.onclick = () => {
+  partsCols = 2;
+  localStorage.setItem(PARTS_COLS_KEY, "2");
+  applyPartsCols(partsCols);
+};
+
 function formatDateTime(iso) {
   if (!iso) return "";
   const d = new Date(iso);
