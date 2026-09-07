@@ -173,6 +173,35 @@ export function initViewer(container, url, { onStatus, hint = true, background =
     setBackground(color) {
       scene.background = new THREE.Color(color);
     },
+    // 描画がまだ背景色だけ（splatの点群がGPUにまだ反映されていない）かどうかを判定する
+    // サムネイル撮影で「readyにはなったが実際は真っ黒な画像」を撮ってしまうのを防ぐために使う
+    isBlank(tolerance = 12) {
+      const gl = renderer.getContext();
+      const w = renderer.domElement.width;
+      const h = renderer.domElement.height;
+      const bg = scene.background;
+      const bgR = Math.round(bg.r * 255);
+      const bgG = Math.round(bg.g * 255);
+      const bgB = Math.round(bg.b * 255);
+      const pixel = new Uint8Array(4);
+      const cols = 3;
+      const rows = 3;
+      for (let r = 1; r <= rows; r++) {
+        for (let c = 1; c <= cols; c++) {
+          const x = Math.floor((w * c) / (cols + 1));
+          const y = Math.floor((h * r) / (rows + 1));
+          gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+          if (
+            Math.abs(pixel[0] - bgR) > tolerance ||
+            Math.abs(pixel[1] - bgG) > tolerance ||
+            Math.abs(pixel[2] - bgB) > tolerance
+          ) {
+            return false;
+          }
+        }
+      }
+      return true;
+    },
     dispose() {
       clearTimeout(hintTimer);
       controls.removeEventListener("start", hideHint);
