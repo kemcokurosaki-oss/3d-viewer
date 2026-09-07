@@ -94,6 +94,42 @@ async function getMachineFolderItem(token, driveId, projectNumber, customerName,
   return res.json();
 }
 
+// 「工事番号_客先名」パスで案件フォルダのdriveItemを取得する（未作成なら null）
+async function getProjectFolderItem(token, driveId, projectNumber, customerName) {
+  const path = [LIBRARY_PATH, `${projectNumber}_${customerName}`].join("/");
+  const encodedPath = path.split("/").map(encodeURIComponent).join("/");
+
+  const res = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodedPath}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`SharePointフォルダの取得に失敗しました (${res.status})`);
+  return res.json();
+}
+
+// 案件フォルダ配下の機械フォルダを一括取得し、3Dモデルファイルが登録済みかどうかを機械名単位で判定する
+// （機械ごとにフォルダを問い合わせると案件展開のたびに大量のリクエストが発生するため、1回の取得で済ませる）
+// 戻り値: Map<機械名, 登録あり(true/false)>（案件フォルダ自体が無ければ空のMap）
+export async function listMachineFolderStatuses(projectNumber, customerName) {
+  const token = await getAccessToken();
+  const siteId = await getSiteId(token);
+  const driveId = await getLibraryDriveId(token, siteId);
+  const projectFolder = await getProjectFolderItem(token, driveId, projectNumber, customerName);
+  if (!projectFolder) return new Map();
+
+  const res = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${projectFolder.id}/children`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`機械フォルダ一覧の取得に失敗しました (${res.status})`);
+  const data = await res.json();
+
+  return new Map(
+    (data.value || [])
+      .filter((item) => item.folder)
+      .map((item) => [item.name, (item.folder.childCount || 0) > 0])
+  );
+}
+
 // 指定した工事番号・客先名・機械名のフォルダ配下にあるファイル一覧を取得する
 // 工事番号・客先名はSupabase（工程表）から取得したものをそのまま渡す想定
 // 戻り値: [{ id, name, downloadUrl, size, lastModifiedDateTime }]
