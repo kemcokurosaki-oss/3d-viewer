@@ -746,6 +746,8 @@ function renderSidebar() {
     projectDiv.appendChild(item);
 
     if (isExpanded) {
+      ensureMachineFolderStatus(project);
+      const statusMap = machineFolderStatus.get(project.num);
       const machinesDiv = document.createElement("div");
       machinesDiv.className = "sidebar-machines";
       if (project.machines.length === 0) {
@@ -756,8 +758,9 @@ function renderSidebar() {
       } else {
         project.machines.forEach((machineName) => {
           const isActive = isSelectedProject && currentMachine === machineName;
+          const hasModel = statusMap?.get(machineName) === true;
           const btn = document.createElement("button");
-          btn.className = "sidebar-machine-btn" + (isActive ? " active" : "");
+          btn.className = "sidebar-machine-btn" + (isActive ? " active" : "") + (hasModel ? " has-model" : "");
           btn.title = machineName;
           btn.innerHTML = `<span class="dot"></span><span class="mark">${ICON_CUBE}</span><span class="mname">${machineName}</span>`;
           btn.onclick = () => selectMachine(project, machineName);
