@@ -1,10 +1,8 @@
 import re
 s = open('spark_tmp.js', encoding='utf-8').read()
 
-# find jsContent$1 string literal fully
-idx = s.find("jsContent$1 = '")
-start = idx + len("jsContent$1 = '")
-# find the matching end quote (not escaped)
+idx = s.find("jsContent = '")
+start = idx + len("jsContent = '")
 i = start
 while True:
     i = s.find("'", i)
@@ -12,7 +10,7 @@ while True:
         break
     i += 1
 content = s[start:i]
-# unescape
 content = content.encode().decode('unicode_escape')
 print(len(content))
-print(repr(content[900:1100]))
+print(repr(content[850:1100]))
+print('----has unknown file type:', 'Unknown file type' in content)
