@@ -903,11 +903,16 @@ function buildPartCard(file) {
   menuBtn.onclick = (e) => {
     e.stopPropagation();
     document.querySelectorAll(".part-edit-menu.open").forEach((m) => { if (m !== editMenu) m.classList.remove("open"); });
+    const opening = !editMenu.classList.contains("open");
+    if (opening) {
+      const rect = menuBtn.getBoundingClientRect();
+      editMenu.style.top = (rect.bottom + 4) + "px";
+      editMenu.style.right = (window.innerWidth - rect.right) + "px";
+    }
     editMenu.classList.toggle("open");
   };
 
   card.appendChild(menuBtn);
-  card.appendChild(editMenu);
   card.appendChild(editInput);
 
   const foot = document.createElement("div");
