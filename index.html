@@ -1192,15 +1192,35 @@ function openPreview(file) {
   clearTimeout(hintTimer);
   hintTimer = setTimeout(() => { viewerHint.style.opacity = "0"; }, 6000);
 
-  setViewerStatus("読み込み中...");
-  currentViewer = initViewer(previewStage, file.downloadUrl, {
-    background: selectedBackground,
-    fileType: splatFileTypeFromFileName(file.name),
-    onStatus: (msg) => setViewerStatus(msg),
-  });
+  startViewerWithRetry(file);
 
   renderParts();
   renderInspector();
+}
+
+// ページ読み込み直後はSparkのワーカー初期化が間に合わず、表示の1回目だけ失敗することがあるため、
+// 間隔を空けて数回リトライする（サムネイル自動生成と同じ理由。viewer-data.jsのcaptureThumbnailWithRetry参照）
+async function startViewerWithRetry(file, attempts = 3) {
+  const fileId = String(file.id);
+  for (let i = 0; i < attempts; i++) {
+    if (currentFileId !== fileId) return; // 待機中に別のファイルへ切り替えられた
+    setViewerStatus(i === 0 ? "読み込み中..." : `読み込み中...（再試行 ${i + 1}/${attempts}）`);
+    const viewer = initViewer(previewStage, file.downloadUrl, {
+      background: selectedBackground,
+      fileType: splatFileTypeFromFileName(file.name),
+      onStatus: (msg) => { if (currentFileId === fileId) setViewerStatus(msg); },
+    });
+    currentViewer = viewer;
+    try {
+      await viewer.ready;
+      return;
+    } catch (err) {
+      if (currentFileId !== fileId) return;
+      viewer.dispose();
+      previewStage.querySelectorAll("canvas").forEach((c) => c.remove());
+      if (i < attempts - 1) await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
 }
 
 function closePreview() {
