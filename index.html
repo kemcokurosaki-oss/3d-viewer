@@ -771,6 +771,21 @@ function renderSidebar() {
   });
 }
 
+// 案件フォルダ配下の機械ごとの3Dモデル登録状況を取得する（案件単位で一度だけ・結果はキャッシュ）
+function ensureMachineFolderStatus(project) {
+  if (machineFolderStatus.has(project.num)) return;
+  machineFolderStatus.set(project.num, new Map()); // 取得中は「登録なし」扱いにしておく
+  listMachineFolderStatuses(project.num, project.customer)
+    .then((statusMap) => {
+      machineFolderStatus.set(project.num, statusMap);
+      renderSidebar();
+    })
+    .catch((err) => {
+      console.error("3Dモデル登録状況の取得に失敗しました", err);
+      machineFolderStatus.delete(project.num); // 失敗時は次回展開時に再取得できるようにする
+    });
+}
+
 function toggleProject(project) {
   if (expandedNums.has(project.num)) {
     expandedNums.delete(project.num);
