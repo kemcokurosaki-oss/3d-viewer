@@ -1212,7 +1212,7 @@ async function startViewerWithRetry(file, attempts = 3) {
     });
     currentViewer = viewer;
     try {
-      await viewer.ready;
+      await withTimeout(viewer.ready, 20000, "3D表示がタイムアウトしました");
       return;
     } catch (err) {
       if (currentFileId !== fileId) return;
