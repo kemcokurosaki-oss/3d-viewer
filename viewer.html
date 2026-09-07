@@ -89,25 +89,44 @@ if (!splatURL) {
     { key: "light", cls: "bg-swatch-light", color: 0xf2f2f2, label: "明るい背景" },
   ];
 
-  const viewer = initViewer(container, splatURL, {
-    background: initialBackground,
-    fileType,
-    onStatus: (msg) => { info.textContent = msg; },
-  });
+  let viewer = null;
+
+  // ページ読み込み直後はSparkのワーカー初期化が間に合わず、表示の1回目だけ失敗することがあるため、
+  // 間隔を空けて数回リトライする（一覧画面のstartViewerWithRetryと同じ理由）
+  async function startViewerWithRetry(attempts = 3) {
+    for (let i = 0; i < attempts; i++) {
+      info.textContent = i === 0 ? "読み込み中..." : `読み込み中...（再試行 ${i + 1}/${attempts}）`;
+      const v = initViewer(container, splatURL, {
+        background: initialBackground,
+        fileType,
+        onStatus: (msg) => { info.textContent = msg; },
+      });
+      viewer = v;
+      try {
+        await v.ready;
+        return;
+      } catch (err) {
+        v.dispose();
+        container.querySelectorAll("canvas").forEach((c) => c.remove());
+        if (i < attempts - 1) await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+  }
+  startViewerWithRetry();
 
   bgOptions.forEach((opt) => {
     const btn = document.createElement("button");
     btn.className = "bg-swatch-btn " + opt.cls + (opt.color === initialBackground ? " active" : "");
     btn.title = opt.label;
     btn.onclick = () => {
-      viewer.setBackground(opt.color);
+      viewer?.setBackground(opt.color);
       bgGroup.querySelectorAll(".bg-swatch-btn").forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
     };
     bgGroup.appendChild(btn);
   });
 
-  resetViewBtn.onclick = () => viewer.resetView();
+  resetViewBtn.onclick = () => viewer?.resetView();
 }
 </script>
 </body>
