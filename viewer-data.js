@@ -81,7 +81,7 @@ async function fetchMetaMap(driveItemIds) {
 
 // SharePointのダウンロードが詰まる・Sparkの初期化が終わらないなど、
 // viewer.readyが永久に解決しないケースに備えたタイムアウト付きawait
-function withTimeout(promise, ms, message) {
+export function withTimeout(promise, ms, message) {
   return Promise.race([
     promise,
     new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms)),
