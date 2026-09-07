@@ -763,7 +763,7 @@ function renderSidebar() {
           const isActive = isSelectedProject && currentMachine === machineName;
           const hasModel = statusMap?.get(machineName) === true;
           const btn = document.createElement("button");
-          btn.className = "sidebar-machine-btn" + (isActive ? " active" : "") + (hasModel ? " has-model" : "");
+          btn.className = "sidebar-machine-btn" + (isActive ? " active" : "") + (hasModel ? " has-model" : " no-model");
           btn.title = machineName;
           btn.innerHTML = `<span class="dot"></span><span class="mark">${ICON_CUBE}</span><span class="mname">${machineName}</span>`;
           btn.onclick = () => selectMachine(project, machineName);
