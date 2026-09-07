@@ -199,7 +199,9 @@ export async function fetchMachineFiles(project, machineName, onThumbnailReady) 
       if (error) throw error;
       meta = { part_label: null, thumbnail_url: null, sort_order: sortOrder };
     }
-    if (!meta.thumbnail_url) {
+    // 拡張子がSparkの対応形式でないファイル（3Dモデル以外の添付ファイルなど）は
+    // 撮影しても「Unknown file type」で失敗し続けるだけなので、そもそも対象にしない
+    if (!meta.thumbnail_url && splatFileTypeFromFileName(file.name)) {
       enqueueThumbnail(() => generateThumbnailInBackground(file, onThumbnailReady));
     }
     merged.push({
