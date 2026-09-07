@@ -79,6 +79,15 @@ async function fetchMetaMap(driveItemIds) {
   return new Map((data || []).map((row) => [row.drive_item_id, row]));
 }
 
+// SharePointのダウンロードが詰まる・Sparkの初期化が終わらないなど、
+// viewer.readyが永久に解決しないケースに備えたタイムアウト付きawait
+function withTimeout(promise, ms, message) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms)),
+  ]);
+}
+
 // 画面外にビューアを一時生成してその場の描画をPNG Blobとして撮影する
 async function captureThumbnail(url, fileType) {
   const container = document.createElement("div");
@@ -87,7 +96,7 @@ async function captureThumbnail(url, fileType) {
 
   const viewer = initViewer(container, url, { hint: false, fileType });
   try {
-    await viewer.ready;
+    await withTimeout(viewer.ready, 20000, "サムネイル撮影がタイムアウトしました");
     // readyの直後は実際の描画がまだ追いついておらず、1フレームだけの待機だと
     // 真っ黒な画像になることがあるため、複数フレーム分待って描画を安定させる
     for (let i = 0; i < 10; i++) {
