@@ -829,7 +829,7 @@ function buildPartCard(file) {
   card.className = "part-card" + (String(currentFileId) === id ? " active" : "");
   card.draggable = true;
   card.dataset.fileId = id;
-  card.style.cssText = "position:relative;display:block;flex:none;width:calc(50% - 5px);height:118px;overflow:hidden;cursor:grab";
+  card.style.cssText = "position:relative;display:block;flex:none;width:100%;height:118px;overflow:hidden;cursor:grab";
   card.addEventListener("dragstart", () => card.classList.add("dragging"));
   card.addEventListener("dragend", () => card.classList.remove("dragging"));
 
