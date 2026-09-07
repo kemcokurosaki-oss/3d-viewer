@@ -573,6 +573,8 @@ const inspOrderList = $("inspOrderList");
 
 let tree = [];
 let expandedNums = new Set();
+// project.num -> Map(機械名 -> 3Dモデル登録あり(true/false))。案件を展開した時に一括取得してキャッシュする
+const machineFolderStatus = new Map();
 let currentProject = null;
 let currentMachine = null;
 let currentFiles = [];
