@@ -837,19 +837,24 @@ function buildPartCard(file) {
   thumbBtn.setAttribute("role", "button");
   thumbBtn.title = file.part_label || "";
   thumbBtn.style.cssText = "position:relative;display:block;width:100%;height:86px;overflow:hidden;cursor:pointer;background:var(--panel3);border-bottom:1px solid var(--line)";
+  const showPlaceholder = () => {
+    thumbBtn.innerHTML = "";
+    const placeholder = document.createElement("span");
+    placeholder.className = "part-thumb-placeholder";
+    placeholder.innerHTML = ICON_CUBE;
+    placeholder.style.cssText = "display:flex;width:100%;height:86px;align-items:center;justify-content:center;color:var(--dim2)";
+    thumbBtn.appendChild(placeholder);
+  };
   if (file.thumbnail_url) {
     const img = document.createElement("img");
     img.className = "part-thumb";
     img.src = file.thumbnail_url;
     img.alt = "";
     img.style.cssText = "display:block;width:100%;height:86px;object-fit:cover";
+    img.onerror = showPlaceholder;
     thumbBtn.appendChild(img);
   } else {
-    const placeholder = document.createElement("span");
-    placeholder.className = "part-thumb-placeholder";
-    placeholder.innerHTML = ICON_CUBE;
-    placeholder.style.cssText = "display:flex;width:100%;height:86px;align-items:center;justify-content:center;color:var(--dim2)";
-    thumbBtn.appendChild(placeholder);
+    showPlaceholder();
   }
   thumbBtn.onclick = () => openPreview(file);
   card.appendChild(thumbBtn);
