@@ -793,6 +793,7 @@ async function loadMachineFiles() {
 }
 
 function renderParts() {
+  document.querySelectorAll(".part-edit-menu").forEach((m) => m.remove());
   partsGrid.innerHTML = "";
   partsCountEl.textContent = currentMachine && !partsLoading ? `${currentFiles.length}件` : "";
 
