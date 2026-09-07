@@ -4,7 +4,7 @@ const MSAL_CONFIG = {
   auth: {
     clientId: "a947a172-1208-4f57-8960-1a1956240adb",
     authority: "https://login.microsoftonline.com/b825147d-5f85-4b12-bda8-8e3108196121",
-    redirectUri: "https://kemcokurosaki-oss.github.io/3d-viewer/",
+    redirectUri: "https://kemcokurosaki-oss.github.io/3d-viewer",
   },
   cache: {
     cacheLocation: "sessionStorage",
