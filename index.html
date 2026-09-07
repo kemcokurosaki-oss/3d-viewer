@@ -884,6 +884,7 @@ function buildPartCard(file) {
 
   const editMenu = document.createElement("div");
   editMenu.className = "part-edit-menu";
+  document.body.appendChild(editMenu);
   const closeEditMenu = () => editMenu.classList.remove("open");
 
   const thumbMenuItem = document.createElement("button");
