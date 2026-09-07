@@ -1,6 +1,6 @@
 import { supabase, BUCKET } from "./supabase-client.js";
 import { initViewer } from "./viewer-core.js";
-import { listMachineFiles } from "./sharepoint-client.js";
+import { listMachineFiles, getFileDownloadUrl } from "./sharepoint-client.js";
 
 // 拡張子からSparkのSplatFileType文字列を判定する
 // SharePointのdownloadUrlは拡張子を含まない不透明なURLのため、明示的に渡す必要がある
