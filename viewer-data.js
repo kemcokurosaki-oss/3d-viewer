@@ -102,6 +102,15 @@ async function captureThumbnail(url, fileType) {
     for (let i = 0; i < 10; i++) {
       await new Promise(requestAnimationFrame);
     }
+    // 大きい/複雑なsplatファイルはready後も点群がGPUに反映されるまでさらに時間がかかることがあり、
+    // その間に撮影すると背景色だけの真っ黒な画像を保存してしまう。実際に描画されるまで最大8秒待つ
+    const blankWaitDeadline = Date.now() + 8000;
+    while (viewer.isBlank() && Date.now() < blankWaitDeadline) {
+      await new Promise(requestAnimationFrame);
+    }
+    if (viewer.isBlank()) {
+      throw new Error("サムネイル画像が生成できませんでした（描画データを取得できません）");
+    }
     return await new Promise((resolve, reject) => {
       viewer.canvas.toBlob((blob) => {
         blob ? resolve(blob) : reject(new Error("サムネイル画像の生成に失敗しました"));
