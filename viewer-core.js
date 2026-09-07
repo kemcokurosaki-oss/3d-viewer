@@ -68,7 +68,7 @@ export function initViewer(container, url, { onStatus, hint = true, background =
   container.appendChild(renderer.domElement);
 
   const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
+  controls.enableDamping = false;
   let initialTarget = controls.target.clone();
 
   const spark = new SparkRenderer({ renderer });
