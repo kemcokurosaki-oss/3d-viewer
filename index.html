@@ -166,8 +166,10 @@
   }
   .sidebar-machine-btn:hover { background: var(--panel3); }
   .sidebar-machine-btn .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--dim2); margin: 0 4px; flex-shrink: 0; }
-  .sidebar-machine-btn.has-model .dot { background: var(--accent); }
   .sidebar-machine-btn .mname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sidebar-machine-btn.has-model { color: var(--accent); }
+  .sidebar-machine-btn.has-model .dot { background: var(--accent); }
+  .sidebar-machine-btn.no-model { color: var(--dim2); }
   .sidebar-machine-btn.active { background: var(--accent); color: #fff; font-weight: 700; }
   .sidebar-machine-btn.active .dot { display: none; }
   .sidebar-machine-btn.active .mark { display: flex; }
