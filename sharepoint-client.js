@@ -121,6 +121,21 @@ export async function listMachineFiles(projectNumber, customerName, machineName)
     }));
 }
 
+// 指定したdriveItemIdの最新のダウンロードURLを取得する
+// @microsoft.graph.downloadUrlは発行から時間が経つと失効するため、
+// 一覧取得時のURLを使い回さず、実際にダウンロードする直前に取り直す用途で使う
+export async function getFileDownloadUrl(driveItemId) {
+  const token = await getAccessToken();
+  const siteId = await getSiteId(token);
+  const driveId = await getLibraryDriveId(token, siteId);
+  const res = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${driveItemId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`ファイル情報の取得に失敗しました (${res.status})`);
+  const data = await res.json();
+  return data["@microsoft.graph.downloadUrl"];
+}
+
 // 「SharePointを開く」ボタン用に、機械フォルダのWeb UI URLを取得する（未作成なら null）
 export async function getMachineFolderWebUrl(projectNumber, customerName, machineName) {
   const token = await getAccessToken();
