@@ -493,7 +493,7 @@
 <script type="module">
 import { initViewer } from "./viewer-core.js";
 import { fetchProjectMachineTree, fetchMachineFiles, updateThumbnail, updatePartLabel, reorderParts, splatFileTypeFromFileName, withTimeout } from "./viewer-data.js";
-import { getMachineFolderWebUrl, listMachineFolderStatuses } from "./sharepoint-client.js";
+import { getMachineFolderWebUrl, listMachineFolderStatuses, ensureSignedIn } from "./sharepoint-client.js";
 import { ICON_SUN, ICON_MOON, ICON_SEARCH, ICON_EDIT, ICON_CUBE,
          ICON_EXPAND, ICON_CLOSE, ICON_RESET, ICON_CLOCK, ICON_CHEVRON } from "./icons.js";
 
@@ -678,16 +678,45 @@ async function loadTree() {
   try {
     const allProjects = await fetchProjectMachineTree();
     // 工事番号2000番台のみ表示（一時的な絞り込み）
-    tree = allProjects.filter((project) => {
+    const inRange = allProjects.filter((project) => {
       const n = parseInt(project.num, 10);
       return !isNaN(n) && n >= 2000 && n <= 2999;
     });
+
+    sidebarStatus.textContent = "SharePointの登録状況を確認中...";
+    tree = await filterProjectsWithModel(inRange);
+
     sidebarStatus.textContent = "";
     renderRecentMachines();
     renderSidebar();
     renderAll();
   } catch (err) {
     sidebarStatus.textContent = "読み込みエラー：" + err.message;
+  }
+}
+
+// 案件ごとにSharePointの機械フォルダ登録状況を取得し、
+// 3Dモデルが1件も登録されていない案件を一覧から除外する
+// （結果はmachineFolderStatusにキャッシュするため、展開時の再取得は発生しない）
+async function filterProjectsWithModel(projects) {
+  if (projects.length === 0) return [];
+  // 最初の1件だけ先に待つことで、サインインとサイト/ライブラリIDの取得を1回にまとめる
+  // （並列実行すると同時にサインインポップアップやサイト取得が重複してしまうため）
+  await ensureSignedIn();
+  const [first, ...rest] = projects;
+  const firstResult = await checkProjectHasModel(first);
+  const restResults = await Promise.all(rest.map(checkProjectHasModel));
+  return [firstResult, ...restResults].filter(Boolean);
+}
+
+async function checkProjectHasModel(project) {
+  try {
+    const statusMap = await listMachineFolderStatuses(project.num, project.customer);
+    machineFolderStatus.set(project.num, statusMap);
+    return [...statusMap.values()].some((hasModel) => hasModel) ? project : null;
+  } catch (err) {
+    console.error(`3Dモデル登録状況の取得に失敗しました (${project.num})`, err);
+    return null; // 取得失敗時は安全側に倒し、一覧から外す
   }
 }
 
