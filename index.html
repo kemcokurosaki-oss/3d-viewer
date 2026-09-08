@@ -176,7 +176,6 @@
   .sidebar-machine-btn .mname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .sidebar-machine-btn.has-model { color: var(--text); }
   .sidebar-machine-btn.has-model .dot { background: var(--text); }
-  .sidebar-machine-btn.no-model { color: var(--dim2); }
   .sidebar-machine-btn.active { background: var(--accent); color: #fff; font-weight: 700; }
   .sidebar-machine-btn.active .dot { display: none; }
   .sidebar-machine-btn.active .mark { display: flex; }
@@ -815,9 +814,11 @@ function renderSidebar() {
     }
     item.appendChild(text);
 
+    const visibleMachines = visibleMachinesOf(project);
+
     const count = document.createElement("span");
     count.className = "sidebar-item-count num";
-    count.textContent = project.machines.length;
+    count.textContent = visibleMachines.length;
     item.appendChild(count);
 
     item.onclick = () => toggleProject(project);
@@ -825,20 +826,18 @@ function renderSidebar() {
 
     if (isExpanded) {
       ensureMachineFolderStatus(project);
-      const statusMap = machineFolderStatus.get(project.num);
       const machinesDiv = document.createElement("div");
       machinesDiv.className = "sidebar-machines";
-      if (project.machines.length === 0) {
+      if (visibleMachines.length === 0) {
         const empty = document.createElement("div");
         empty.className = "sidebar-machine-empty";
-        empty.textContent = "機械名の登録がありません";
+        empty.textContent = "3Dモデルが登録された機械がありません";
         machinesDiv.appendChild(empty);
       } else {
-        project.machines.forEach((machineName) => {
+        visibleMachines.forEach((machineName) => {
           const isActive = isSelectedProject && currentMachine === machineName;
-          const hasModel = statusMap?.get(machineName) === true;
           const btn = document.createElement("button");
-          btn.className = "sidebar-machine-btn" + (isActive ? " active" : "") + (hasModel ? " has-model" : " no-model");
+          btn.className = "sidebar-machine-btn has-model" + (isActive ? " active" : "");
           btn.title = machineName;
           btn.innerHTML = `<span class="dot"></span><span class="mark">${ICON_CUBE}</span><span class="mname">${machineName}</span>`;
           btn.onclick = () => selectMachine(project, machineName);
@@ -850,6 +849,13 @@ function renderSidebar() {
 
     sidebarList.appendChild(projectDiv);
   });
+}
+
+// DBにある機械名のうち、SharePointに3Dモデルフォルダが実在するものだけを返す
+// （案件一覧の読み込み時に全案件分のstatusMapを取得済みのため、未展開の案件でも参照できる）
+function visibleMachinesOf(project) {
+  const statusMap = machineFolderStatus.get(project.num);
+  return project.machines.filter((machineName) => statusMap?.get(machineName) === true);
 }
 
 // 案件フォルダ配下の機械ごとの3Dモデル登録状況を取得する（案件単位で一度だけ・結果はキャッシュ）
