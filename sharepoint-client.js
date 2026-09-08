@@ -7,7 +7,7 @@ const MSAL_CONFIG = {
     redirectUri: "https://kemcokurosaki-oss.github.io/3d-viewer",
   },
   cache: {
-    cacheLocation: "sessionStorage",
+    cacheLocation: "localStorage",
   },
 };
 
