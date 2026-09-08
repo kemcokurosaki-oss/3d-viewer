@@ -28,6 +28,14 @@ const msalReady = msalInstance.initialize();
 let cachedSiteId = null;
 let cachedDriveId = null;
 
+// ポップアップを開かずに、既にサインイン済みかどうかだけを確認する
+// （ユーザー操作を伴わない箇所でensureSignedInを呼ぶとポップアップがブロックされるため、
+// 事前にこちらで判定し、未サインインならボタン等のクリック起点でensureSignedInを呼ぶこと）
+export async function isSignedIn() {
+  await msalReady;
+  return msalInstance.getAllAccounts().length > 0;
+}
+
 // 未サインインならポップアップでログインし、サインイン済みアカウントを返す
 export async function ensureSignedIn() {
   await msalReady;
