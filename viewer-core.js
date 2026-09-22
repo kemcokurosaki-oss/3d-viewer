@@ -64,6 +64,7 @@ export function initViewer(container, url, { onStatus, hint = true, background =
   camera.position.copy(initialCameraPosition);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(width, height);
   container.appendChild(renderer.domElement);
 
@@ -140,6 +141,7 @@ export function initViewer(container, url, { onStatus, hint = true, background =
     const h = container.clientHeight;
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(w, h);
   };
   window.addEventListener("resize", handleResize);
