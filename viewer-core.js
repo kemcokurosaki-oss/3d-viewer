@@ -72,7 +72,7 @@ export function initViewer(container, url, { onStatus, hint = true, background =
   controls.enableDamping = false;
   let initialTarget = controls.target.clone();
 
-  const spark = new SparkRenderer({ renderer });
+  const spark = new SparkRenderer({ renderer, blurAmount: 0, enableLod: false });
   scene.add(spark);
 
   const splat = new SplatMesh({ url, fileType });
