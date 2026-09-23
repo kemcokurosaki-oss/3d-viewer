@@ -136,15 +136,19 @@ export function initViewer(container, url, { onStatus, hint = true, background =
     throw err;
   });
 
+  // ウィンドウ自体のリサイズだけでなく、詳細パネルの開閉のようなレイアウト変化による
+  // コンテナサイズの変化にも追従できるよう、window resizeではなくResizeObserverで監視する
   const handleResize = () => {
     const w = container.clientWidth;
     const h = container.clientHeight;
+    if (w === 0 || h === 0) return;
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(w, h);
   };
-  window.addEventListener("resize", handleResize);
+  const resizeObserver = new ResizeObserver(handleResize);
+  resizeObserver.observe(container);
 
   renderer.setAnimationLoop(() => {
     controls.update();
@@ -210,7 +214,7 @@ export function initViewer(container, url, { onStatus, hint = true, background =
       hintEl?.remove();
       spinner.remove();
       renderer.setAnimationLoop(null);
-      window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
       controls.dispose();
       renderer.dispose();
       renderer.domElement.remove();
