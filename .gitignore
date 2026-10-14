@@ -21,3 +21,7 @@
 *.key
 node_modules/
 .claude/
+
+# 試験用のページ・調査データ
+test-sharepoint.html
+thumb_audit2/
