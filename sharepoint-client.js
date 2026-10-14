@@ -1,4 +1,4 @@
-import * as msal from "https://cdn.jsdelivr.net/npm/@azure/msal-browser@3/+esm";
+import * as msal from "https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.30.0/+esm";
 
 const MSAL_CONFIG = {
   auth: {
