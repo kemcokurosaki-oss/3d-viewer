@@ -515,6 +515,8 @@ const ICON_COLS_1 = svg('<rect x="4" y="4" width="16" height="16" rx="2"/>');
 const ICON_COLS_2 = svg('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/>');
 
 const $ = (id) => document.getElementById(id);
+// DB・SharePoint の値を HTML に埋め込むときは必ずこれを通す（書き込まれた文字列がタグやスクリプトとして動かないようにする）
+const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 const sidebarStatus = $("sidebarStatus");
 const sidebarList = $("sidebarList");
@@ -650,7 +652,7 @@ function renderRecentMachines() {
     const btn = document.createElement("button");
     btn.className = "recent-chip";
     btn.title = `${r.num}　${r.machine}`;
-    btn.innerHTML = `${ICON_CLOCK}<span class="recent-label">${r.num}　${r.machine}</span>`;
+    btn.innerHTML = `${ICON_CLOCK}<span class="recent-label">${esc(r.num)}　${esc(r.machine)}</span>`;
     btn.onclick = () => {
       const project = tree.find((p) => p.num === r.num);
       if (!project) return;
@@ -669,10 +671,10 @@ function renderCrumbs() {
     return;
   }
   const sep = () => `<span class="sep">${ICON_CHEVRON}</span>`;
-  let html = `<span class="num">${currentProject.num}</span>`;
-  if (currentProject.customer) html += `${sep()}<span class="ell">${currentProject.customer}</span>`;
+  let html = `<span class="num">${esc(currentProject.num)}</span>`;
+  if (currentProject.customer) html += `${sep()}<span class="ell">${esc(currentProject.customer)}</span>`;
   if (currentMachine) {
-    html += `${sep()}<span class="cur ell">${currentMachine}</span>`;
+    html += `${sep()}<span class="cur ell">${esc(currentMachine)}</span>`;
     if (!partsLoading) html += `<span class="count num">${currentFiles.length}パーツ</span>`;
   }
   crumbs.innerHTML = html;
@@ -839,7 +841,7 @@ function renderSidebar() {
           const btn = document.createElement("button");
           btn.className = "sidebar-machine-btn has-model" + (isActive ? " active" : "");
           btn.title = machineName;
-          btn.innerHTML = `<span class="dot"></span><span class="mark">${ICON_CUBE}</span><span class="mname">${machineName}</span>`;
+          btn.innerHTML = `<span class="dot"></span><span class="mark">${ICON_CUBE}</span><span class="mname">${esc(machineName)}</span>`;
           btn.onclick = () => selectMachine(project, machineName);
           machinesDiv.appendChild(btn);
         });
@@ -947,7 +949,7 @@ function renderParts() {
     return;
   }
   if (partsError) {
-    partsGrid.innerHTML = `<div class="parts-status">${partsError}</div>`;
+    partsGrid.innerHTML = `<div class="parts-status">${esc(partsError)}</div>`;
     return;
   }
   if (currentFiles.length === 0) {
@@ -1192,12 +1194,12 @@ function renderInspector() {
       if (!v) return;
       const row = document.createElement("div");
       row.className = "insp-row";
-      row.innerHTML = `<span class="k">${k}</span><span class="v num" title="${v}">${v}</span>`;
+      row.innerHTML = `<span class="k">${esc(k)}</span><span class="v num" title="${esc(v)}">${esc(v)}</span>`;
       inspMeta.appendChild(row);
     });
     const statusRow = document.createElement("div");
     statusRow.className = "insp-row";
-    statusRow.innerHTML = `<span class="k">状態</span><span class="v ok"><span class="led"></span><span id="inspStatusText">${previewStatusText.textContent || "読み込み中"}</span></span>`;
+    statusRow.innerHTML = `<span class="k">状態</span><span class="v ok"><span class="led"></span><span id="inspStatusText">${esc(previewStatusText.textContent || "読み込み中")}</span></span>`;
     inspMeta.appendChild(statusRow);
 
     const thumbBtn = document.createElement("button");
@@ -1242,7 +1244,7 @@ function renderOrderList() {
     row.className = "insp-order-row" + (String(currentFileId) === id ? " active" : "");
     row.draggable = true;
     row.dataset.fileId = id;
-    row.innerHTML = `<span class="grip">${ICON_GRIP}</span><span class="name">${file.part_label || "表示"}</span><span class="pos num">${i + 1}</span>`;
+    row.innerHTML = `<span class="grip">${ICON_GRIP}</span><span class="name">${esc(file.part_label || "表示")}</span><span class="pos num">${i + 1}</span>`;
     row.addEventListener("dragstart", () => row.classList.add("dragging"));
     row.addEventListener("dragend", () => row.classList.remove("dragging"));
     row.onclick = () => openPreview(file);
