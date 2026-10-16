@@ -7,4 +7,5 @@ export const BUCKET = "splat-files";
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Microsoft 365 ログイン（m365-login.js。完全移行後はログインしないと閲覧できない）
-window.M365Login?.init(supabase, { appName: '3Dモデルビューア', mountAfter: '#themeToggleBtn' });
+window.M365Login?.init(supabase, { appName: '3Dモデルビューア', mountAfter: '#themeToggleBtn',
+  canEdit: (email) => ['e-kurosaki@kusakabe.com', 's-morimura@kusakabe.com', 'm2-kusakabe@kusakabe.com'].includes(email.toLowerCase()) }); // 編集は黒崎・森村・常務（DB の is_core_admin と同じ）
